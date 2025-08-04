@@ -2,6 +2,7 @@ import Preloader from "@/components/elements/Preloader";
 import { useEffect, useState } from "react";
 import "@/public/assets/css/style.css";
 import "@/public/assets/css/custom.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { useRouter } from "next/router";
 import { Provider } from "react-redux";
 import store, { persistor } from "@/store/store";
