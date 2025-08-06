@@ -6108,3 +6108,8 @@ select {
 .full-height {
   min-height: calc(100vh - 82px);
 }
+
+.rmborder {
+  border-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}

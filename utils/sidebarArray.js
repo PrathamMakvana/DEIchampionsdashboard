@@ -166,25 +166,30 @@ export const employeeLinks = [
     icon: "bi-speedometer2", // Dashboard
   },
   {
-    path: "/employee/jobs",
-    label: "View Jobs",
+    path: "/employee/applied-jobs",
+    label: "Applied Jobs",
     icon: "bi-briefcase", // Jobs
   },
   {
-    path: "/employee/cv-manager",
-    label: "CV Manager",
+    path: "/employee/Profile-details",
+    label: "Profile Details",
     icon: "bi-file-earmark-person", // CV Manager
   },
-  {
-    path: "/employee/recruiters",
-    label: "Recruiters",
-    icon: "bi-people", // Recruiters
-  },
-  {
-    path: "/employee/tasks",
-    label: "Tasks List",
-    icon: "bi-list-task", // Tasks
-  },
+  // {
+  //   path: "/employee/cv-manager",
+  //   label: "CV Manager",
+  //   icon: "bi-file-earmark-person", // CV Manager
+  // },
+  // {
+  //   path: "/employee/recruiters",
+  //   label: "Recruiters",
+  //   icon: "bi-people", // Recruiters
+  // },
+  // {
+  //   path: "/employee/tasks",
+  //   label: "Tasks List",
+  //   icon: "bi-list-task", // Tasks
+  // },
   {
     path: "/employee/profile",
     label: "My Profile",
@@ -195,11 +200,11 @@ export const employeeLinks = [
     label: "Settings",
     icon: "bi-gear", // Settings
   },
-  {
-    path: "/employee/register",
-    label: "Register",
-    icon: "bi-person-plus", // Register
-  },
+  // {
+  //   path: "/employee/register",
+  //   label: "Register",
+  //   icon: "bi-person-plus", // Register
+  // },
   {
     path: "/employee/login",
     label: "Logout",
