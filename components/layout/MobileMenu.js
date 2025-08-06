@@ -46,7 +46,7 @@ export default function MobileMenu({ handleToggle, isToggled }) {
                   </ul>
                 </nav>
               </div>
-              <div className="mobile-account">
+              {/* <div className="mobile-account">
                 <h6 className="mb-10">Your Account</h6>
                 <ul className="mobile-menu font-heading">
                   <li>
@@ -74,11 +74,11 @@ export default function MobileMenu({ handleToggle, isToggled }) {
                     Post Job
                   </Link>
                 </div>
-              </div>
-              <div className="site-copyright">
+              </div> */}
+              {/* <div className="site-copyright">
                 Copyright {new Date().getFullYear()} © JobBox. <br />
                 Designed by AliThemes.
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
