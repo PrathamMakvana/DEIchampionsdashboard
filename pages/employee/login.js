@@ -76,13 +76,19 @@ export default function Login() {
           <div className="card login-form-card border-0 mx-auto">
             <div className="card-body p-5">
               <div className="text-center mb-5">
-                <div className="login-icon mb-3">
-                  <i className="bi bi-shield-lock-fill"></i>
+                <div className="header-logo">
+                  <div className="d-flex justify-content-center">
+                    <img
+                      alt="jobBox"
+                      src="../assets/imgs/page/dashboard/logo2.png"
+                      style={{ width: "75%", height: "auto" }}
+                    />
+                  </div>
                 </div>
-                <h2 className="fw-bold text-gradient mb-2">Welcome Back</h2>
-                <p className="text-muted">
+                {/* <h2 className="fw-bold text-gradient mb-2">Welcome Back</h2> */}
+                {/* <p className="text-muted">
                   Sign in to your account to continue
-                </p>
+                </p> */}
                 <div className="divider-line my-3 mx-auto"></div>
               </div>
 

@@ -44,10 +44,11 @@ export default function Header() {
           <div className="main-header">
             <div className="header-left">
               <div className="header-logo">
-                <Link className="d-flex" href="/">
+                <Link className="d-flex justify-content-center" href="/">
                   <img
                     alt="jobBox"
-                    src="../assets/imgs/page/dashboard/logo.svg"
+                    src="../assets/imgs/page/dashboard/logo2.png"
+                    style={{ width: "160px", height: "33px" }}
                   />
                 </Link>
               </div>

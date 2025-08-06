@@ -1,53 +1,161 @@
+// export const employersLinks = [
+//   {
+//     path: "/employers",
+//     label: "Dashboard",
+//     icon: "dashboard.svg",
+//   },
+//   {
+//     path: "/employers/post-job",
+//     label: "Post Job",
+//     icon: "candidates.svg",
+//   },
+//   {
+//     path: "/recruiters",
+//     label: "Recruiters",
+//     icon: "recruiters.svg",
+//   },
+//   {
+//     path: "/my-job-grid",
+//     label: "My Jobs",
+//     icon: "jobs.svg",
+//   },
+//   {
+//     path: "/my-tasks-list",
+//     label: "Tasks List",
+//     icon: "tasks.svg",
+//   },
+//   {
+//     path: "/profile",
+//     label: "My Profiles",
+//     icon: "profiles.svg",
+//   },
+//   {
+//     path: "/my-resume",
+//     label: "CV Manage",
+//     icon: "cv-manage.svg",
+//   },
+//   {
+//     path: "/settings",
+//     label: "Setting",
+//     icon: "settings.svg",
+//   },
+//   {
+//     path: "/authentication",
+//     label: "Authentication",
+//     icon: "authentication.svg",
+//   },
+//   { path: "/candidates", label: "Candidates", icon: "candidates.svg" },
+//   {
+//     path: "/login",
+//     label: "Logout",
+//     icon: "logout.svg",
+//   },
+// ];
+
+// export const employeeLinks = [
+//   {
+//     path: "/employee",
+//     label: "Dashboard",
+//     icon: "dashboard.svg",
+//   },
+//   {
+//     path: "/candidates",
+//     label: "View Jobs",
+//     icon: "candidates.svg",
+//   },
+//   {
+//     path: "/employee/cv-manager",
+//     label: "CV Manager",
+//     icon: "cv-manage.svg",
+//   },
+//   {
+//     path: "/candidates",
+//     label: "Candidates",
+//     icon: "candidates.svg",
+//   },
+//   {
+//     path: "/recruiters",
+//     label: "Recruiters",
+//     icon: "recruiters.svg",
+//   },
+//   {
+//     path: "/my-job-grid",
+//     label: "My Jobs",
+//     icon: "jobs.svg",
+//   },
+//   {
+//     path: "/my-tasks-list",
+//     label: "Tasks List",
+//     icon: "tasks.svg",
+//   },
+//   {
+//     path: "/profile",
+//     label: "My Profiles",
+//     icon: "profiles.svg",
+//   },
+//   {
+//     path: "/my-resume",
+//     label: "CV Manage",
+//     icon: "cv-manage.svg",
+//   },
+//   {
+//     path: "/settings",
+//     label: "Setting",
+//     icon: "settings.svg",
+//   },
+//   {
+//     path: "/authentication",
+//     label: "Authentication",
+//     icon: "authentication.svg",
+//   },
+//   {
+//     path: "/login",
+//     label: "Logout",
+//     icon: "logout.svg",
+//   },
+//   { path: "/candidates", label: "Candidates", icon: "candidates.svg" },
+// ];
+
 export const employersLinks = [
   {
     path: "/employers",
     label: "Dashboard",
-    icon: "dashboard.svg",
+    icon: "bi-speedometer2", // Dashboard
   },
   {
     path: "/employers/post-job",
     label: "Post Job",
-    icon: "candidates.svg",
+    icon: "bi-clipboard-plus", // Post Job
   },
   {
-    path: "/recruiters",
-    label: "Recruiters",
-    icon: "recruiters.svg",
+    path: "/employers/manage-jobs",
+    label: "Manage Job",
+    icon: "bi-clipboard-plus", // Post Job
   },
   {
-    path: "/my-job-grid",
-    label: "My Jobs",
-    icon: "jobs.svg",
+    path: "/employers/posted-job-list",
+    label: "Posted Jobs",
+    icon: "bi-list-ul", // Posted Jobs
   },
   {
-    path: "/my-tasks-list",
-    label: "Tasks List",
-    icon: "tasks.svg",
+    path: "/employers/candidates",
+    label: "Candidates",
+    icon: "bi-people", // Candidates
   },
   {
-    path: "/profile",
-    label: "My Profiles",
-    icon: "profiles.svg",
+    path: "/employers/profile",
+    label: "My Profile",
+    icon: "bi-person", // Profile
   },
   {
-    path: "/my-resume",
-    label: "CV Manage",
-    icon: "cv-manage.svg",
+    path: "/employers/register",
+    label: "Register",
+    icon: "bi-person-plus", // Register
   },
   {
-    path: "/settings",
-    label: "Setting",
-    icon: "settings.svg",
-  },
-  {
-    path: "/authentication",
-    label: "Authentication",
-    icon: "authentication.svg",
-  },
-  {
-    path: "/login",
-    label: "Logout",
-    icon: "logout.svg",
+    path: "/employers/settings",
+    label: "Settings",
+    icon: "bi-gear", // Settings
   },
 ];
 
@@ -55,65 +163,49 @@ export const employeeLinks = [
   {
     path: "/employee",
     label: "Dashboard",
-    icon: "dashboard.svg",
+    icon: "bi-speedometer2", // Dashboard
   },
   {
-    path: "/candidates",
+    path: "/employee/jobs",
     label: "View Jobs",
-    icon: "candidates.svg",
+    icon: "bi-briefcase", // Jobs
   },
   {
     path: "/employee/cv-manager",
     label: "CV Manager",
-    icon: "cv-manage.svg",
+    icon: "bi-file-earmark-person", // CV Manager
   },
   {
-    path: "/candidates",
-    label: "Candidates",
-    icon: "candidates.svg",
-  },
-  {
-    path: "/recruiters",
+    path: "/employee/recruiters",
     label: "Recruiters",
-    icon: "recruiters.svg",
+    icon: "bi-people", // Recruiters
   },
   {
-    path: "/my-job-grid",
-    label: "My Jobs",
-    icon: "jobs.svg",
-  },
-  {
-    path: "/my-tasks-list",
+    path: "/employee/tasks",
     label: "Tasks List",
-    icon: "tasks.svg",
+    icon: "bi-list-task", // Tasks
   },
   {
-    path: "/profile",
-    label: "My Profiles",
-    icon: "profiles.svg",
+    path: "/employee/profile",
+    label: "My Profile",
+    icon: "bi-person", // Profile
   },
   {
-    path: "/my-resume",
-    label: "CV Manage",
-    icon: "cv-manage.svg",
+    path: "/employee/settings",
+    label: "Settings",
+    icon: "bi-gear", // Settings
   },
   {
-    path: "/settings",
-    label: "Setting",
-    icon: "settings.svg",
+    path: "/employee/register",
+    label: "Register",
+    icon: "bi-person-plus", // Register
   },
   {
-    path: "/authentication",
-    label: "Authentication",
-    icon: "authentication.svg",
-  },
-  {
-    path: "/login",
+    path: "/employee/login",
     label: "Logout",
-    icon: "logout.svg",
+    icon: "bi-box-arrow-right", // Logout
   },
 ];
-
 export const mobileLinks = [
   { path: "/", label: "Dashboard", icon: "dashboard.svg" },
   { path: "/candidates", label: "Candidates", icon: "candidates.svg" },

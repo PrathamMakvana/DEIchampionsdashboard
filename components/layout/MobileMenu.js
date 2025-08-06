@@ -36,7 +36,7 @@ export default function MobileMenu({ handleToggle, isToggled }) {
                           }
                         >
                           <img
-                            src={`assets/imgs/page/dashboard/${link.icon}`}
+                            src={`../assets/imgs/page/dashboard/${link.icon}`}
                             alt="jobBox"
                           />
                           <span className="name">{link.label}</span>

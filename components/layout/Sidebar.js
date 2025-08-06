@@ -34,10 +34,23 @@ export default function Sidebar() {
                       ? "dashboard2 active"
                       : "dashboard2"
                   }
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    textDecoration: "none",
+                    fontWeight: "500",
+                  }}
                 >
-                  <img
-                    src={`../assets/imgs/page/dashboard/${link.icon}`}
-                    alt={link.label}
+                  <i
+                    className={link.icon}
+                    style={{
+                      fontSize: "20px", // slightly larger for better visibility
+                      fontWeight: "bold", // ensure bold appearance
+                      color: router.pathname === link.path ? "white" : "black",
+                      marginRight: "10px",
+                      minWidth: "24px", // prevents icons from shifting on hover
+                      textAlign: "center",
+                    }}
                   />
                   <span className="name">{link.label}</span>
                 </Link>

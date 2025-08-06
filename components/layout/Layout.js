@@ -47,7 +47,9 @@ export default function Layout({
               breadcrumbActive={breadcrumbActive}
             />
           )} */}
-          <div className="row">{children}</div>
+          {/* <div className="row"> */}
+          {children}
+          {/* </div> */}
           {/* <Footer /> */}
         </div>
       </main>

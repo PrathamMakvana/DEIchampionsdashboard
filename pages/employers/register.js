@@ -554,11 +554,13 @@ export default function JobPosterRegistration() {
               <i className="bi bi-building text-primary"></i>
             </span>
             <Field
-              type="text"
+              as="select"
               name="city"
               className="form-control form-control-lg border-start-0"
               placeholder="Enter city"
-            />
+            >
+              <option value="">Select city</option>
+            </Field>
           </div>
           <ErrorMessage
             name="city"
@@ -670,92 +672,103 @@ export default function JobPosterRegistration() {
   );
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
-      <div className="container">
-        <div
-          className="row justify-content-center"
-          style={{
-            marginLeft: "0px",
-            marginRight: "0px",
-          }}
-        >
-          <div className="col-lg-8">
-            <div className="register-form-card">
-              <div className="form-header">
-                <div className="logo-container text-center mb-4">
-                  <div className="logo">DEI CHAMPIONS</div>
-                  <div className="logo-subtitle mt-1">Job Portal</div>
-                </div>
-                <h1 className="form-title">Create Account as Job Poster</h1>
-                <p className="form-subtitle">
-                  Register to post jobs and find the best talent for your
-                  organization
-                </p>
-                {renderProgressBar()}
-              </div>
-
-              <div className="form-body">
-                <Formik
-                  initialValues={initialValues}
-                  validationSchema={getValidationSchema()}
-                  onSubmit={handleSubmit}
-                  enableReinitialize
-                >
-                  {({ values }) => (
-                    <Form>
-                      {currentStep === 1 && renderStep1(values)}
-                      {currentStep === 2 && renderStep2()}
-                      {currentStep === 3 && renderStep3()}
-                      {currentStep === 4 && renderStep4()}
-
-                      <div className="d-flex justify-content-between">
-                        {currentStep > 1 && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary"
-                            onClick={() => setCurrentStep(currentStep - 1)}
-                          >
-                            <i className="bi bi-arrow-left me-2"></i>
-                            Previous
-                          </button>
-                        )}
-
-                        <button
-                          type="submit"
-                          className="btn btn-primary register-btn ms-auto"
-                          disabled={loading}
-                          style={{ width: currentStep === 1 ? "100%" : "auto" }}
-                        >
-                          {loading ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-2"></span>
-                              Processing...
-                            </>
-                          ) : currentStep === 4 ? (
-                            <>
-                              <i className="bi bi-check-circle me-2"></i>
-                              Create Account
-                            </>
-                          ) : (
-                            <>
-                              Continue
-                              <i className="bi bi-arrow-right ms-2"></i>
-                            </>
-                          )}
-                        </button>
+    <Layout>
+      <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
+        <div className="container">
+          <div
+            className="row justify-content-center"
+            style={{
+              marginLeft: "0px",
+              marginRight: "0px",
+            }}
+          >
+            <div className="col-lg-8">
+              <div className="register-form-card">
+                <div className="form-header">
+                  <div className="logo-container text-center mb-4">
+                    <div className="header-logo">
+                      <div className="d-flex justify-content-center">
+                        <img
+                          alt="jobBox"
+                          src="../assets/imgs/page/dashboard/logo2.png"
+                          style={{ width: "60%", height: "auto" }}
+                        />
                       </div>
-                    </Form>
-                  )}
-                </Formik>
-              </div>
+                    </div>
+                  </div>
+                  <h1 className="form-title">Create Account as Job Poster</h1>
+                  <p className="form-subtitle">
+                    Register to post jobs and find the best talent for your
+                    organization
+                  </p>
+                  {renderProgressBar()}
+                </div>
 
-              <div className="form-footer">
-                Already have an account? <Link href="/login">Sign In</Link>
+                <div className="form-body">
+                  <Formik
+                    initialValues={initialValues}
+                    validationSchema={getValidationSchema()}
+                    onSubmit={handleSubmit}
+                    enableReinitialize
+                  >
+                    {({ values }) => (
+                      <Form>
+                        {currentStep === 1 && renderStep1(values)}
+                        {currentStep === 2 && renderStep2()}
+                        {currentStep === 3 && renderStep3()}
+                        {currentStep === 4 && renderStep4()}
+
+                        <div className="d-flex justify-content-between">
+                          {currentStep > 1 && (
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary"
+                              onClick={() => setCurrentStep(currentStep - 1)}
+                            >
+                              <i className="bi bi-arrow-left me-2"></i>
+                              Previous
+                            </button>
+                          )}
+
+                          <button
+                            type="submit"
+                            className="btn btn-primary register-btn ms-auto"
+                            disabled={loading}
+                            style={{
+                              width: currentStep === 1 ? "100%" : "auto",
+                            }}
+                          >
+                            {loading ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                Processing...
+                              </>
+                            ) : currentStep === 4 ? (
+                              <>
+                                <i className="bi bi-check-circle me-2"></i>
+                                Create Account
+                              </>
+                            ) : (
+                              <>
+                                Continue
+                                <i className="bi bi-arrow-right ms-2"></i>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </Form>
+                    )}
+                  </Formik>
+                </div>
+
+                <div className="form-footer">
+                  Already have an account? <Link href="/login">Sign In</Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }

@@ -229,12 +229,18 @@ export default function VerifyOTP() {
           <div className="card login-form-card border-0 mx-auto">
             <div className="card-body p-5">
               <div className="text-center mb-5">
-                <div className="login-icon mb-3">
-                  <i className="bi bi-shield-check-fill text-success"></i>
+                <div className="header-logo mb-4">
+                  <div className="d-flex justify-content-center">
+                    <img
+                      alt="jobBox"
+                      src="../assets/imgs/page/dashboard/logo2.png"
+                      style={{ width: "75%", height: "auto" }}
+                    />
+                  </div>
                 </div>
-                <h2 className="fw-bold text-gradient mb-2">
+                <h3 className="fw-bold text-gradient mb-2">
                   Verify Your Email
-                </h2>
+                </h3>
                 <p className="text-muted">
                   We've sent a 6-digit verification code to
                 </p>
