@@ -41,31 +41,30 @@ export default function Home() {
   });
 
   const handleSubmit = async (values) => {
-    const roleId = values.workStatus === "experienced" ? 2 : 3;
-
-    const data = await dispatch(
-      registerUser(
-        { ...values, roleId },
-        {
-          showSuccess: (msg) =>
-            Swal.fire({
-              icon: "success",
-              title: "Success",
-              text: msg,
-              timer: 1500,
-              showConfirmButton: false,
-            }),
-          showError: (msg) =>
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: msg,
-            }),
-        }
-      )
-    );
-    if (!data) return;
-    navigate.push("/login");
+    // const roleId = values.workStatus === "experienced" ? 2 : 3;
+    // const data = await dispatch(
+    //   registerUser(
+    //     { ...values, roleId },
+    //     {
+    //       showSuccess: (msg) =>
+    //         Swal.fire({
+    //           icon: "success",
+    //           title: "Success",
+    //           text: msg,
+    //           timer: 1500,
+    //           showConfirmButton: false,
+    //         }),
+    //       showError: (msg) =>
+    //         Swal.fire({
+    //           icon: "error",
+    //           title: "Error",
+    //           text: msg,
+    //         }),
+    //     }
+    //   )
+    // );
+    // if (!data) return;
+    // navigate.push("/login");
   };
 
   return (
@@ -175,7 +174,7 @@ export default function Home() {
 
               <Formik
                 initialValues={initialValues}
-                validationSchema={validationSchema}
+                // validationSchema={validationSchema}
                 onSubmit={handleSubmit}
               >
                 {({ values }) => (
@@ -387,9 +386,9 @@ export default function Home() {
                     <button
                       className="btn btn-primary w-100 btn-lg fw-bold register-btn"
                       type="submit"
-                      disabled={loading}
+                      // disabled={loading}
                     >
-                      {loading ? (
+                      {/* {loading ? (
                         <>
                           <span
                             className="spinner-border spinner-border-sm me-2"
@@ -398,9 +397,9 @@ export default function Home() {
                           ></span>
                           Registering...
                         </>
-                      ) : (
-                        "Register now"
-                      )}
+                      ) : ( */}
+                      Register now
+                      {/* )} */}
                     </button>
                   </Form>
                 )}

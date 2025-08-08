@@ -144,14 +144,14 @@ export default function Header() {
                             CV Manager
                           </Link>
                         </li>
-                        <li>
+                        {/* <li>
                           <span
                             className="dropdown-item"
                             onClick={handleLogout}
                           >
                             Logout
                           </span>
-                        </li>
+                        </li> */}
                       </Menu.Items>
                     </Menu>
                   </div>
