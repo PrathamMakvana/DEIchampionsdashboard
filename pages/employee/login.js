@@ -31,42 +31,42 @@ export default function Login() {
   const handleLoginSubmit = async (values) => {
     console.log("Login Data", values);
 
-    try {
-      const data = await dispatch(
-        loginUser(values, {
-          showSuccess: (msg) =>
-            Swal.fire({
-              icon: "success",
-              title: "Success",
-              text: msg,
-              timer: 1500,
-              showConfirmButton: false,
-            }),
-          showError: (msg) =>
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: msg,
-            }),
-        })
-      );
+    // try {
+    //   const data = await dispatch(
+    //     loginUser(values, {
+    //       showSuccess: (msg) =>
+    //         Swal.fire({
+    //           icon: "success",
+    //           title: "Success",
+    //           text: msg,
+    //           timer: 1500,
+    //           showConfirmButton: false,
+    //         }),
+    //       showError: (msg) =>
+    //         Swal.fire({
+    //           icon: "error",
+    //           title: "Error",
+    //           text: msg,
+    //         }),
+    //     })
+    //   );
 
-      // If login successful, redirect to OTP verification page
-      if (data?.success) {
-        // Pass user email to OTP page via query params or state
-        navigate.push({
-          pathname: "/verify-otp",
-          query: { email: values.email },
-        });
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Login failed. Please try again.",
-      });
-    }
+    //   // If login successful, redirect to OTP verification page
+    //   if (data?.success) {
+    //     // Pass user email to OTP page via query params or state
+    //     navigate.push({
+    //       pathname: "/verify-otp",
+    //       query: { email: values.email },
+    //     });
+    //   }
+    // } catch (error) {
+    //   console.error("Login error:", error);
+    //   Swal.fire({
+    //     icon: "error",
+    //     title: "Error",
+    //     text: "Login failed. Please try again.",
+    //   });
+    // }
   };
 
   return (
@@ -85,10 +85,7 @@ export default function Login() {
                     />
                   </div>
                 </div>
-                {/* <h2 className="fw-bold text-gradient mb-2">Welcome Back</h2> */}
-                {/* <p className="text-muted">
-                  Sign in to your account to continue
-                </p> */}
+
                 <div className="divider-line my-3 mx-auto"></div>
               </div>
 
@@ -183,10 +180,11 @@ export default function Login() {
 
                     <button
                       className="btn btn-primary w-100 btn-lg fw-bold login-btn mb-4"
-                      type="submit"
-                      disabled={loading}
+                      // type="submit"
+                      // disabled={loading}
+                      onClick={() => navigate.push("/employee")}
                     >
-                      {loading ? (
+                      {/* {loading ? (
                         <>
                           <span
                             className="spinner-border spinner-border-sm me-2"
@@ -195,9 +193,9 @@ export default function Login() {
                           ></span>
                           Signing in...
                         </>
-                      ) : (
-                        "Sign In"
-                      )}
+                      ) : ( */}
+                      Sign In
+                      {/* )} */}
                     </button>
                   </Form>
                 )}
@@ -206,7 +204,10 @@ export default function Login() {
               <div className="mt-4 text-center">
                 <p className="small text-muted">
                   Don't have an account?{" "}
-                  <Link href="/register" className="text-link fw-medium">
+                  <Link
+                    href="/employee/register"
+                    className="text-link fw-medium"
+                  >
                     Sign up for free
                   </Link>
                 </p>

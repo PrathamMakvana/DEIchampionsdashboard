@@ -22,15 +22,15 @@ function MyApp({ Component, pageProps }) {
   //   const token = localStorage.getItem("jobportaltoken");
 
   //   // Protected routes - customize as needed
-  //   const publicPaths = ["/login", "/register"];
+  //   const publicPaths = ["/employee/login", "/employee/register"];
   //   const pathIsProtected = !publicPaths.includes(router.pathname);
 
   //   if (!token && pathIsProtected) {
-  //     router.push("/login");
+  //     router.push("/employee/login");
   //   }
 
-  //   if (token && router.pathname === "/login") {
-  //     router.push("/");
+  //   if (token && router.pathname === "/employee/login") {
+  //     router.push("/employee");
   //   }
   // }, [router.pathname]);
   return (

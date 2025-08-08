@@ -28,10 +28,15 @@ export default function ForgotPassword() {
       <div className="auth-container">
         <div className="auth-header">
           <div className="d-flex align-items-center">
-            <div className="logo-circle bg-primary me-2">
-              <span className="text-white fw-bold">DEI</span>
+            <div className="header-logo mb-3">
+              <div className="d-flex justify-content-center">
+                <img
+                  alt="jobBox"
+                  src="assets/imgs/page/dashboard/logo2.png"
+                  style={{ width: "60%", height: "auto" }}
+                />
+              </div>
             </div>
-            <span className="fw-bold text-dark">Champions</span>
           </div>
           <h2 className="mt-4">Reset Your Password</h2>
           <p className="text-muted">
@@ -79,11 +84,11 @@ export default function ForgotPassword() {
               )}
             </button>
 
-            <div className="text-center mt-3">
+            {/* <div className="text-center mt-3">
               <Link href="/login" className="text-decoration-none">
                 <i className="fas fa-arrow-left me-2"></i>Back to Login
               </Link>
-            </div>
+            </div> */}
           </form>
         ) : (
           <div className="auth-success text-center">

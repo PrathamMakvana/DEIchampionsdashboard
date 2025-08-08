@@ -393,7 +393,7 @@ const JobSeekerProfile = () => {
 
                     {/* Portfolio Tab */}
                     {activeTab === "portfolio" && (
-                      <div>
+                      <div style={{ overflow: "auto" }}>
                         <h4 className="js-section-title">Design Portfolio</h4>
                         <p className="lead mb-4">
                           Selection of recent design projects and case studies.

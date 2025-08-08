@@ -8,7 +8,7 @@ export default function GridView({ job }) {
   const handleModal = () => setModalToggle(!modalToggle);
   const handleNavigate = () => {
     // Navigate to job details page
-    router.push(`/employee/job-details`); // Assuming job.id is available
+    router.push(`/employers/manage-job-details`); // Assuming job.id is available
   };
 
   return (
@@ -55,11 +55,11 @@ export default function GridView({ job }) {
                 <span className="card-text-price">${job.salary}</span>
                 <span className="text-muted">/Hour</span>
               </div>
-              <div className="col-lg-5 col-5 text-end">
+              {/* <div className="col-lg-5 col-5 text-end">
                 <div className="btn btn-apply-now" onClick={handleModal}>
                   Apply now
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

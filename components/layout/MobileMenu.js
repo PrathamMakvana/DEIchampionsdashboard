@@ -1,9 +1,13 @@
-import { mobileLinks } from "@/utils/sidebarArray";
+import { mobileLinks, postermobileLinks } from "@/utils/sidebarArray";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 export default function MobileMenu({ handleToggle, isToggled }) {
   const router = useRouter();
+
+  const sidebarLinks = router.pathname.includes("employee")
+    ? mobileLinks
+    : postermobileLinks;
 
   return (
     <>
@@ -25,7 +29,7 @@ export default function MobileMenu({ handleToggle, isToggled }) {
                 {/* mobile menu start*/}
                 <nav>
                   <ul className="main-menu">
-                    {mobileLinks.map((link) => (
+                    {sidebarLinks.map((link) => (
                       <li key={link.path}>
                         <Link
                           href={link.path}

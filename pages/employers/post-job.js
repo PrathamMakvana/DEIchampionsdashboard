@@ -88,7 +88,7 @@ export default function Home() {
                               />
                             </div>
                           </div>
-                          <div className="col-lg-6 col-md-6">
+                          {/* <div className="col-lg-6 col-md-6">
                             <div className="form-group mb-30">
                               <div className="box-upload">
                                 <div className="add-file-upload">
@@ -107,7 +107,7 @@ export default function Home() {
                               <span>Job_required.pdf</span>
                               <a className="btn btn-delete">Delete</a>
                             </div>
-                          </div>
+                          </div> */}
                           <div className="col-lg-12">
                             <div className="form-group mt-10">
                               <button className="btn btn-default btn-brand icon-tick">

@@ -5,23 +5,21 @@ import { fetcherPost } from "@/utils/axios";
 export const registerUser =
   (formData, { showSuccess, showError }) =>
   async (dispatch) => {
-    try {
-      dispatch(setLoading(true));
-
-      const data = await fetcherPost(["/users/register", formData]);
-
-      if (data?.user) {
-        dispatch(setUser(data.user));
-      }
-
-      dispatch(setLoading(false));
-      showSuccess("Registration successful!");
-      return data;
-    } catch (error) {
-      dispatch(setLoading(false));
-      showError(error?.response?.data?.message || "Registration failed.");
-      return null;
-    }
+    // try {
+    //   dispatch(setLoading(true));
+    //   const data = await fetcherPost(["/users/register", formData]);
+    console.log("🚀formData --->", formData);
+    //   if (data?.user) {
+    //     dispatch(setUser(data.user));
+    //   }
+    //   dispatch(setLoading(false));
+    //   showSuccess("Registration successful!");
+    //   return data;
+    // } catch (error) {
+    //   dispatch(setLoading(false));
+    //   showError(error?.response?.data?.message || "Registration failed.");
+    //   return null;
+    // }
   };
 
 export const loginUser =

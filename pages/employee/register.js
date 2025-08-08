@@ -408,17 +408,10 @@ export default function Home() {
 
               {/* Terms */}
               <div className="mt-4 text-center small terms-text">
-                <p>
-                  By clicking Register, you agree to the{" "}
-                  <Link href="#" className="text-link">
-                    Terms and Conditions
-                  </Link>{" "}
-                  &{" "}
-                  <Link href="#" className="text-link">
-                    Privacy Policy
-                  </Link>{" "}
-                  of DEI Champions.com
-                </p>
+                <div className="form-footer" style={{ background: "none" }}>
+                  Already have an account?{" "}
+                  <Link href="/employee/login">Sign In</Link>
+                </div>
               </div>
             </div>
           </div>

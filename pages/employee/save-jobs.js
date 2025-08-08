@@ -81,7 +81,7 @@ export default function AppliedJobs() {
         <div className="page-header">
           <div className="header-content">
             <div>
-              <h1 className="page-title">Applied Jobs</h1>
+              <h1 className="page-title">Save Jobs</h1>
               <p className="page-subtitle">
                 Track the status of all your job applications in one place
               </p>
@@ -176,9 +176,9 @@ export default function AppliedJobs() {
                   <Link className="btn-details" href={`/employee/job-details`}>
                     <i className="bi bi-eye me-1"></i> View Details
                   </Link>
-                  <button className="btn-save">
+                  {/* <button className="btn-save">
                     <i className="bi bi-bookmark me-1"></i> Save Job
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
