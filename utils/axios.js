@@ -3,7 +3,8 @@ import axios from "axios";
 
 const axiosServices = axios.create({
   // baseURL: API_BASE_URL,
-  baseURL: "https://dei-backend.onrender.com/api",
+  // baseURL: "https://dei-backend.onrender.com/api",
+  baseURL: "https://test-deibackend-1.onrender.com/api",
   // baseURL: "http://localhost:5000/api",
 });
 
