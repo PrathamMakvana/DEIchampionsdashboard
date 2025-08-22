@@ -1,0 +1,597 @@
+import { useFormik } from "formik";
+import { useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Head from "next/head";
+import Layout from "@/components/layout/Layout";
+import CompanyImageGallery from "@/components/elements/ImageGallery";
+import { updateEmployersProfile } from "@/api/auth";
+import Swal from "sweetalert2";
+
+export default function CompanyProfileUpdate() {
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
+  const [verificationStatus, setVerificationStatus] = useState("Unverified");
+  const logoFileInputRef = useRef(null);
+  const bannerFileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (user) {
+      setVerificationStatus(user.companyVerified ? "Verified" : "Unverified");
+    }
+  }, [user]);
+
+  const formik = useFormik({
+    initialValues: {
+      companyName: user?.companyName || "",
+      name: user?.name || "",
+      companyDesignation: user?.companyDesignation || "",
+      companyWebsite: user?.companyWebsite || "",
+      companySize: user?.companySize || "",
+      email: user?.email || "",
+      mobile: user?.mobile || "",
+      address: user?.address || "",
+      city: user?.city || "",
+      state: user?.state || "",
+      pincode: user?.pincode || "",
+      tagline: "",
+      aboutUs: "",
+      recruitments: "",
+      people: "",
+      companyField: "",
+      salary: "",
+      memberSince: user?.memberSince
+        ? new Date(user.memberSince).toISOString().split("T")[0]
+        : "",
+      currentPassword: "",
+      newPassword: "",
+    },
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      console.log("Form submitted:", values);
+
+      const data = await dispatch(
+        updateEmployersProfile(values, {
+          showSuccess: (msg) =>
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: msg,
+              timer: 1500,
+              showConfirmButton: false,
+            }),
+          showError: (msg) =>
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: msg,
+            }),
+        })
+      );
+      console.log("🚀data --->", data);
+    },
+  });
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLogoPreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBannerUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setBannerPreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const togglePasswordVisibility = (fieldId) => {
+    const passwordInput = document.getElementById(fieldId);
+    const type =
+      passwordInput.getAttribute("type") === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+
+    const eyeIcon = document.querySelector(
+      `#toggle${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} i`
+    );
+    eyeIcon.classList.toggle("bi-eye");
+    eyeIcon.classList.toggle("bi-eye-slash");
+  };
+
+  return (
+    <>
+      <Layout>
+        <div className="container py-4">
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h1 className="h3 mb-0">Company Profile</h1>
+            <span className="badge bg-info">
+              <i className="bi bi-building me-1"></i> Company Account
+            </span>
+          </div>
+
+          <form onSubmit={formik.handleSubmit}>
+            {/* Basic Information Card */}
+            <div className="upd-pro-card mb-4">
+              <div className="upd-pro-card-header">
+                <i className="bi bi-info-circle me-2"></i> Basic Information
+              </div>
+              <div className="upd-pro-card-body">
+                <div className="row">
+                  <div className="col-md-4 text-center">
+                    <div
+                      className="upd-pro-avatar"
+                      onClick={() => logoFileInputRef.current.click()}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {logoPreview ? (
+                        <img
+                          src={logoPreview}
+                          alt="Company Logo"
+                          style={{
+                            height: "100%",
+                            width: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        <span id="logoInitials">
+                          {user?.companyName
+                            ? user.companyName.substring(0, 2).toUpperCase()
+                            : "KS"}
+                        </span>
+                      )}
+                      <input
+                        type="file"
+                        ref={logoFileInputRef}
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={handleLogoUpload}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <span
+                        className={`upd-pro-status-badge ${
+                          verificationStatus === "Verified"
+                            ? "upd-pro-verified"
+                            : ""
+                        }`}
+                      >
+                        {verificationStatus}
+                      </span>
+                    </div>
+                    <div className="upd-pro-account-type">
+                      Member Since:{" "}
+                      {user?.memberSince
+                        ? new Date(user.memberSince).toLocaleDateString()
+                        : "2015"}
+                    </div>
+                  </div>
+                  <div className="col-md-8">
+                    <div className="row">
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">
+                          Company Name *
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control upd-pro-form-control"
+                          name="companyName"
+                          value={formik.values.companyName}
+                          onChange={formik.handleChange}
+                          required
+                        />
+                      </div>
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">
+                          Contact Person *
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control upd-pro-form-control"
+                          name="name"
+                          value={formik.values.name}
+                          onChange={formik.handleChange}
+                          required
+                        />
+                      </div>
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">
+                          Company Designation *
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control upd-pro-form-control"
+                          name="companyDesignation"
+                          value={formik.values.companyDesignation}
+                          onChange={formik.handleChange}
+                          required
+                        />
+                      </div>
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">Website</label>
+                        <input
+                          type="url"
+                          className="form-control upd-pro-form-control"
+                          name="companyWebsite"
+                          value={formik.values.companyWebsite}
+                          onChange={formik.handleChange}
+                        />
+                      </div>
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">
+                          Company Size *
+                        </label>
+                        <select
+                          className="form-select upd-pro-form-control"
+                          name="companySize"
+                          value={formik.values.companySize}
+                          onChange={formik.handleChange}
+                        >
+                          <option>Select size</option>
+                          <option>1-10 employees</option>
+                          <option>11-50 employees</option>
+                          <option>51-200 employees</option>
+                          <option>201-500 employees</option>
+                          <option>501-1000 employees</option>
+                          <option>1000+ employees</option>
+                        </select>
+                      </div>
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">
+                          Account Status
+                        </label>
+                        <div
+                          className="form-control upd-pro-form-control"
+                          style={{
+                            backgroundColor: "#e8f5e9",
+                            color: "#2e7d32",
+                            fontWeight: "500",
+                          }}
+                        >
+                          <i className="bi bi-check-circle-fill me-2"></i>{" "}
+                          Active
+                        </div>
+                      </div>
+                      <div className="col-md-12 upd-pro-form-group">
+                        <label className="upd-pro-form-label">Tagline</label>
+                        <input
+                          type="text"
+                          className="form-control upd-pro-form-control"
+                          name="tagline"
+                          value={formik.values.tagline}
+                          onChange={formik.handleChange}
+                          placeholder="Enter your company tagline"
+                        />
+                      </div>
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">
+                          Company Field *
+                        </label>
+                        <select
+                          className="form-select upd-pro-form-control"
+                          name="companyField"
+                          value={formik.values.companyField}
+                          onChange={formik.handleChange}
+                        >
+                          <option value="">Select field</option>
+                          <option value="Technology">Technology</option>
+                          <option value="Manufacturing">Manufacturing</option>
+                          <option value="Healthcare">Healthcare</option>
+                          <option value="Finance">Finance</option>
+                          <option value="Education">Education</option>
+                          <option value="Retail">Retail</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">
+                          Salary Range
+                        </label>
+                        <select
+                          className="form-select upd-pro-form-control"
+                          name="salary"
+                          value={formik.values.salary}
+                          onChange={formik.handleChange}
+                        >
+                          <option value="">Select range</option>
+                          <option value="Competitive">Competitive</option>
+                          <option value="Entry Level">Entry Level</option>
+                          <option value="Mid Range">Mid Range</option>
+                          <option value="High">High</option>
+                          <option value="Not Disclosed">Not Disclosed</option>
+                        </select>
+                      </div>
+                      <div className="col-md-6 upd-pro-form-group">
+                        <label className="upd-pro-form-label">
+                          Member Since
+                        </label>
+                        <input
+                          type="date"
+                          className="form-control upd-pro-form-control"
+                          name="memberSince"
+                          value={formik.values.memberSince}
+                          onChange={formik.handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information Card */}
+            <div className="upd-pro-card mb-4">
+              <div className="upd-pro-card-header">
+                <i className="bi bi-geo-alt me-2"></i> Contact Information
+              </div>
+              <div className="upd-pro-card-body">
+                <div className="row">
+                  <div className="col-md-6 upd-pro-form-group">
+                    <label className="upd-pro-form-label">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      className="form-control upd-pro-form-control"
+                      name="email"
+                      value={formik.values.email}
+                      onChange={formik.handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="col-md-6 upd-pro-form-group">
+                    <label className="upd-pro-form-label">
+                      Mobile Number *
+                    </label>
+                    <input
+                      type="tel"
+                      className="form-control upd-pro-form-control"
+                      name="mobile"
+                      value={formik.values.mobile}
+                      onChange={formik.handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="col-md-12 upd-pro-form-group">
+                    <label className="upd-pro-form-label">Address *</label>
+                    <input
+                      type="text"
+                      className="form-control upd-pro-form-control"
+                      name="address"
+                      value={formik.values.address}
+                      onChange={formik.handleChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-3 upd-pro-form-group">
+                    <label className="upd-pro-form-label">City *</label>
+                    <input
+                      type="text"
+                      className="form-control upd-pro-form-control"
+                      name="city"
+                      value={formik.values.city}
+                      onChange={formik.handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="col-md-3 upd-pro-form-group">
+                    <label className="upd-pro-form-label">State *</label>
+                    <input
+                      type="text"
+                      className="form-control upd-pro-form-control"
+                      name="state"
+                      value={formik.values.state}
+                      onChange={formik.handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="col-md-3 upd-pro-form-group">
+                    <label className="upd-pro-form-label">Pincode *</label>
+                    <input
+                      type="text"
+                      className="form-control upd-pro-form-control"
+                      name="pincode"
+                      value={formik.values.pincode}
+                      onChange={formik.handleChange}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Image Gallery Card */}
+            <CompanyImageGallery />
+
+            {/* About Us Card */}
+            <div className="upd-pro-card mb-4">
+              <div className="upd-pro-card-header">
+                <i className="bi bi-card-text me-2"></i> About Us
+              </div>
+              <div className="upd-pro-card-body">
+                <div className="upd-pro-form-group">
+                  <label className="upd-pro-form-label">
+                    About Your Company
+                  </label>
+                  <textarea
+                    className="form-control upd-pro-form-control upd-pro-textarea"
+                    placeholder="Describe your company's mission, values, and what makes it unique..."
+                    name="aboutUs"
+                    rows={10}
+                    value={formik.values.aboutUs}
+                    onChange={formik.handleChange}
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            {/* Recruitments Card */}
+            <div className="upd-pro-card mb-4">
+              <div className="upd-pro-card-header">
+                <i className="bi bi-people me-2"></i> Recruitments
+              </div>
+              <div className="upd-pro-card-body">
+                <div className="upd-pro-form-group">
+                  <label className="upd-pro-form-label">
+                    Recruitment Information
+                  </label>
+                  <textarea
+                    className="form-control upd-pro-form-control upd-pro-textarea"
+                    placeholder="Describe your recruitment process, opportunities, etc..."
+                    name="recruitments"
+                    rows={6}
+                    value={formik.values.recruitments}
+                    onChange={formik.handleChange}
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            {/* People Card */}
+            <div className="upd-pro-card mb-4">
+              <div className="upd-pro-card-header">
+                <i className="bi bi-person-circle me-2"></i> People
+              </div>
+              <div className="upd-pro-card-body">
+                <div className="upd-pro-form-group">
+                  <label className="upd-pro-form-label">People & Culture</label>
+                  <textarea
+                    className="form-control upd-pro-form-control upd-pro-textarea"
+                    placeholder="Describe your company culture, team, etc..."
+                    name="people"
+                    rows={6}
+                    value={formik.values.people}
+                    onChange={formik.handleChange}
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            {/* Banner Image */}
+            <div className="upd-pro-card mb-4">
+              <div className="upd-pro-card-header">
+                <i className="bi bi-image me-2"></i> Banner Image
+              </div>
+              <div className="upd-pro-card-body">
+                <div className="text-center mb-3">
+                  <div
+                    className="upd-pro-banner-preview"
+                    onClick={() => bannerFileInputRef.current.click()}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {bannerPreview ? (
+                      <img
+                        src={bannerPreview}
+                        alt="Company Banner"
+                        className="upd-pro-banner-img"
+                      />
+                    ) : (
+                      <div className="d-flex align-items-center justify-content-center h-100">
+                        <span>
+                          <i className="bi bi-image me-2"></i> Click to upload
+                          banner
+                        </span>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      ref={bannerFileInputRef}
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleBannerUpload}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Security Card */}
+            <div className="upd-pro-card mb-4">
+              <div className="upd-pro-card-header">
+                <i className="bi bi-shield-lock me-2"></i> Security Settings
+              </div>
+              <div className="upd-pro-card-body">
+                <div className="row">
+                  <div className="col-md-6 upd-pro-form-group">
+                    <label className="upd-pro-form-label">
+                      Current Password
+                    </label>
+                    <div className="upd-pro-input-group">
+                      <input
+                        type="password"
+                        className="form-control upd-pro-form-control"
+                        placeholder="Enter current password"
+                        name="currentPassword"
+                        value={formik.values.currentPassword}
+                        onChange={formik.handleChange}
+                        id="currentPassword"
+                      />
+                      <span
+                        className="upd-pro-password-toggle"
+                        onClick={() =>
+                          togglePasswordVisibility("currentPassword")
+                        }
+                        id="toggleCurrentPassword"
+                      >
+                        <i className="bi bi-eye"></i>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-6 upd-pro-form-group">
+                    <label className="upd-pro-form-label">New Password</label>
+                    <div className="upd-pro-input-group">
+                      <input
+                        type="password"
+                        className="form-control upd-pro-form-control"
+                        placeholder="Enter new password"
+                        name="newPassword"
+                        value={formik.values.newPassword}
+                        onChange={formik.handleChange}
+                        id="newPassword"
+                      />
+                      <span
+                        className="upd-pro-password-toggle"
+                        onClick={() => togglePasswordVisibility("newPassword")}
+                        id="toggleNewPassword"
+                      >
+                        <i className="bi bi-eye"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="form-text">
+                  Leave password fields blank if you don't want to change your
+                  password
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="d-flex justify-content-between mt-4">
+              <button
+                type="button"
+                className="btn btn-light upd-pro-btn-outline"
+              >
+                <i className="bi bi-x-circle me-2"></i> Cancel
+              </button>
+              <button type="submit" className="btn upd-pro-btn-primary">
+                <i className="bi bi-check-circle me-2"></i> Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </Layout>
+    </>
+  );
+}

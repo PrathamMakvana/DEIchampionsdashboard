@@ -133,8 +133,8 @@ export const employersLinks = [
     icon: "bi-clipboard-plus", // Post Job
   },
   {
-    path: "/employers/posted-job-list",
-    label: "Posted Jobs",
+    path: "/employers/candidate",
+    label: "Candidates",
     icon: "bi-list-ul", // Posted Jobs
   },
   // {
@@ -145,6 +145,11 @@ export const employersLinks = [
   {
     path: "/employers/profile",
     label: "My Profile",
+    icon: "bi-person", // Profile
+  },
+  {
+    path: "/employers/update-profile",
+    label: "update Profile",
     icon: "bi-person", // Profile
   },
   // {
@@ -183,6 +188,11 @@ export const employeeLinks = [
   {
     path: "/employee/Profile-details",
     label: "Profile Details",
+    icon: "bi-file-earmark-person", // CV Manager
+  },
+  {
+    path: "/employee/update-profile",
+    label: "update Details",
     icon: "bi-file-earmark-person", // CV Manager
   },
   // {
@@ -255,8 +265,8 @@ export const postermobileLinks = [
   },
   { path: "/employers/manage-jobs", label: "Manage Job", icon: "tasks.svg" },
   {
-    path: "/employers/posted-job-list",
-    label: "Posted Jobs",
+    path: "/employers/candidate",
+    label: "Candidates",
     icon: "recruiters.svg",
   },
   // { path: "/employee/settings", label: "Settings", icon: "tasks.svg" },

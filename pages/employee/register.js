@@ -19,9 +19,9 @@ export default function Home() {
     name: "",
     email: "",
     password: "",
-    phone: "",
+    mobile: "",
     workStatus: "",
-    acceptUpdates: false,
+    acceptTerms: false,
   };
 
   const validationSchema = Yup.object().shape({
@@ -32,7 +32,7 @@ export default function Home() {
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
-    phone: Yup.string()
+    mobile: Yup.string()
       .matches(/^[0-9]{10}$/, "Invalid phone number")
       .required("Mobile number is required"),
     workStatus: Yup.string()
@@ -41,30 +41,29 @@ export default function Home() {
   });
 
   const handleSubmit = async (values) => {
-    // const roleId = values.workStatus === "experienced" ? 2 : 3;
-    // const data = await dispatch(
-    //   registerUser(
-    //     { ...values, roleId },
-    //     {
-    //       showSuccess: (msg) =>
-    //         Swal.fire({
-    //           icon: "success",
-    //           title: "Success",
-    //           text: msg,
-    //           timer: 1500,
-    //           showConfirmButton: false,
-    //         }),
-    //       showError: (msg) =>
-    //         Swal.fire({
-    //           icon: "error",
-    //           title: "Error",
-    //           text: msg,
-    //         }),
-    //     }
-    //   )
-    // );
-    // if (!data) return;
-    // navigate.push("/login");
+    const data = await dispatch(
+      registerUser(
+        { ...values, roleId: 3 },
+        {
+          showSuccess: (msg) =>
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: msg,
+              timer: 1500,
+              showConfirmButton: false,
+            }),
+          showError: (msg) =>
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: msg,
+            }),
+        }
+      )
+    );
+    if (!data) return;
+    navigate.push("/employee/login");
   };
 
   return (
@@ -174,7 +173,7 @@ export default function Home() {
 
               <Formik
                 initialValues={initialValues}
-                // validationSchema={validationSchema}
+                validationSchema={validationSchema}
                 onSubmit={handleSubmit}
               >
                 {({ values }) => (
@@ -293,7 +292,7 @@ export default function Home() {
                         </span>
                         <Field
                           type="tel"
-                          name="phone"
+                          name="mobile"
                           className="form-control form-control-lg border-start-0"
                           placeholder="Enter 10-digit mobile number"
                           id="phoneField"
@@ -304,7 +303,7 @@ export default function Home() {
                         Recruiters will contact you on this number
                       </div>
                       <ErrorMessage
-                        name="phone"
+                        name="mobile"
                         component="div"
                         className="text-danger small mt-1"
                       />
@@ -368,12 +367,12 @@ export default function Home() {
                       <div className="form-check">
                         <Field
                           type="checkbox"
-                          name="acceptUpdates"
+                          name="acceptTerms"
                           className="form-check-input"
-                          id="acceptUpdates"
+                          id="acceptTerms"
                         />
                         <label
-                          htmlFor="acceptUpdates"
+                          htmlFor="acceptTerms"
                           className="form-check-label small"
                         >
                           Send me important updates & promotions via SMS, email,
@@ -386,9 +385,9 @@ export default function Home() {
                     <button
                       className="btn btn-primary w-100 btn-lg fw-bold register-btn"
                       type="submit"
-                      // disabled={loading}
+                      disabled={loading}
                     >
-                      {/* {loading ? (
+                      {loading ? (
                         <>
                           <span
                             className="spinner-border spinner-border-sm me-2"
@@ -397,9 +396,9 @@ export default function Home() {
                           ></span>
                           Registering...
                         </>
-                      ) : ( */}
-                      Register now
-                      {/* )} */}
+                      ) : (
+                        "Register now"
+                      )}
                     </button>
                   </Form>
                 )}

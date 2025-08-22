@@ -213,7 +213,7 @@ export default function Home() {
                           />
                         </div>
                       </div>
-                      <div className="col-lg-12">
+                      {/* <div className="col-lg-12">
                         <div className="form-group mb-30">
                           <label className="font-sm color-text-mutted mb-10">
                             Find On Map
@@ -266,7 +266,7 @@ export default function Home() {
                             />
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="col-lg-12">
                         <div className="form-group mt-0">
                           <button className="btn btn-default btn-brand icon-tick">

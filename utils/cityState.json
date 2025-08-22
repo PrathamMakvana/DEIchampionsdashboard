@@ -1,0 +1,645 @@
+{
+  "country": "India",
+  "total_states": 28,
+  "total_union_territories": 8,
+  "data": [
+    {
+      "state": "Andhra Pradesh",
+      "state_code": "AP",
+      "type": "state",
+      "capital": "Amaravati",
+      "cities": [
+        "Visakhapatnam",
+        "Vijayawada",
+        "Guntur",
+        "Nellore",
+        "Kurnool",
+        "Rajahmundry",
+        "Tirupati",
+        "Kadapa",
+        "Anantapur",
+        "Vizianagaram"
+      ]
+    },
+    {
+      "state": "Arunachal Pradesh",
+      "state_code": "AR",
+      "type": "state",
+      "capital": "Itanagar",
+      "cities": [
+        "Itanagar",
+        "Naharlagun",
+        "Pasighat",
+        "Tezpur",
+        "Bomdila",
+        "Ziro",
+        "Along",
+        "Tezu",
+        "Seppa",
+        "Changlang"
+      ]
+    },
+    {
+      "state": "Assam",
+      "state_code": "AS",
+      "type": "state",
+      "capital": "Dispur",
+      "cities": [
+        "Guwahati",
+        "Silchar",
+        "Dibrugarh",
+        "Jorhat",
+        "Nagaon",
+        "Tinsukia",
+        "Tezpur",
+        "Bongaigaon",
+        "Karimganj",
+        "Sivasagar"
+      ]
+    },
+    {
+      "state": "Bihar",
+      "state_code": "BR",
+      "type": "state",
+      "capital": "Patna",
+      "cities": [
+        "Patna",
+        "Gaya",
+        "Bhagalpur",
+        "Muzaffarpur",
+        "Purnia",
+        "Darbhanga",
+        "Bihar Sharif",
+        "Arrah",
+        "Begusarai",
+        "Katihar"
+      ]
+    },
+    {
+      "state": "Chhattisgarh",
+      "state_code": "CG",
+      "type": "state",
+      "capital": "Raipur",
+      "cities": [
+        "Raipur",
+        "Bhilai",
+        "Bilaspur",
+        "Korba",
+        "Durg",
+        "Rajnandgaon",
+        "Jagdalpur",
+        "Raigarh",
+        "Ambikapur",
+        "Mahasamund"
+      ]
+    },
+    {
+      "state": "Goa",
+      "state_code": "GA",
+      "type": "state",
+      "capital": "Panaji",
+      "cities": [
+        "Panaji",
+        "Vasco da Gama",
+        "Margao",
+        "Mapusa",
+        "Ponda",
+        "Bicholim",
+        "Curchorem",
+        "Sanquelim",
+        "Cuncolim",
+        "Quepem"
+      ]
+    },
+    {
+      "state": "Gujarat",
+      "state_code": "GJ",
+      "type": "state",
+      "capital": "Gandhinagar",
+      "cities": [
+        "Ahmedabad",
+        "Surat",
+        "Vadodara",
+        "Rajkot",
+        "Bhavnagar",
+        "Jamnagar",
+        "Junagadh",
+        "Gandhinagar",
+        "Anand",
+        "Navsari"
+      ]
+    },
+    {
+      "state": "Haryana",
+      "state_code": "HR",
+      "type": "state",
+      "capital": "Chandigarh",
+      "cities": [
+        "Faridabad",
+        "Gurgaon",
+        "Panipat",
+        "Ambala",
+        "Yamunanagar",
+        "Rohtak",
+        "Hisar",
+        "Karnal",
+        "Sonipat",
+        "Panchkula"
+      ]
+    },
+    {
+      "state": "Himachal Pradesh",
+      "state_code": "HP",
+      "type": "state",
+      "capital": "Shimla",
+      "cities": [
+        "Shimla",
+        "Solan",
+        "Mandi",
+        "Palampur",
+        "Baddi",
+        "Nahan",
+        "Paonta Sahib",
+        "Sundernagar",
+        "Chamba",
+        "Una"
+      ]
+    },
+    {
+      "state": "Jharkhand",
+      "state_code": "JH",
+      "type": "state",
+      "capital": "Ranchi",
+      "cities": [
+        "Ranchi",
+        "Jamshedpur",
+        "Dhanbad",
+        "Bokaro Steel City",
+        "Deoghar",
+        "Phusro",
+        "Hazaribagh",
+        "Giridih",
+        "Ramgarh",
+        "Medininagar"
+      ]
+    },
+    {
+      "state": "Karnataka",
+      "state_code": "KA",
+      "type": "state",
+      "capital": "Bengaluru",
+      "cities": [
+        "Bengaluru",
+        "Mysuru",
+        "Hubballi-Dharwad",
+        "Mangaluru",
+        "Belgaum",
+        "Gulbarga",
+        "Davanagere",
+        "Bellary",
+        "Bijapur",
+        "Shimoga"
+      ]
+    },
+    {
+      "state": "Kerala",
+      "state_code": "KL",
+      "type": "state",
+      "capital": "Thiruvananthapuram",
+      "cities": [
+        "Thiruvananthapuram",
+        "Kochi",
+        "Kozhikode",
+        "Kollam",
+        "Thrissur",
+        "Alappuzha",
+        "Palakkad",
+        "Kannur",
+        "Kasaragod",
+        "Kottayam"
+      ]
+    },
+    {
+      "state": "Madhya Pradesh",
+      "state_code": "MP",
+      "type": "state",
+      "capital": "Bhopal",
+      "cities": [
+        "Indore",
+        "Bhopal",
+        "Jabalpur",
+        "Gwalior",
+        "Ujjain",
+        "Sagar",
+        "Dewas",
+        "Satna",
+        "Ratlam",
+        "Rewa"
+      ]
+    },
+    {
+      "state": "Maharashtra",
+      "state_code": "MH",
+      "type": "state",
+      "capital": "Mumbai",
+      "cities": [
+        "Mumbai",
+        "Pune",
+        "Nagpur",
+        "Thane",
+        "Nashik",
+        "Aurangabad",
+        "Solapur",
+        "Amravati",
+        "Kolhapur",
+        "Sangli"
+      ]
+    },
+    {
+      "state": "Manipur",
+      "state_code": "MN",
+      "type": "state",
+      "capital": "Imphal",
+      "cities": [
+        "Imphal",
+        "Thoubal",
+        "Lilong",
+        "Mayang Imphal",
+        "Kakching",
+        "Sugnu",
+        "Jiribam",
+        "Churachandpur",
+        "Bishnupur",
+        "Senapati"
+      ]
+    },
+    {
+      "state": "Meghalaya",
+      "state_code": "ML",
+      "type": "state",
+      "capital": "Shillong",
+      "cities": [
+        "Shillong",
+        "Tura",
+        "Nongstoin",
+        "Jowai",
+        "Baghmara",
+        "Williamnagar",
+        "Nongpoh",
+        "Mairang",
+        "Resubelpara",
+        "Ampati"
+      ]
+    },
+    {
+      "state": "Mizoram",
+      "state_code": "MZ",
+      "type": "state",
+      "capital": "Aizawl",
+      "cities": [
+        "Aizawl",
+        "Lunglei",
+        "Saiha",
+        "Champhai",
+        "Kolasib",
+        "Serchhip",
+        "Mamit",
+        "Lawngtlai",
+        "Saitual",
+        "Hnahthial"
+      ]
+    },
+    {
+      "state": "Nagaland",
+      "state_code": "NL",
+      "type": "state",
+      "capital": "Kohima",
+      "cities": [
+        "Kohima",
+        "Dimapur",
+        "Mokokchung",
+        "Tuensang",
+        "Wokha",
+        "Zunheboto",
+        "Phek",
+        "Kiphire",
+        "Longleng",
+        "Peren"
+      ]
+    },
+    {
+      "state": "Odisha",
+      "state_code": "OR",
+      "type": "state",
+      "capital": "Bhubaneswar",
+      "cities": [
+        "Bhubaneswar",
+        "Cuttack",
+        "Rourkela",
+        "Brahmapur",
+        "Sambalpur",
+        "Puri",
+        "Balasore",
+        "Bhadrak",
+        "Baripada",
+        "Jharsuguda"
+      ]
+    },
+    {
+      "state": "Punjab",
+      "state_code": "PB",
+      "type": "state",
+      "capital": "Chandigarh",
+      "cities": [
+        "Ludhiana",
+        "Amritsar",
+        "Jalandhar",
+        "Patiala",
+        "Bathinda",
+        "Mohali",
+        "Firozpur",
+        "Batala",
+        "Pathankot",
+        "Moga"
+      ]
+    },
+    {
+      "state": "Rajasthan",
+      "state_code": "RJ",
+      "type": "state",
+      "capital": "Jaipur",
+      "cities": [
+        "Jaipur",
+        "Jodhpur",
+        "Udaipur",
+        "Kota",
+        "Ajmer",
+        "Bikaner",
+        "Alwar",
+        "Bharatpur",
+        "Sikar",
+        "Bhilwara"
+      ]
+    },
+    {
+      "state": "Sikkim",
+      "state_code": "SK",
+      "type": "state",
+      "capital": "Gangtok",
+      "cities": [
+        "Gangtok",
+        "Namchi",
+        "Gyalshing",
+        "Mangan",
+        "Singtam",
+        "Jorethang",
+        "Rangpo",
+        "Pakyong",
+        "Soreng",
+        "Ravangla"
+      ]
+    },
+    {
+      "state": "Tamil Nadu",
+      "state_code": "TN",
+      "type": "state",
+      "capital": "Chennai",
+      "cities": [
+        "Chennai",
+        "Coimbatore",
+        "Madurai",
+        "Tiruchirappalli",
+        "Salem",
+        "Tirunelveli",
+        "Tiruppur",
+        "Vellore",
+        "Erode",
+        "Thoothukkudi"
+      ]
+    },
+    {
+      "state": "Telangana",
+      "state_code": "TS",
+      "type": "state",
+      "capital": "Hyderabad",
+      "cities": [
+        "Hyderabad",
+        "Warangal",
+        "Nizamabad",
+        "Khammam",
+        "Karimnagar",
+        "Ramagundam",
+        "Mahbubnagar",
+        "Nalgonda",
+        "Adilabad",
+        "Suryapet"
+      ]
+    },
+    {
+      "state": "Tripura",
+      "state_code": "TR",
+      "type": "state",
+      "capital": "Agartala",
+      "cities": [
+        "Agartala",
+        "Dharmanagar",
+        "Udaipur",
+        "Kailasahar",
+        "Belonia",
+        "Khowai",
+        "Ambassa",
+        "Ranir Bazaar",
+        "Sonamura",
+        "Kumarghat"
+      ]
+    },
+    {
+      "state": "Uttar Pradesh",
+      "state_code": "UP",
+      "type": "state",
+      "capital": "Lucknow",
+      "cities": [
+        "Lucknow",
+        "Kanpur",
+        "Ghaziabad",
+        "Agra",
+        "Varanasi",
+        "Meerut",
+        "Allahabad",
+        "Bareilly",
+        "Aligarh",
+        "Moradabad"
+      ]
+    },
+    {
+      "state": "Uttarakhand",
+      "state_code": "UK",
+      "type": "state",
+      "capital": "Dehradun",
+      "cities": [
+        "Dehradun",
+        "Haridwar",
+        "Roorkee",
+        "Haldwani-cum-Kathgodam",
+        "Rudrapur",
+        "Kashipur",
+        "Rishikesh",
+        "Ramnagar",
+        "Pithoragarh",
+        "Jaspur"
+      ]
+    },
+    {
+      "state": "West Bengal",
+      "state_code": "WB",
+      "type": "state",
+      "capital": "Kolkata",
+      "cities": [
+        "Kolkata",
+        "Asansol",
+        "Siliguri",
+        "Durgapur",
+        "Bardhaman",
+        "Malda",
+        "Baharampur",
+        "Habra",
+        "Kharagpur",
+        "Shantipur"
+      ]
+    },
+    {
+      "state": "Andaman and Nicobar Islands",
+      "state_code": "AN",
+      "type": "union_territory",
+      "capital": "Port Blair",
+      "cities": [
+        "Port Blair",
+        "Bamboo Flat",
+        "Garacharma",
+        "Diglipur",
+        "Billyground",
+        "Ograbraj",
+        "Rangat",
+        "Campbell Bay",
+        "Car Nicobar",
+        "Nancowry"
+      ]
+    },
+    {
+      "state": "Chandigarh",
+      "state_code": "CH",
+      "type": "union_territory",
+      "capital": "Chandigarh",
+      "cities": ["Chandigarh"]
+    },
+    {
+      "state": "Dadra and Nagar Haveli and Daman and Diu",
+      "state_code": "DN",
+      "type": "union_territory",
+      "capital": "Daman",
+      "cities": [
+        "Daman",
+        "Diu",
+        "Silvassa",
+        "Naroli",
+        "Madhuban",
+        "Dolara",
+        "Samarvarni",
+        "Vapi",
+        "Dadra",
+        "Nagar Haveli"
+      ]
+    },
+    {
+      "state": "Delhi",
+      "state_code": "DL",
+      "type": "union_territory",
+      "capital": "New Delhi",
+      "cities": [
+        "New Delhi",
+        "Delhi",
+        "North Delhi",
+        "South Delhi",
+        "East Delhi",
+        "West Delhi",
+        "Central Delhi",
+        "North East Delhi",
+        "North West Delhi",
+        "South West Delhi",
+        "South East Delhi"
+      ]
+    },
+    {
+      "state": "Jammu and Kashmir",
+      "state_code": "JK",
+      "type": "union_territory",
+      "capital": "Srinagar (Summer), Jammu (Winter)",
+      "cities": [
+        "Srinagar",
+        "Jammu",
+        "Baramulla",
+        "Anantnag",
+        "Sopore",
+        "KathuaDistrict",
+        "Udhampur",
+        "Punch",
+        "Rajouri",
+        "Kupwara"
+      ]
+    },
+    {
+      "state": "Ladakh",
+      "state_code": "LA",
+      "type": "union_territory",
+      "capital": "Leh",
+      "cities": [
+        "Leh",
+        "Kargil",
+        "Nubra",
+        "Zanskar",
+        "Changthang",
+        "Sham",
+        "Rupshu",
+        "Dras",
+        "Sankoo",
+        "Turtuk"
+      ]
+    },
+    {
+      "state": "Lakshadweep",
+      "state_code": "LD",
+      "type": "union_territory",
+      "capital": "Kavaratti",
+      "cities": [
+        "Kavaratti",
+        "Agatti",
+        "Minicoy",
+        "Amini",
+        "Andrott",
+        "Kalpeni",
+        "Kadmat",
+        "Kiltan",
+        "Chetlat",
+        "Bitra"
+      ]
+    },
+    {
+      "state": "Puducherry",
+      "state_code": "PY",
+      "type": "union_territory",
+      "capital": "Puducherry",
+      "cities": [
+        "Puducherry",
+        "Karaikal",
+        "Yanam",
+        "Mahe",
+        "Villianur",
+        "Ariyankuppam",
+        "Mannadipet",
+        "Bahour",
+        "Nettapakkam",
+        "Kirumampakkam"
+      ]
+    }
+  ]
+}

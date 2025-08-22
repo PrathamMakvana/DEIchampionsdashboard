@@ -31,42 +31,41 @@ export default function Login() {
   const handleLoginSubmit = async (values) => {
     console.log("Login Data", values);
 
-    // try {
-    //   const data = await dispatch(
-    //     loginUser(values, {
-    //       showSuccess: (msg) =>
-    //         Swal.fire({
-    //           icon: "success",
-    //           title: "Success",
-    //           text: msg,
-    //           timer: 1500,
-    //           showConfirmButton: false,
-    //         }),
-    //       showError: (msg) =>
-    //         Swal.fire({
-    //           icon: "error",
-    //           title: "Error",
-    //           text: msg,
-    //         }),
-    //     })
-    //   );
+    try {
+      const data = await dispatch(
+        loginUser(values, {
+          showSuccess: (msg) =>
+            Swal.fire({
+              icon: "info",
+              title: "Please check your mail",
+              text: "We’ve sent you an OTP.",
+              timer: 2000,
+              showConfirmButton: false,
+            }),
+          showError: (msg) =>
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: msg,
+            }),
+        })
+      );
+      console.log("🚀data --->", data);
 
-    //   // If login successful, redirect to OTP verification page
-    //   if (data?.success) {
-    //     // Pass user email to OTP page via query params or state
-    //     navigate.push({
-    //       pathname: "/verify-otp",
-    //       query: { email: values.email },
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error("Login error:", error);
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Error",
-    //     text: "Login failed. Please try again.",
-    //   });
-    // }
+      if (data?.success) {
+        navigate.push({
+          pathname: "/verify-otp",
+          query: { email: values.email },
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Login failed. Please try again.",
+      });
+    }
   };
 
   return (
@@ -180,11 +179,10 @@ export default function Login() {
 
                     <button
                       className="btn btn-primary w-100 btn-lg fw-bold login-btn mb-4"
-                      // type="submit"
-                      // disabled={loading}
-                      onClick={() => navigate.push("/employee")}
+                      type="submit"
+                      disabled={loading}
                     >
-                      {/* {loading ? (
+                      {loading ? (
                         <>
                           <span
                             className="spinner-border spinner-border-sm me-2"
@@ -193,9 +191,9 @@ export default function Login() {
                           ></span>
                           Signing in...
                         </>
-                      ) : ( */}
-                      Sign In
-                      {/* )} */}
+                      ) : (
+                        "Sign In"
+                      )}
                     </button>
                   </Form>
                 )}

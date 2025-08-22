@@ -1,17 +1,26 @@
+import { logoutUser } from "@/api/auth";
 import { employeeLinks, employersLinks } from "@/utils/sidebarArray";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import { useDispatch } from "react-redux";
+import Swal from "sweetalert2";
 
 const percentage = 67;
 
 export default function Sidebar() {
   const [isToggled, setToggled] = useState(false);
-
+  const dispatch = useDispatch();
   const toggleTrueFalse = () => setToggled(!isToggled);
   const router = useRouter();
+  const isEmployeeRoute = router.pathname.startsWith("/employee");
+  const handleLogout = () => {
+    dispatch(logoutUser());
+
+    router.push(isEmployeeRoute ? "/employee/login" : "/employers/login");
+  };
 
   const sidebarLinks = router.pathname.includes("employee")
     ? employeeLinks
@@ -40,15 +49,33 @@ export default function Sidebar() {
                     textDecoration: "none",
                     fontWeight: "500",
                   }}
+                  onClick={(e) => {
+                    if (link.label === "Logout") {
+                      e.preventDefault(); // stop Next.js navigation
+                      Swal.fire({
+                        title: "Are you sure?",
+                        text: "You will be logged out!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, logout",
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          handleLogout();
+                        }
+                      });
+                    }
+                  }}
                 >
                   <i
                     className={link.icon}
                     style={{
-                      fontSize: "20px", // slightly larger for better visibility
-                      fontWeight: "bold", // ensure bold appearance
+                      fontSize: "20px",
+                      fontWeight: "bold",
                       color: router.pathname === link.path ? "white" : "black",
                       marginRight: "10px",
-                      minWidth: "24px", // prevents icons from shifting on hover
+                      minWidth: "24px",
                       textAlign: "center",
                     }}
                   />

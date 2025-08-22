@@ -5687,10 +5687,10 @@ select {
 
 input[type="date"] {
   position: relative;
-  color: white;
+  /* color: white; */
 }
 
-input[type="date"]:before {
+/* input[type="date"]:before {
   position: absolute;
   top: 2px;
   left: 2px;
@@ -5702,7 +5702,7 @@ input[type="date"]:before {
   line-height: 40px;
   padding: 0px 0px 0px 20px;
   background: #fff;
-}
+} */
 
 .box-file-uploaded {
   height: 100%;
@@ -6112,4 +6112,8 @@ select {
 .rmborder {
   border-bottom: 0 !important;
   padding-bottom: 0 !important;
+}
+
+select {
+  margin-left: 0px !important;
 }

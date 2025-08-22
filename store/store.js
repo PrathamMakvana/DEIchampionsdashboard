@@ -3,11 +3,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import authReducer from "./slice/authSlice";
+import jobReducer from "./slice/jobSlice";
 import { combineReducers } from "redux";
 
 // Combine reducers if you plan to add more slices later
 const rootReducer = combineReducers({
   auth: authReducer,
+  job: jobReducer,
 });
 
 // Persist config

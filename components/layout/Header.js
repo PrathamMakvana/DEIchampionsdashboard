@@ -3,13 +3,14 @@ import { Menu } from "@headlessui/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 export default function Header() {
   const [scroll, setScroll] = useState(0);
   const router = useRouter();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
   useEffect(() => {
     document.addEventListener("scroll", () => {
       const scrollCheck = window.scrollY > 100;
@@ -135,15 +136,18 @@ export default function Header() {
                         style={{ right: "0", left: "auto" }}
                       >
                         <li>
-                          <Link className="dropdown-item" href="/profile">
+                          <Link
+                            className="dropdown-item"
+                            href="/employers/company-details"
+                          >
                             Profiles
                           </Link>
                         </li>
-                        <li>
+                        {/* <li>
                           <Link className="dropdown-item" href="/my-resume">
                             CV Manager
                           </Link>
-                        </li>
+                        </li> */}
                         {/* <li>
                           <span
                             className="dropdown-item"

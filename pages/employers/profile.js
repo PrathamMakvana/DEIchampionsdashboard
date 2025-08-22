@@ -1,6 +1,55 @@
 import Layout from "@/components/layout/Layout";
+import { useState } from "react";
 
 export default function Home() {
+  const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
+    businessEmail: "",
+    phone: "",
+    designation: "",
+    currentCompany: "",
+    linkedin: "",
+    description: "",
+  });
+
+  const [profileImage, setProfileImage] = useState(null);
+  const [companyLogo, setCompanyLogo] = useState(null);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData({
+      ...profileData,
+      [name]: value,
+    });
+  };
+
+  const handleImageUpload = (e, type) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (type === "profile") {
+        setProfileImage(URL.createObjectURL(file));
+      } else {
+        setCompanyLogo(URL.createObjectURL(file));
+      }
+    }
+  };
+
+  const handleRemoveImage = (type) => {
+    if (type === "profile") {
+      setProfileImage(null);
+    } else {
+      setCompanyLogo(null);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission here
+    console.log("Profile data:", profileData);
+    // You would typically send this data to your backend
+  };
+
   return (
     <>
       <Layout breadcrumbTitle="My Profile" breadcrumbActive="My Profile">
@@ -13,268 +62,185 @@ export default function Home() {
                     <h6 className="color-text-paragraph-2">
                       Update your profile
                     </h6>
+
+                    {/* Profile Image Upload */}
                     <div className="box-profile-image">
                       <div className="img-profile">
-                        <img
-                          src="../assets/imgs/page/profile/img-profile.png"
-                          alt="jobBox"
-                        />
+                        {profileImage ? (
+                          <img
+                            src={profileImage}
+                            alt="Profile"
+                            className="cmpprofile-image"
+                          />
+                        ) : (
+                          <img
+                            src="../assets/imgs/page/profile/img-profile.png"
+                            alt="jobBox"
+                          />
+                        )}
                       </div>
                       <div className="info-profile">
-                        <a className="btn btn-default">Upload Avatar</a>
-                        <a className="btn btn-link">Delete</a>
+                        <label
+                          htmlFor="profile-upload"
+                          className="btn btn-default"
+                        >
+                          Upload Profile Image
+                        </label>
+                        <input
+                          id="profile-upload"
+                          type="file"
+                          accept="image/*"
+                          style={{ display: "none" }}
+                          onChange={(e) => handleImageUpload(e, "profile")}
+                        />
+                        {profileImage && (
+                          <a
+                            className="btn btn-link"
+                            onClick={() => handleRemoveImage("profile")}
+                          >
+                            Delete
+                          </a>
+                        )}
                       </div>
                     </div>
-                    <div className="row">
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Full Name *
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="Steven Job"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Email *
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="stevenjob@gmail.com"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Contact number
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="01 - 234 567 89"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Personal website
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="https://alithemes.com"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Bio
-                          </label>
-                          <textarea
-                            className="form-control"
-                            name="message"
-                            rows={5}
-                            defaultValue={
-                              "We are AliThemes , a creative and dedicated group of individuals who love web development almost as much as we love our customers. We are passionate team with the mission for achieving the perfection in web design."
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Experience
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="1 - 5 Years"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Education Levels
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="Certificate"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Languages
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="English, French"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Categories
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="UI/UX designer"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Current Salary($)
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="$2500"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Expected Salary($)
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="$3500"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mt-10">
-                          <button className="btn btn-default btn-brand icon-tick">
-                            Save Change
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="panel-white mb-30">
-                  <div className="box-padding">
-                    <h6 className="color-text-paragraph-2">
-                      Contact Information
-                    </h6>
-                    <div className="row mt-30">
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Country
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="United States of America"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            City
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="Chicago"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Complete Address
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="205 North Michigan Avenue, Suite 810, Chicago, 60601, USA"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Find On Map
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="205 North Michigan Avenue, Suite 810, Chicago, 60601, USA"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Latitude
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="41.881832"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Longitude
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder=" -87.623177"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Google Map
-                          </label>
-                          <div className="box-map">
-                            <iframe
-                              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3403.4860084541583!2d-87.62575418429162!3d41.88608087922149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x880e2ca8b34afe61%3A0x6caeb5f721ca846!2s205%20N%20Michigan%20Ave%20Suit%20810%2C%20Chicago%2C%20IL%2060601%2C%20Hoa%20K%E1%BB%B3!5e1!3m2!1svi!2s!4v1663165156864!5m2!1svi!2s"
-                              style={{ border: 0 }}
-                              allowFullScreen=""
-                              loading="lazy"
-                              referrerPolicy="no-referrer-when-downgrade"
-                              width="100%"
-                              height={400}
+
+                    <form onSubmit={handleSubmit}>
+                      <div className="row">
+                        <div className="col-lg-6 col-md-6">
+                          <div className="form-group mb-30">
+                            <label className="font-sm color-text-mutted mb-10">
+                              Full Name *
+                            </label>
+                            <input
+                              className="form-control"
+                              type="text"
+                              name="name"
+                              value={profileData.name}
+                              onChange={handleInputChange}
+                              placeholder="Steven Job"
+                              required
                             />
                           </div>
                         </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mt-0">
-                          <button className="btn btn-default btn-brand icon-tick">
-                            Save Change
-                          </button>
+                        <div className="col-lg-6 col-md-6">
+                          <div className="form-group mb-30">
+                            <label className="font-sm color-text-mutted mb-10">
+                              Email *
+                            </label>
+                            <input
+                              className="form-control"
+                              type="email"
+                              name="email"
+                              value={profileData.email}
+                              onChange={handleInputChange}
+                              placeholder="stevenjob@gmail.com"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-lg-6 col-md-6">
+                          <div className="form-group mb-30">
+                            <label className="font-sm color-text-mutted mb-10">
+                              Business Email *
+                            </label>
+                            <input
+                              className="form-control"
+                              type="email"
+                              name="businessEmail"
+                              value={profileData.businessEmail}
+                              onChange={handleInputChange}
+                              placeholder="steven@company.com"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-lg-6 col-md-6">
+                          <div className="form-group mb-30">
+                            <label className="font-sm color-text-mutted mb-10">
+                              Phone *
+                            </label>
+                            <input
+                              className="form-control"
+                              type="tel"
+                              name="phone"
+                              value={profileData.phone}
+                              onChange={handleInputChange}
+                              placeholder="01 - 234 567 89"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-lg-6 col-md-6">
+                          <div className="form-group mb-30">
+                            <label className="font-sm color-text-mutted mb-10">
+                              Designation *
+                            </label>
+                            <input
+                              className="form-control"
+                              type="text"
+                              name="designation"
+                              value={profileData.designation}
+                              onChange={handleInputChange}
+                              placeholder="CEO"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-lg-6 col-md-6">
+                          <div className="form-group mb-30">
+                            <label className="font-sm color-text-mutted mb-10">
+                              Current Company *
+                            </label>
+                            <input
+                              className="form-control"
+                              type="text"
+                              name="currentCompany"
+                              value={profileData.currentCompany}
+                              onChange={handleInputChange}
+                              placeholder="Apple Inc."
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-lg-6 col-md-6">
+                          <div className="form-group mb-30">
+                            <label className="font-sm color-text-mutted mb-10">
+                              LinkedIn Profile
+                            </label>
+                            <input
+                              className="form-control"
+                              type="url"
+                              name="linkedin"
+                              value={profileData.linkedin}
+                              onChange={handleInputChange}
+                              placeholder="https://linkedin.com/in/username"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-lg-12">
+                          <div className="form-group mb-30">
+                            <label className="font-sm color-text-mutted mb-10">
+                              Description
+                            </label>
+                            <textarea
+                              className="form-control"
+                              name="description"
+                              rows={5}
+                              value={profileData.description}
+                              onChange={handleInputChange}
+                              placeholder="Tell us about yourself and your company..."
+                            />
+                          </div>
+                        </div>
+                        <div className="col-lg-12">
+                          <div className="form-group mt-10">
+                            <button className="btn btn-default btn-brand icon-tick">
+                              Save Changes
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -285,175 +251,39 @@ export default function Home() {
               <div className="container">
                 <div className="panel-white">
                   <div className="panel-head">
-                    <h5>Social Network</h5>
-                    <a
-                      className="menudrop"
-                      id="dropdownMenu3"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                      data-bs-display="static"
-                    />
-                    <ul
-                      className="dropdown-menu dropdown-menu-light dropdown-menu-end"
-                      aria-labelledby="dropdownMenu3"
-                    >
-                      <li>
-                        <a className="dropdown-item active" href="#">
-                          Add new
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Settings
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Actions
-                        </a>
-                      </li>
-                    </ul>
+                    <h5>Company Logo</h5>
                   </div>
                   <div className="panel-body pt-20">
-                    <div className="row">
-                      <div className="col-lg-12">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Facebook
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="https://www.facebook.com"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Twitter
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="https://twitter.com"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mb-30">
-                          <label className="font-sm color-text-mutted mb-10">
-                            Instagram
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="https://www.instagram.com"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mt-0">
-                          <button className="btn btn-default btn-brand icon-tick">
-                            Save Change
+                    <div className="cmpprofile-logo-upload">
+                      {companyLogo ? (
+                        <div className="cmpprofile-logo-preview">
+                          <img src={companyLogo} alt="Company Logo" />
+                          <button
+                            className="btn btn-link cmpprofile-remove-logo"
+                            onClick={() => handleRemoveImage("logo")}
+                          >
+                            Remove Logo
                           </button>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="section-box">
-              <div className="container">
-                <div className="panel-white">
-                  <div className="panel-head">
-                    <h5>My Skill</h5>
-                    <a
-                      className="menudrop"
-                      id="dropdownMenu3"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                      data-bs-display="static"
-                    />
-                    <ul
-                      className="dropdown-menu dropdown-menu-light dropdown-menu-end"
-                      aria-labelledby="dropdownMenu3"
-                    >
-                      <li>
-                        <a className="dropdown-item active" href="#">
-                          Add new
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Settings
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Actions
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="panel-body pt-20">
-                    <div className="row">
-                      <div className="col-lg-12">
-                        <div className="form-group mb-30">
-                          <input
-                            className="form-control icon-search-right"
-                            type="text"
-                            placeholder="E.g. Angular, Laravel..."
-                          />
+                      ) : (
+                        <div className="cmpprofile-logo-placeholder">
+                          <i className="bi bi-building"></i>
+                          <p>Upload your company logo</p>
                         </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="mb-20">
-                          <a className="btn btn-tag tags-link">
-                            Figma
-                            <span />
-                          </a>
-                          <a className="btn btn-tag tags-link">
-                            Adobe XD
-                            <span />
-                          </a>
-                          <a className="btn btn-tag tags-link">
-                            NextJS
-                            <span />
-                          </a>
-                          <a className="btn btn-tag tags-link">
-                            React
-                            <span />
-                          </a>
-                          <a className="btn btn-tag tags-link">
-                            App
-                            <span />
-                          </a>
-                          <a className="btn btn-tag tags-link">
-                            Digital
-                            <span />
-                          </a>
-                          <a className="btn btn-tag tags-link">
-                            NodeJS
-                            <span />
-                          </a>
-                        </div>
-                        <div className="mt-30 mb-40">
-                          <span className="info-icon font-sm color-text-paragraph-2">
-                            You can add up to 15 skills
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="form-group mt-0">
-                          <button className="btn btn-default btn-brand icon-tick">
-                            Save Change
-                          </button>
-                        </div>
-                      </div>
+                      )}
+                      <label
+                        htmlFor="logo-upload"
+                        className="btn btn-default btn-full-width"
+                      >
+                        Upload Company Logo
+                      </label>
+                      <input
+                        id="logo-upload"
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => handleImageUpload(e, "logo")}
+                      />
                     </div>
                   </div>
                 </div>
@@ -462,6 +292,59 @@ export default function Home() {
           </div>
         </div>
       </Layout>
+
+      <style jsx>{`
+        .cmpprofile-image {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .cmpprofile-logo-upload {
+          text-align: center;
+        }
+
+        .cmpprofile-logo-preview {
+          margin-bottom: 20px;
+        }
+
+        .cmpprofile-logo-preview img {
+          max-width: 100%;
+          max-height: 150px;
+          margin-bottom: 10px;
+        }
+
+        .cmpprofile-logo-placeholder {
+          height: 150px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          background-color: #f8f9fa;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          color: #6c757d;
+        }
+
+        .cmpprofile-logo-placeholder i {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+
+        .cmpprofile-remove-logo {
+          color: #dc3545;
+          text-decoration: none;
+        }
+
+        .cmpprofile-remove-logo:hover {
+          color: #bd2130;
+        }
+
+        .btn-full-width {
+          width: 100%;
+        }
+      `}</style>
     </>
   );
 }

@@ -16,7 +16,6 @@ export default function Layout({
 }) {
   const [isToggled, setToggled] = useState(false);
   const user = useSelector((state) => state.auth.user);
-  console.log("🚀user --->", user);
   const handleToggle = () => {
     setToggled(!isToggled);
     !isToggled

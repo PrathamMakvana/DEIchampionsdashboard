@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { verifyOtpUser } from "@/api/auth";
 
 export default function VerifyOTP() {
   const navigate = useRouter();
@@ -96,43 +97,42 @@ export default function VerifyOTP() {
     setIsVerifying(true);
 
     try {
-      // Replace this with your actual OTP verification API call
-      console.log("Verifying OTP:", otpCode, "for email:", email);
+      const payload = { email, otp: otpCode }; // backend expects this
+      const data = await dispatch(
+        verifyOtpUser(payload, {
+          showSuccess: (msg) =>
+            Swal.fire({
+              icon: "success",
+              title: "Verification Successful!",
+              text: msg,
+              timer: 2000,
+              showConfirmButton: false,
+            }),
+          showError: (msg) =>
+            Swal.fire({
+              icon: "error",
+              title: "Verification Failed",
+              text: msg,
+            }),
+        })
+      );
 
-      // Simulate API call
-      const response = await verifyOtpAPI(email, otpCode);
-
-      if (response.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Verification Successful!",
-          text: "You have been successfully logged in.",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-
-        // Store auth token if provided
-        if (response.token) {
-          localStorage.setItem("authToken", response.token);
-        }
-
-        // Redirect to dashboard or intended page
+      if (data?.success) {
         setTimeout(() => {
-          navigate.push("/dashboard");
+          navigate.push("/employee");
         }, 2000);
       } else {
-        throw new Error(response.message || "Invalid OTP");
+        // clear OTP if invalid
+        setOtpValues(["", "", "", "", "", ""]);
+        otpRefs.current[0]?.focus();
       }
     } catch (error) {
       console.error("OTP verification error:", error);
-
       Swal.fire({
         icon: "error",
         title: "Verification Failed",
         text: error.message || "Invalid OTP code. Please try again.",
       });
-
-      // Clear OTP inputs and focus first input
       setOtpValues(["", "", "", "", "", ""]);
       otpRefs.current[0]?.focus();
     } finally {
@@ -282,16 +282,12 @@ export default function VerifyOTP() {
               {/* Verify Button */}
               <button
                 className="btn btn-success w-100 btn-lg fw-bold verify-btn mb-4"
-                // onClick={handleOtpSubmit}
+                onClick={handleOtpSubmit}
                 disabled={isVerifying || otpValues.join("").length !== 6}
               >
                 {isVerifying ? (
                   <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
                     Verifying...
                   </>
                 ) : (
@@ -315,7 +311,7 @@ export default function VerifyOTP() {
                 ) : (
                   <button
                     className="btn btn-link p-0 text-link fw-medium"
-                    // onClick={handleResendOtp}
+                    onClick={handleResendOtp}
                     disabled={isVerifying}
                   >
                     <i className="bi bi-arrow-clockwise me-1"></i>

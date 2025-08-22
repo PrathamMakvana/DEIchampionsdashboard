@@ -7,27 +7,31 @@ import Swal from "sweetalert2";
 import { registerJobPoster } from "@/api/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import cityStateData from "@/utils/cityState.json";
 
 export default function JobPosterRegistration() {
   const dispatch = useDispatch();
   const navigate = useRouter();
+  const [cities, setCities] = useState([]);
   const loading = useSelector((state) => state.auth.loading);
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const states = cityStateData.data.map((item) => item.state);
+  const [selectedState, setSelectedState] = useState("");
 
   const initialValues = {
     mobile: "",
-    accountType: "individual",
-    fullName: "",
+    companyAccountType: "individual",
+    name: "",
     email: "",
     password: "",
     companyName: "",
     companyEmail: "",
-    designation: "",
+    companyDesignation: "",
     companySize: "",
-    industry: "",
-    website: "",
+    // industry: "",
+    companyWebsite: "",
     address: "",
     city: "",
     state: "",
@@ -39,22 +43,22 @@ export default function JobPosterRegistration() {
     mobile: Yup.string()
       .matches(/^[0-9]{10}$/, "Invalid mobile number")
       .required("Mobile number is required"),
-    accountType: Yup.string()
+    companyAccountType: Yup.string()
       .required("Account type is required")
       .oneOf(["company", "individual"], "Invalid account type"),
   });
 
   const step2ValidationSchema = Yup.object().shape({
-    fullName: Yup.string().required("Full name is required"),
+    name: Yup.string().required("Full name is required"),
     email: Yup.string()
       .email("Invalid email address")
       .required("Email is required"),
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-        "Password must contain uppercase, lowercase, number and special character"
-      )
+      // .matches(
+      //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      //   "Password must contain uppercase, lowercase, number and special character"
+      // )
       .required("Password is required"),
   });
 
@@ -63,9 +67,9 @@ export default function JobPosterRegistration() {
     companyEmail: Yup.string()
       .email("Invalid email address")
       .required("Company email is required"),
-    designation: Yup.string().required("Designation is required"),
+    companyDesignation: Yup.string().required("Designation is required"),
     companySize: Yup.string().required("Company size is required"),
-    industry: Yup.string().required("Industry is required"),
+    // industry: Yup.string().required("Industry is required"),
   });
 
   const finalValidationSchema = Yup.object().shape({
@@ -101,29 +105,27 @@ export default function JobPosterRegistration() {
       return;
     }
 
-    console.log("Job Poster Registration Data", values);
+    const data = await dispatch(
+      registerJobPoster(values, {
+        showSuccess: (msg) =>
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: msg,
+            timer: 1500,
+            showConfirmButton: false,
+          }),
+        showError: (msg) =>
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: msg,
+          }),
+      })
+    );
 
-    // const data = await dispatch(
-    //   registerJobPoster(values, {
-    //     showSuccess: (msg) =>
-    //       Swal.fire({
-    //         icon: "success",
-    //         title: "Success",
-    //         text: msg,
-    //         timer: 1500,
-    //         showConfirmButton: false,
-    //       }),
-    //     showError: (msg) =>
-    //       Swal.fire({
-    //         icon: "error",
-    //         title: "Error",
-    //         text: msg,
-    //       }),
-    //   })
-    // );
-
-    // if (!data) return;
-    // navigate.push("/login");
+    if (!data) return;
+    navigate.push("/employers/login");
   };
 
   const companySizes = [
@@ -148,36 +150,36 @@ export default function JobPosterRegistration() {
     "Other",
   ];
 
-  const states = [
-    "Andhra Pradesh",
-    "Arunachal Pradesh",
-    "Assam",
-    "Bihar",
-    "Chhattisgarh",
-    "Goa",
-    "Gujarat",
-    "Haryana",
-    "Himachal Pradesh",
-    "Jharkhand",
-    "Karnataka",
-    "Kerala",
-    "Madhya Pradesh",
-    "Maharashtra",
-    "Manipur",
-    "Meghalaya",
-    "Mizoram",
-    "Nagaland",
-    "Odisha",
-    "Punjab",
-    "Rajasthan",
-    "Sikkim",
-    "Tamil Nadu",
-    "Telangana",
-    "Tripura",
-    "Uttar Pradesh",
-    "Uttarakhand",
-    "West Bengal",
-  ];
+  // const states = [
+  //   "Andhra Pradesh",
+  //   "Arunachal Pradesh",
+  //   "Assam",
+  //   "Bihar",
+  //   "Chhattisgarh",
+  //   "Goa",
+  //   "Gujarat",
+  //   "Haryana",
+  //   "Himachal Pradesh",
+  //   "Jharkhand",
+  //   "Karnataka",
+  //   "Kerala",
+  //   "Madhya Pradesh",
+  //   "Maharashtra",
+  //   "Manipur",
+  //   "Meghalaya",
+  //   "Mizoram",
+  //   "Nagaland",
+  //   "Odisha",
+  //   "Punjab",
+  //   "Rajasthan",
+  //   "Sikkim",
+  //   "Tamil Nadu",
+  //   "Telangana",
+  //   "Tripura",
+  //   "Uttar Pradesh",
+  //   "Uttarakhand",
+  //   "West Bengal",
+  // ];
 
   const renderStep1 = (values) => (
     <div className="form-section">
@@ -222,12 +224,12 @@ export default function JobPosterRegistration() {
         <div className="status-cards">
           <label
             className={`status-card ${
-              values.accountType === "company" ? "active" : ""
+              values.companyAccountType === "company" ? "active" : ""
             }`}
           >
             <Field
               type="radio"
-              name="accountType"
+              name="companyAccountType"
               value="company"
               className="d-none"
             />
@@ -240,12 +242,12 @@ export default function JobPosterRegistration() {
 
           <label
             className={`status-card ${
-              values.accountType === "individual" ? "active" : ""
+              values.companyAccountType === "individual" ? "active" : ""
             }`}
           >
             <Field
               type="radio"
-              name="accountType"
+              name="companyAccountType"
               value="individual"
               className="d-none"
             />
@@ -259,7 +261,7 @@ export default function JobPosterRegistration() {
           </label>
         </div>
         <ErrorMessage
-          name="accountType"
+          name="companyAccountType"
           component="div"
           className="text-danger small mt-1"
         />
@@ -287,13 +289,13 @@ export default function JobPosterRegistration() {
           </span>
           <Field
             type="text"
-            name="fullName"
+            name="name"
             className="form-control form-control-lg border-start-0"
             placeholder="Enter your full name as per PAN"
           />
         </div>
         <ErrorMessage
-          name="fullName"
+          name="name"
           component="div"
           className="text-danger small mt-1"
         />
@@ -423,13 +425,13 @@ export default function JobPosterRegistration() {
             </span>
             <Field
               type="text"
-              name="designation"
+              name="companyDesignation"
               className="form-control form-control-lg border-start-0"
               placeholder="e.g., HR Manager, CEO"
             />
           </div>
           <ErrorMessage
-            name="designation"
+            name="companyDesignation"
             component="div"
             className="text-danger small mt-1"
           />
@@ -465,7 +467,7 @@ export default function JobPosterRegistration() {
       </div>
 
       <div className="row">
-        <div className="col-md-6 mb-4">
+        {/* <div className="col-md-6 mb-4">
           <label className="form-label">
             Industry<span className="text-danger">*</span>
           </label>
@@ -491,7 +493,7 @@ export default function JobPosterRegistration() {
             component="div"
             className="text-danger small mt-1"
           />
-        </div>
+        </div> */}
 
         <div className="col-md-6 mb-4">
           <label className="form-label">Website (Optional)</label>
@@ -501,7 +503,7 @@ export default function JobPosterRegistration() {
             </span>
             <Field
               type="url"
-              name="website"
+              name="companyWebsite"
               className="form-control form-control-lg border-start-0"
               placeholder="https://yourcompany.com"
             />
@@ -511,7 +513,7 @@ export default function JobPosterRegistration() {
     </div>
   );
 
-  const renderStep4 = () => (
+  const renderStep4 = (values, setFieldValue) => (
     <div className="form-section">
       <h2 className="section-title">
         <i className="bi bi-geo-alt me-2"></i>
@@ -547,6 +549,47 @@ export default function JobPosterRegistration() {
       <div className="row">
         <div className="col-md-4 mb-4">
           <label className="form-label">
+            State<span className="text-danger">*</span>
+          </label>
+          <div className="input-group">
+            <span className="input-group-text bg-light border-end-0">
+              <i className="bi bi-map text-primary"></i>
+            </span>
+            <Field
+              as="select"
+              name="state"
+              className="form-control form-control-lg border-start-0"
+              onChange={(e) => {
+                const stateValue = e.target.value;
+                setSelectedState(stateValue);
+                setFieldValue("state", stateValue);
+
+                if (stateValue) {
+                  const selected = cityStateData.data.find(
+                    (item) => item.state === stateValue
+                  );
+                  setCities(selected ? selected.cities : []);
+                } else {
+                  setCities([]);
+                }
+              }}
+            >
+              <option value="">Select State</option>
+              {states.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </Field>
+          </div>
+          <ErrorMessage
+            name="state"
+            component="div"
+            className="text-danger small mt-1"
+          />
+        </div>
+        <div className="col-md-4 mb-4">
+          <label className="form-label">
             City<span className="text-danger">*</span>
           </label>
           <div className="input-group">
@@ -559,53 +602,15 @@ export default function JobPosterRegistration() {
               className="form-control form-control-lg border-start-0"
             >
               <option value="">Select City</option>
-              <option value="Ahmedabad">Ahmedabad</option>
-              <option value="Surat">Surat</option>
-              <option value="Vadodara">Vadodara</option>
-              <option value="Rajkot">Rajkot</option>
-              <option value="Bhavnagar">Bhavnagar</option>
-              <option value="Jamnagar">Jamnagar</option>
-              <option value="Junagadh">Junagadh</option>
-              <option value="Gandhinagar">Gandhinagar</option>
-              <option value="Morbi">Morbi</option>
-              <option value="Nadiad">Nadiad</option>
-              <option value="Anand">Anand</option>
-              <option value="Bharuch">Bharuch</option>
-              <option value="Navsari">Navsari</option>
-              <option value="Vapi">Vapi</option>
-              <option value="Porbandar">Porbandar</option>
-            </Field>
-          </div>
-          <ErrorMessage
-            name="city"
-            component="div"
-            className="text-danger small mt-1"
-          />
-        </div>
-
-        <div className="col-md-4 mb-4">
-          <label className="form-label">
-            State<span className="text-danger">*</span>
-          </label>
-          <div className="input-group">
-            <span className="input-group-text bg-light border-end-0">
-              <i className="bi bi-map text-primary"></i>
-            </span>
-            <Field
-              as="select"
-              name="state"
-              className="form-control form-control-lg border-start-0"
-            >
-              <option value="">Select state</option>
-              {states.map((state) => (
-                <option key={state} value={state}>
-                  {state}
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
                 </option>
               ))}
             </Field>
           </div>
           <ErrorMessage
-            name="state"
+            name="city"
             component="div"
             className="text-danger small mt-1"
           />
@@ -710,16 +715,16 @@ export default function JobPosterRegistration() {
               <div className="form-body">
                 <Formik
                   initialValues={initialValues}
-                  // validationSchema={getValidationSchema()}
+                  validationSchema={getValidationSchema()}
                   onSubmit={handleSubmit}
                   enableReinitialize
                 >
-                  {({ values }) => (
+                  {({ values, setFieldValue }) => (
                     <Form>
                       {currentStep === 1 && renderStep1(values)}
                       {currentStep === 2 && renderStep2()}
                       {currentStep === 3 && renderStep3()}
-                      {currentStep === 4 && renderStep4()}
+                      {currentStep === 4 && renderStep4(values, setFieldValue)}
 
                       <div className="d-flex justify-content-between">
                         {currentStep > 1 && (

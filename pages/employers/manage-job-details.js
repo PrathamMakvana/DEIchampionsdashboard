@@ -1,7 +1,130 @@
+import { getJob, deleteJob } from "@/api/job";
 import Layout from "@/components/layout/Layout";
-import React from "react";
+import { LocaleRouteMatcher } from "next/dist/server/future/route-matchers/locale-route-matcher";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Swal from "sweetalert2";
 
 const JobDetailsPage = () => {
+  const router = useRouter();
+  const { id } = router.query;
+  const dispatch = useDispatch();
+  const { currentJob, loading } = useSelector((state) => state.job);
+  const [applicants, setApplicants] = useState([]);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getJob(id));
+    }
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (currentJob && currentJob.applicants) {
+      setApplicants(currentJob.applicants);
+    }
+  }, [currentJob]);
+
+  const handleEditJob = () => {
+    router.push(`/employers/post-job?id=${id}`);
+  };
+
+  const handleDeleteJob = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This job will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(
+          deleteJob(id, {
+            showSuccess: (msg) => {
+              Swal.fire("Deleted!", msg, "success").then(() => {
+                router.push("/employers/manage-jobs");
+              });
+            },
+            showError: (msg) => {
+              Swal.fire("Error!", msg, "error");
+            },
+          })
+        );
+      }
+    });
+  };
+
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      open: { class: "status-active", icon: "bi-check-circle", text: "Active" },
+      closed: { class: "status-closed", icon: "bi-x-circle", text: "Closed" },
+      draft: { class: "status-draft", icon: "bi-file-earmark", text: "Draft" },
+    };
+    const config = statusConfig[status] || {
+      class: "status-pending",
+      icon: "bi-clock",
+      text: status,
+    };
+    return (
+      <span className={`status-badge ${config.class}`}>
+        <i className={`bi ${config.icon}`}></i> {config.text}
+      </span>
+    );
+  };
+
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="page-content">
+          <div className="container">
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <p className="mt-3">Loading job details...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!currentJob) {
+    return (
+      <Layout>
+        <div className="page-content">
+          <div className="container">
+            <div className="text-center py-5">
+              <i
+                className="bi bi-exclamation-circle text-warning"
+                style={{ fontSize: "3rem" }}
+              ></i>
+              <h3 className="mt-3">Job Not Found</h3>
+              <p className="text-muted">
+                The job you're looking for doesn't exist or may have been
+                removed.
+              </p>
+              <button
+                className="btn btn-primary mt-3"
+                onClick={() => router.push("/employers/manage-jobs")}
+              >
+                Back to Job Listings
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="page-content">
@@ -16,10 +139,16 @@ const JobDetailsPage = () => {
                     <i className="bi bi-file-earmark-text me-2"></i> Job Details
                   </h2>
                   <div>
-                    <button className="btn-action btn-edit">
+                    <button
+                      className="btn-action btn-edit"
+                      onClick={handleEditJob}
+                    >
                       <i className="bi bi-pencil"></i> Edit Job
                     </button>
-                    <button className="btn-action btn-delete">
+                    <button
+                      className="btn-action btn-delete"
+                      onClick={handleDeleteJob}
+                    >
                       <i className="bi bi-trash"></i> Delete
                     </button>
                   </div>
@@ -27,14 +156,13 @@ const JobDetailsPage = () => {
                 <div className="card-body">
                   <div className="job-header">
                     <div>
-                      <h3>Senior Frontend Developer</h3>
+                      <h3>{currentJob.jobTitle}</h3>
                       <p className="text-muted">
-                        Technology Department • Posted on May 15, 2025
+                        {currentJob.category?.title || "N/A"} • Posted on{" "}
+                        {formatDate(currentJob.createdAt)}
                       </p>
                     </div>
-                    <span className="status-badge status-active">
-                      <i className="bi bi-check-circle"></i> Active
-                    </span>
+                    {getStatusBadge(currentJob.status)}
                   </div>
 
                   <div className="job-meta">
@@ -44,7 +172,7 @@ const JobDetailsPage = () => {
                       </div>
                       <div className="meta-content">
                         <h5>Job Type</h5>
-                        <p>Full-time</p>
+                        <p>{currentJob.jobType?.name || "N/A"}</p>
                       </div>
                     </div>
 
@@ -54,7 +182,16 @@ const JobDetailsPage = () => {
                       </div>
                       <div className="meta-content">
                         <h5>Location</h5>
-                        <p>Remote (Global)</p>
+                        <p>
+                          {currentJob.locationArea
+                            ? `${currentJob.locationArea}, `
+                            : ""}
+                          {currentJob.city ? `${currentJob.city}, ` : ""}
+                          {currentJob.locationState
+                            ? `${currentJob.locationState}, `
+                            : ""}
+                          {currentJob.locationCountry || ""}
+                        </p>
                       </div>
                     </div>
 
@@ -64,7 +201,7 @@ const JobDetailsPage = () => {
                       </div>
                       <div className="meta-content">
                         <h5>Salary</h5>
-                        <p>$90,000 - $120,000</p>
+                        <p>{currentJob.salary || "Not specified"}</p>
                       </div>
                     </div>
 
@@ -74,7 +211,10 @@ const JobDetailsPage = () => {
                       </div>
                       <div className="meta-content">
                         <h5>Applicants</h5>
-                        <p>42 candidates</p>
+                        <p>
+                          {applicants.length} candidate
+                          {applicants.length !== 1 ? "s" : ""}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -84,66 +224,24 @@ const JobDetailsPage = () => {
                       <i className="bi bi-card-text"></i> Job Description
                     </h4>
                     <p>
-                      We're looking for a talented Senior Frontend Developer to
-                      join our growing technology team. You'll be responsible
-                      for building user interfaces for our web applications
-                      using modern JavaScript frameworks.
-                    </p>
-                    <p>
-                      You'll work closely with our design and backend teams to
-                      implement responsive, accessible, and performant user
-                      interfaces. This role requires strong expertise in React,
-                      TypeScript, and modern frontend tooling.
+                      {currentJob.jobDescription || "No description provided."}
                     </p>
                   </div>
 
-                  <div className="job-description">
-                    <h4 className="section-title">
-                      <i className="bi bi-list-check"></i> Responsibilities
-                    </h4>
-                    <ul className="requirements-list">
-                      <li>
-                        Develop responsive web applications using React and
-                        TypeScript
-                      </li>
-                      <li>
-                        Collaborate with UX/UI designers to implement designs
-                      </li>
-                      <li>
-                        Optimize applications for maximum speed and scalability
-                      </li>
-                      <li>
-                        Write unit and integration tests for frontend code
-                      </li>
-                      <li>Mentor junior developers and conduct code reviews</li>
-                      <li>
-                        Stay up-to-date with emerging frontend technologies
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="job-description">
-                    <h4 className="section-title">
-                      <i className="bi bi-clipboard-check"></i> Requirements
-                    </h4>
-                    <ul className="requirements-list">
-                      <li>
-                        5+ years of professional frontend development experience
-                      </li>
-                      <li>Expert knowledge of JavaScript, HTML5, and CSS3</li>
-                      <li>
-                        Proficiency with React and state management libraries
-                      </li>
-                      <li>
-                        Experience with TypeScript and modern CSS frameworks
-                      </li>
-                      <li>Familiarity with RESTful APIs and GraphQL</li>
-                      <li>
-                        Experience with testing frameworks (Jest, Cypress)
-                      </li>
-                      <li>Strong problem-solving and communication skills</li>
-                    </ul>
-                  </div>
+                  {currentJob.tags && currentJob.tags.length > 0 && (
+                    <div className="job-description">
+                      <h4 className="section-title">
+                        <i className="bi bi-tags"></i> Tags
+                      </h4>
+                      <div className="tags-container">
+                        {currentJob.tags.map((tag, index) => (
+                          <span key={index} className="tag">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -182,7 +280,7 @@ const JobDetailsPage = () => {
                     </div>
                     <div className="meta-content text-center">
                       <h5>Applicants</h5>
-                      <p>42</p>
+                      <p>{applicants.length}</p>
                     </div>
                   </div>
 
@@ -261,7 +359,7 @@ const JobDetailsPage = () => {
               </div>
 
               {/* Actions Card */}
-              <div className="job-overview-card container">
+              {/* <div className="job-overview-card container">
                 <div className="row">
                   <div className="col-12">
                     <h4 className="section-title d-flex align-items-center">
@@ -289,14 +387,17 @@ const JobDetailsPage = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
-          {/* Applicants Card */}
+
+          {/* Applicants Card - Only show if there are applicants */}
+          {/* {applicants.length > 0 && ( */}
           <div className="content-card">
             <div className="card-header">
               <h3 className="card-title" style={{ fontSize: "24px" }}>
-                <i className="bi bi-people me-2"></i> Applicants (42)
+                <i className="bi bi-people me-2"></i> Applicants (
+                {applicants.length})
               </h3>
               <div className="filters-container">
                 <button className="filter-btn active">All</button>
@@ -307,131 +408,81 @@ const JobDetailsPage = () => {
               </div>
             </div>
             <div className="card-body">
-              {/* Applicant 1 */}
-              <div className="applicant-card container">
-                <div className="row applicant-header align-items-center">
-                  <div className="col-auto">
-                    <div className="applicant-avatar">AS</div>
-                  </div>
-                  <div className="col">
-                    <div className="applicant-info">
-                      <h4>Alex Johnson</h4>
-                      <p>Senior Frontend Developer • 8 years experience</p>
-                    </div>
-                  </div>
-                  <div className="col-auto ms-auto">
-                    <span className="status-badge status-active">
-                      <i className="bi bi-star"></i> Top Candidate
-                    </span>
-                  </div>
-                </div>
-
-                <div className="row applicant-meta text-center text-md-start mt-3">
-                  <div className="col-12 col-md-2 mb-3 mb-md-0">
-                    <h5>Location</h5>
-                    <p>San Francisco, CA</p>
-                  </div>
-                  <div className="col-12 col-md-2 mb-3 mb-md-0">
-                    <h5>Applied</h5>
-                    <p>May 18, 2025</p>
-                  </div>
-                  <div className="col-12 col-md-2">
-                    <h5>Status</h5>
-                    <p className="text-success">Interview Scheduled</p>
-                  </div>
-                </div>
-
-                <div className="row justify-content-between align-items-center mt-3">
-                  <div className="col-12 col-md-8">
-                    <div className="d-flex justify-content-between justify-content-md-start applicant-stats flex-wrap">
-                      <div className="stat-item me-3 mb-2">
-                        <div className="stat-value">98%</div>
-                        <div className="stat-label">Match</div>
-                      </div>
-                      <div className="stat-item me-3 mb-2">
-                        <div className="stat-value">4.8</div>
-                        <div className="stat-label">Rating</div>
-                      </div>
-                      <div className="stat-item mb-2">
-                        <div className="stat-value">3</div>
-                        <div className="stat-label">Notes</div>
+              {applicants.map((applicant, index) => (
+                <div key={index} className="applicant-card container">
+                  <div className="row applicant-header align-items-center">
+                    <div className="col-auto">
+                      <div className="applicant-avatar">
+                        {applicant.name
+                          ? applicant.name.charAt(0).toUpperCase()
+                          : "A"}
                       </div>
                     </div>
-                  </div>
-                  <div className="col-12 col-md-4 text-md-end">
-                    <button className="btn-action btn-view me-2 mt-2 mt-md-0">
-                      <i className="bi bi-eye"></i> View Application
-                    </button>
-                    <button className="btn-action btn-edit mt-2 mt-md-0">
-                      <i className="bi bi-chat"></i> Message
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Applicant 2 */}
-              <div className="applicant-card container">
-                <div className="row applicant-header align-items-center">
-                  <div className="col-auto">
-                    <div className="applicant-avatar">MJ</div>
-                  </div>
-                  <div className="col">
-                    <div className="applicant-info">
-                      <h4>Maria Garcia</h4>
-                      <p>Frontend Engineer • 6 years experience</p>
-                    </div>
-                  </div>
-                  <div className="col-auto ms-auto">
-                    <span className="status-badge status-pending">
-                      <i className="bi bi-clock"></i> New
-                    </span>
-                  </div>
-                </div>
-
-                <div className="row applicant-meta text-center text-md-start mt-3">
-                  <div className="col-12 col-md-2 mb-3 mb-md-0">
-                    <h5>Location</h5>
-                    <p>Madrid, Spain</p>
-                  </div>
-                  <div className="col-12 col-md-2 mb-3 mb-md-0">
-                    <h5>Applied</h5>
-                    <p>May 20, 2025</p>
-                  </div>
-                  <div className="col-12 col-md-2">
-                    <h5>Status</h5>
-                    <p className="text-warning">Under Review</p>
-                  </div>
-                </div>
-
-                <div className="row justify-content-between align-items-center mt-3">
-                  <div className="col-12 col-md-8">
-                    <div className="d-flex justify-content-between justify-content-md-start applicant-stats flex-wrap">
-                      <div className="stat-item me-3 mb-2">
-                        <div className="stat-value">92%</div>
-                        <div className="stat-label">Match</div>
-                      </div>
-                      <div className="stat-item me-3 mb-2">
-                        <div className="stat-value">4.6</div>
-                        <div className="stat-label">Rating</div>
-                      </div>
-                      <div className="stat-item mb-2">
-                        <div className="stat-value">1</div>
-                        <div className="stat-label">Notes</div>
+                    <div className="col">
+                      <div className="applicant-info">
+                        <h4>{applicant.name || "Applicant"}</h4>
+                        <p>
+                          {applicant.experience || "No experience specified"}
+                        </p>
                       </div>
                     </div>
+                    <div className="col-auto ms-auto">
+                      <span className="status-badge status-active">
+                        <i className="bi bi-star"></i> Top Candidate
+                      </span>
+                    </div>
                   </div>
-                  <div className="col-12 col-md-4 text-md-end">
-                    <button className="btn-action btn-view me-2 mt-2 mt-md-0">
-                      <i className="bi bi-eye"></i> View Application
-                    </button>
-                    <button className="btn-action btn-edit mt-2 mt-md-0">
-                      <i className="bi bi-chat"></i> Message
-                    </button>
+
+                  <div className="row applicant-meta text-center text-md-start mt-3">
+                    <div className="col-12 col-md-2 mb-3 mb-md-0">
+                      <h5>Location</h5>
+                      <p>{applicant.location || "Not specified"}</p>
+                    </div>
+                    <div className="col-12 col-md-2 mb-3 mb-md-0">
+                      <h5>Applied</h5>
+                      <p>
+                        {applicant.appliedDate
+                          ? formatDate(applicant.appliedDate)
+                          : "Not specified"}
+                      </p>
+                    </div>
+                    <div className="col-12 col-md-2">
+                      <h5>Status</h5>
+                      <p className="text-success">Interview Scheduled</p>
+                    </div>
+                  </div>
+
+                  <div className="row justify-content-between align-items-center mt-3">
+                    <div className="col-12 col-md-8">
+                      <div className="d-flex justify-content-between justify-content-md-start applicant-stats flex-wrap">
+                        <div className="stat-item me-3 mb-2">
+                          <div className="stat-value">98%</div>
+                          <div className="stat-label">Match</div>
+                        </div>
+                        <div className="stat-item me-3 mb-2">
+                          <div className="stat-value">4.8</div>
+                          <div className="stat-label">Rating</div>
+                        </div>
+                        <div className="stat-item mb-2">
+                          <div className="stat-value">3</div>
+                          <div className="stat-label">Notes</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-4 text-md-end">
+                      <button className="btn-action btn-view me-2 mt-2 mt-md-0">
+                        <i className="bi bi-eye"></i> View Application
+                      </button>
+                      <button className="btn-action btn-edit mt-2 mt-md-0">
+                        <i className="bi bi-chat"></i> Message
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
+          {/* )} */}
         </div>
       </div>
     </Layout>
