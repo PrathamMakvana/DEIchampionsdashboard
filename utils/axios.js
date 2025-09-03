@@ -8,6 +8,10 @@ const axiosServices = axios.create({
   // baseURL: "http://localhost:5000/api",
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL + "/api",
 });
+console.log(
+  "🚀process.env.NEXT_PUBLIC_BACKEND_URL --->",
+  process.env.NEXT_PUBLIC_BACKEND_URL
+);
 
 axiosServices.interceptors.request.use(
   (config) => {

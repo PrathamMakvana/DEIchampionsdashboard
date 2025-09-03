@@ -1,36 +1,36 @@
 // src/redux/store.js
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
+import storage from "redux-persist/lib/storage";
+
 import authReducer from "./slice/authSlice";
 import jobReducer from "./slice/jobSlice";
 import gallery from "./slice/imageGallerySlice";
-import { combineReducers } from "redux";
 
-// Combine reducers if you plan to add more slices later
+const authPersistConfig = {
+  key: "auth",
+  storage,
+  blacklist: ["loading"], // do not persist loading
+};
+
 const rootReducer = combineReducers({
-  auth: authReducer,
+  auth: persistReducer(authPersistConfig, authReducer), // persist only auth with blacklist
   job: jobReducer,
   gallery: gallery,
 });
 
-// Persist config
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"], // only persist the auth slice
+  whitelist: ["auth"], // only persist auth
 };
 
-// Create persisted reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// Configure store
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false, // required for redux-persist
-    }),
+    getDefaultMiddleware({ serializableCheck: false }),
 });
 
 export const persistor = persistStore(store);
