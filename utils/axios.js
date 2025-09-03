@@ -5,8 +5,8 @@ const axiosServices = axios.create({
   // baseURL: API_BASE_URL,
   // baseURL: "https://dei-backend.onrender.com/api",
   // baseURL: "https://test-deibackend-1.onrender.com/api",
-  baseURL: "http://localhost:5000/api",
-  // baseURL: process.env.NEXT_PUBLIC_BACKEND_URL + "/api",
+  // baseURL: "http://localhost:5000/api",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL + "/api",
 });
 
 axiosServices.interceptors.request.use(
