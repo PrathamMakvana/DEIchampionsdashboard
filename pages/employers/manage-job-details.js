@@ -11,6 +11,7 @@ const JobDetailsPage = () => {
   const { id } = router.query;
   const dispatch = useDispatch();
   const { currentJob, loading } = useSelector((state) => state.job);
+  console.log("🚀currentJob --->", currentJob);
   const [applicants, setApplicants] = useState([]);
 
   useEffect(() => {
@@ -392,97 +393,99 @@ const JobDetailsPage = () => {
           </div>
 
           {/* Applicants Card - Only show if there are applicants */}
-          {/* {applicants.length > 0 && ( */}
-          <div className="content-card">
-            <div className="card-header">
-              <h3 className="card-title" style={{ fontSize: "24px" }}>
-                <i className="bi bi-people me-2"></i> Applicants (
-                {applicants.length})
-              </h3>
-              <div className="filters-container">
-                <button className="filter-btn active">All</button>
-                <button className="filter-btn">New</button>
-                <button className="filter-btn">Reviewed</button>
-                <button className="filter-btn">Interview</button>
-                <button className="filter-btn">Rejected</button>
+          {applicants.length > 0 && (
+            <div className="content-card">
+              <div className="card-header">
+                <h3 className="card-title" style={{ fontSize: "24px" }}>
+                  <i className="bi bi-people me-2"></i> Applicants (
+                  {applicants.length})
+                </h3>
+                <div className="filters-container">
+                  <button className="filter-btn active">All</button>
+                  <button className="filter-btn">New</button>
+                  <button className="filter-btn">Reviewed</button>
+                  <button className="filter-btn">Interview</button>
+                  <button className="filter-btn">Rejected</button>
+                </div>
+              </div>
+              <div className="card-body">
+                {Array.isArray(applicants) &&
+                  applicants.map((applicant, index) => (
+                    <div key={index} className="applicant-card container">
+                      <div className="row applicant-header align-items-center">
+                        <div className="col-auto">
+                          <div className="applicant-avatar">
+                            {applicant?.name
+                              ? applicant.name.charAt(0).toUpperCase()
+                              : "A"}
+                          </div>
+                        </div>
+                        <div className="col">
+                          <div className="applicant-info">
+                            <h4>{applicant.name || "Applicant"}</h4>
+                            <p>
+                              {applicant.workStatus ||
+                                "No experience specified"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="col-auto ms-auto">
+                          <span className="status-badge status-active">
+                            <i className="bi bi-star"></i> Top Candidate
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="row applicant-meta text-center text-md-start mt-3">
+                        <div className="col-12 col-md-2 mb-3 mb-md-0">
+                          <h5>Location</h5>
+                          <p>{applicant.city || "Not specified"}</p>
+                        </div>
+                        <div className="col-12 col-md-2 mb-3 mb-md-0">
+                          <h5>Applied</h5>
+                          <p>{formatDate(applicant.createdAt)}</p>
+                        </div>
+                        <div className="col-12 col-md-2">
+                          <h5>Status</h5>
+                          <p className="text-success">
+                            {applicant.status ? "Active" : "Inactive"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="row justify-content-between align-items-center mt-3">
+                        <div className="col-12 col-md-8">
+                          <div className="d-flex justify-content-between justify-content-md-start applicant-stats flex-wrap">
+                            <div className="stat-item me-3 mb-2">
+                              <div className="stat-value">98%</div>
+                              <div className="stat-label">Match</div>
+                            </div>
+                            <div className="stat-item me-3 mb-2">
+                              <div className="stat-value">4.8</div>
+                              <div className="stat-label">Rating</div>
+                            </div>
+                            <div className="stat-item mb-2">
+                              <div className="stat-value">
+                                {applicant.experience?.length || 0}
+                              </div>
+                              <div className="stat-label">Experiences</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-12 col-md-4 text-md-end">
+                          <button className="btn-action btn-view me-2 mt-2 mt-md-0">
+                            <i className="bi bi-eye"></i> View Application
+                          </button>
+                          <button className="btn-action btn-edit mt-2 mt-md-0">
+                            <i className="bi bi-chat"></i> Message
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
-            <div className="card-body">
-              {applicants.map((applicant, index) => (
-                <div key={index} className="applicant-card container">
-                  <div className="row applicant-header align-items-center">
-                    <div className="col-auto">
-                      <div className="applicant-avatar">
-                        {applicant.name
-                          ? applicant.name.charAt(0).toUpperCase()
-                          : "A"}
-                      </div>
-                    </div>
-                    <div className="col">
-                      <div className="applicant-info">
-                        <h4>{applicant.name || "Applicant"}</h4>
-                        <p>
-                          {applicant.experience || "No experience specified"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-auto ms-auto">
-                      <span className="status-badge status-active">
-                        <i className="bi bi-star"></i> Top Candidate
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="row applicant-meta text-center text-md-start mt-3">
-                    <div className="col-12 col-md-2 mb-3 mb-md-0">
-                      <h5>Location</h5>
-                      <p>{applicant.location || "Not specified"}</p>
-                    </div>
-                    <div className="col-12 col-md-2 mb-3 mb-md-0">
-                      <h5>Applied</h5>
-                      <p>
-                        {applicant.appliedDate
-                          ? formatDate(applicant.appliedDate)
-                          : "Not specified"}
-                      </p>
-                    </div>
-                    <div className="col-12 col-md-2">
-                      <h5>Status</h5>
-                      <p className="text-success">Interview Scheduled</p>
-                    </div>
-                  </div>
-
-                  <div className="row justify-content-between align-items-center mt-3">
-                    <div className="col-12 col-md-8">
-                      <div className="d-flex justify-content-between justify-content-md-start applicant-stats flex-wrap">
-                        <div className="stat-item me-3 mb-2">
-                          <div className="stat-value">98%</div>
-                          <div className="stat-label">Match</div>
-                        </div>
-                        <div className="stat-item me-3 mb-2">
-                          <div className="stat-value">4.8</div>
-                          <div className="stat-label">Rating</div>
-                        </div>
-                        <div className="stat-item mb-2">
-                          <div className="stat-value">3</div>
-                          <div className="stat-label">Notes</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-12 col-md-4 text-md-end">
-                      <button className="btn-action btn-view me-2 mt-2 mt-md-0">
-                        <i className="bi bi-eye"></i> View Application
-                      </button>
-                      <button className="btn-action btn-edit mt-2 mt-md-0">
-                        <i className="bi bi-chat"></i> Message
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* )} */}
+          )}
         </div>
       </div>
     </Layout>

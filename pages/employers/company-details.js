@@ -1,372 +1,555 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import { getuser } from "@/api/auth";
+import { getJobs } from "@/api/job";
 
 const CompanyProfile = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const { jobs, loading } = useSelector((state) => state.job);
+  console.log("🚀jobs --->", jobs);
+
+  useEffect(() => {
+    dispatch(getuser());
+    dispatch(getJobs());
+  }, []);
 
   return (
     <>
       <Layout>
+        <style jsx>{`
+          .jobposter-banner {
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: -25px;
+          }
+
+          .jobposter-profile-container {
+            position: relative;
+            padding: 0 20px;
+          }
+
+          .jobposter-logo-container {
+            /* position: absolute; */
+            /* top: -75px;
+            left: 30px; */
+            display: flex;
+            align-items: center;
+            gap: 20px;
+          }
+
+          .jobposter-logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3a8dde 0%, #6c48cc 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 60px;
+            font-weight: bold;
+            border: 5px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          .jobposter-company-header {
+            margin-bottom: 10px;
+          }
+
+          .jobposter-company-name {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+            color: #2d3748;
+          }
+
+          .jobposter-company-tagline {
+            font-size: 18px;
+            color: #4a5568;
+            margin: 5px 0 15px;
+          }
+
+          .jobposter-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+          }
+
+          .jobposter-stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+          }
+
+          .jobposter-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3a8dde;
+            margin-bottom: 5px;
+          }
+
+          .jobposter-stat-label {
+            color: #718096;
+            font-size: 14px;
+          }
+
+          .jobposter-content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+          }
+
+          .jobposter-main-content {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          }
+
+          .jobposter-sidebar {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          }
+
+          .jobposter-section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+          }
+
+          .jobposter-detail-item {
+            display: flex;
+            margin-bottom: 15px;
+          }
+
+          .jobposter-detail-icon {
+            width: 24px;
+            color: #3a8dde;
+            margin-right: 10px;
+            margin-top: 3px;
+          }
+
+          .jobposter-detail-content h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+          }
+
+          .jobposter-detail-content p {
+            margin: 5px 0 0;
+            color: #4a5568;
+          }
+
+          .jobposter-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+          }
+
+          .jobposter-gallery-item {
+            height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+
+          .jobposter-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+          }
+
+          .jobposter-gallery-item:hover img {
+            transform: scale(1.05);
+          }
+
+          .jobposter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+          }
+
+          .jobposter-tag {
+            background: #e9f2fe;
+            color: #3a8dde;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+          }
+
+          @media (max-width: 992px) {
+            .jobposter-content-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .jobposter-logo-container {
+              flex-direction: column;
+              align-items: center;
+              text-align: center;
+              /* left: 50%; */
+              /* transform: translateX(-50%); */
+            }
+
+            .jobposter-stats-grid {
+              grid-template-columns: repeat(2, 1fr);
+            }
+          }
+
+          @media (max-width: 576px) {
+            .jobposter-stats-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .jobposter-logo {
+              width: 120px;
+              height: 120px;
+              font-size: 40px;
+            }
+
+            .jobposter-banner {
+              height: 180px;
+              margin-bottom: 80px;
+            }
+          }
+        `}</style>
+
+        <div className="d-flex justify-content-end align-items-center mb-4">
+          <button
+            className="btn btn-sm btn-outline-secondary"
+            title="Edit"
+            onClick={() => router.push("/employers/update-profile")}
+          >
+            <i className="bi bi-pencil"></i>
+          </button>
+        </div>
+
         <div className="container">
-          <div className="company-card">
-            <div className="company-logo-container">
-              <div className="company-logo">
-                {user?.companyName ? user.companyName.charAt(0) : "DC"}
-              </div>
-              <h1 className="company-name">
-                {user?.companyName || "Dei Champions"}
-              </h1>
-              <p className="company-tagline">
-                Building inclusive workplaces for the future
-              </p>
+          {/* Banner */}
+          <div
+            className="jobposter-banner"
+            style={{
+              backgroundImage: user?.bannerPhotoUrl
+                ? `url(${user.bannerPhotoUrl})`
+                : "linear-gradient(135deg, #3a8dde 0%, #6c48cc 100%)",
+            }}
+          ></div>
 
-              <div className="company-stats">
-                <div className="stat-item">
-                  <div className="stat-value">
-                    {user?.companySize || "150+"}
-                  </div>
-                  <div className="stat-label">Employees</div>
+          <div className="jobposter-profile-container">
+            {/* Company Logo and Basic Info */}
+            <div className="jobposter-logo-container">
+              {user?.profilePhotoUrl ? (
+                <img
+                  src={user.profilePhotoUrl}
+                  alt={user.companyName || "Company Logo"}
+                  className="jobposter-logo"
+                  style={{ objectFit: "cover" }}
+                />
+              ) : (
+                <div className="jobposter-logo">
+                  {user?.companyName ? user.companyName.charAt(0) : "DC"}
                 </div>
-                <div className="stat-item">
-                  <div className="stat-value">12</div>
-                  <div className="stat-label">Countries</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-value">2010</div>
-                  <div className="stat-label">Founded</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-value">25+</div>
-                  <div className="stat-label">Open Positions</div>
-                </div>
-              </div>
-            </div>
+              )}
 
-            <div className="company-info">
-              <h2 className="section-title">About Us</h2>
-              <p className="company-description">
-                Dei Champions is a global leader in diversity, equity, and
-                inclusion solutions. We partner with organizations to create
-                workplaces where everyone feels valued, respected, and empowered
-                to contribute their unique perspectives. Our innovative platform
-                connects diverse talent with inclusive employers.
-              </p>
-              <p className="company-description">
-                Founded in 2010, we've grown from a small startup to a
-                multinational company serving clients across 12 countries. Our
-                mission is to transform workplace culture through technology,
-                education, and meaningful connections.
-              </p>
-
-              <div className="company-details overflowAuto">
-                <div className="detail-card">
-                  <i className="bi bi-geo-alt-fill detail-icon"></i>
-                  <h3 className="detail-title">Headquarters</h3>
-                  <p>
-                    {user?.city || "San Francisco"},{" "}
-                    {user?.state || "California"}
-                  </p>
-                  <p>{user?.address || "123 Innovation Way, Suite 500"}</p>
-                </div>
-
-                <div className="detail-card">
-                  <i className="bi bi-globe detail-icon"></i>
-                  <h3 className="detail-title">Global Presence</h3>
-                  <p>Offices in 12 countries worldwide</p>
-                  <p>Remote team across 25+ countries</p>
-                </div>
-
-                <div className="detail-card">
-                  <i className="bi bi-people-fill detail-icon"></i>
-                  <h3 className="detail-title">Our Team</h3>
-                  <p>150+ dedicated professionals</p>
-                  <p>45% leadership roles held by women</p>
-                </div>
-              </div>
-
-              <div className="action-buttons">
-                <button className="btn btn-primary">
-                  <i className="bi bi-globe me-2"></i>
-                  {user?.companyWebsite
-                    ? "Visit Our Website"
-                    : "Visit Our Website"}
-                </button>
-                <button className="btn btn-outline-primary">
-                  <i className="bi bi-envelope me-2"></i>Contact Us
-                </button>
-              </div>
-            </div>
-
-            {/* Rest of the content remains static as user object doesn't have this data */}
-            <div className="job-openings">
-              <h2 className="section-title">Current Job Openings</h2>
-
-              <div className="job-card">
-                <h3 className="job-title">Senior UX Designer</h3>
-                <div className="job-meta">
-                  <div className="job-meta-item">
-                    <i className="bi bi-briefcase"></i>
-                    <span>Full-time</span>
-                  </div>
-                  <div className="job-meta-item">
-                    <i className="bi bi-geo-alt"></i>
-                    <span>Remote</span>
-                  </div>
-                  <div className="job-meta-item">
-                    <i className="bi bi-cash"></i>
-                    <span>$90,000 - $120,000</span>
-                  </div>
-                </div>
-                <p className="job-description">
-                  We're seeking an experienced UX Designer to lead design
-                  initiatives for our core platform. You'll collaborate with
-                  product managers and engineers to create intuitive, accessible
-                  user experiences that drive engagement and satisfaction.
+              <div className="jobposter-company-header">
+                <h1 className="jobposter-company-name">
+                  {user?.companyName || "Dei Champions"}
+                </h1>
+                <p className="jobposter-company-tagline">
+                  {user?.tagline ||
+                    "Building inclusive workplaces for the future"}
                 </p>
-                <div className="mb-3">
-                  <span className="skill-badge">Adobe XD</span>
-                  <span className="skill-badge">UI/UX Design</span>
-                  <span className="skill-badge">User Research</span>
-                  <span className="skill-badge">Figma</span>
-                </div>
-                <button className="btn btn-sm btn-outline-primary">
-                  Apply Now
-                </button>
-              </div>
-
-              <div className="job-card">
-                <h3 className="job-title">Python Developer</h3>
-                <div className="job-meta">
-                  <div className="job-meta-item">
-                    <i className="bi bi-briefcase"></i>
-                    <span>Full-time</span>
-                  </div>
-                  <div className="job-meta-item">
-                    <i className="bi bi-geo-alt"></i>
-                    <span>San Francisco, CA</span>
-                  </div>
-                  <div className="job-meta-item">
-                    <i className="bi bi-cash"></i>
-                    <span>$100,000 - $140,000</span>
-                  </div>
-                </div>
-                <p className="job-description">
-                  Join our engineering team to build scalable backend services
-                  for our platform. You'll develop APIs, optimize database
-                  performance, and implement security best practices. Experience
-                  with Django or Flask required.
-                </p>
-                <div className="mb-3">
-                  <span className="skill-badge">Python</span>
-                  <span className="skill-badge">Django</span>
-                  <span className="skill-badge">REST APIs</span>
-                  <span className="skill-badge">PostgreSQL</span>
-                </div>
-                <button className="btn btn-sm btn-outline-primary">
-                  Apply Now
-                </button>
-              </div>
-
-              <div className="job-card">
-                <h3 className="job-title">DEI Program Manager</h3>
-                <div className="job-meta">
-                  <div className="job-meta-item">
-                    <i className="bi bi-briefcase"></i>
-                    <span>Full-time</span>
-                  </div>
-                  <div className="job-meta-item">
-                    <i className="bi bi-geo-alt"></i>
-                    <span>New York, NY</span>
-                  </div>
-                  <div className="job-meta-item">
-                    <i className="bi bi-cash"></i>
-                    <span>$85,000 - $110,000</span>
-                  </div>
-                </div>
-                <p className="job-description">
-                  Lead diversity and inclusion initiatives for our clients.
-                  Develop and implement DEI strategies, conduct training
-                  sessions, and measure program effectiveness. Experience in
-                  organizational development preferred.
-                </p>
-                <div className="mb-3">
-                  <span className="skill-badge">Diversity & Inclusion</span>
-                  <span className="skill-badge">Program Management</span>
-                  <span className="skill-badge">Training Development</span>
-                  <span className="skill-badge">HR</span>
-                </div>
-                <button className="btn btn-sm btn-outline-primary">
-                  Apply Now
-                </button>
-              </div>
-
-              <div className="text-center mt-4">
-                <button className="btn btn-primary">
-                  <i className="bi bi-search me-2"></i>View All 25 Positions
-                </button>
               </div>
             </div>
 
-            <div className="team-section">
-              <h2 className="section-title">Leadership Team</h2>
-
-              <div className="team-grid overflowAuto">
-                <div className="team-member">
-                  <div className="member-photo">
-                    <i className="bi bi-person-circle"></i>
-                  </div>
-                  <div className="member-info">
-                    <h4 className="member-name">Alex Morgan</h4>
-                    <p className="member-position">CEO & Founder</p>
-                    <div className="social-links">
-                      <a href="#" className="social-icon">
-                        <i className="bi bi-linkedin"></i>
-                      </a>
-                      <a href="#" className="social-icon">
-                        <i className="bi bi-twitter"></i>
-                      </a>
-                    </div>
-                  </div>
+            {/* Stats */}
+            <div className="jobposter-stats-grid">
+              <div className="jobposter-stat-card">
+                <div className="jobposter-stat-value">
+                  {user?.companySize || "150+"}
                 </div>
+                <div className="jobposter-stat-label">Employees</div>
+              </div>
 
-                <div className="team-member">
-                  <div className="member-photo">
-                    <i className="bi bi-person-circle"></i>
-                  </div>
-                  <div className="member-info">
-                    <h4 className="member-name">Jamal Williams</h4>
-                    <p className="member-position">Chief Technology Officer</p>
-                    <div className="social-links">
-                      <a href="#" className="social-icon">
-                        <i className="bi bi-linkedin"></i>
-                      </a>
-                      <a href="#" className="social-icon">
-                        <i className="bi bi-github"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
+              <div className="jobposter-stat-card">
+                <div className="jobposter-stat-value">12</div>
+                <div className="jobposter-stat-label">Countries</div>
+              </div>
 
-                <div className="team-member">
-                  <div className="member-photo">
-                    <i className="bi bi-person-circle"></i>
-                  </div>
-                  <div className="member-info">
-                    <h4 className="member-name">Priya Sharma</h4>
-                    <p className="member-position">Chief Diversity Officer</p>
-                    <div className="social-links">
-                      <a href="#" className="social-icon">
-                        <i className="bi bi-linkedin"></i>
-                      </a>
-                      <a href="#" className="social-icon">
-                        <i className="bi bi-instagram"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
+              <div className="jobposter-stat-card">
+                <div className="jobposter-stat-value">2010</div>
+                <div className="jobposter-stat-label">Founded</div>
+              </div>
 
-                <div className="team-member">
-                  <div className="member-photo">
-                    <i className="bi bi-person-circle"></i>
-                  </div>
-                  <div className="member-info">
-                    <h4 className="member-name">Marcus Chen</h4>
-                    <p className="member-position">VP of Product</p>
-                    <div className="social-links">
-                      <a href="#" className="social-icon">
-                        <i className="bi bi-linkedin"></i>
-                      </a>
-                      <a href="#" className="social-icon">
-                        <i className="bi bi-medium"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
+              <div className="jobposter-stat-card">
+                <div className="jobposter-stat-value">25+</div>
+                <div className="jobposter-stat-label">Open Positions</div>
               </div>
             </div>
 
-            <div className="culture-section">
-              <h2 className="section-title">Our Culture & Values</h2>
+            {/* Main Content Grid */}
+            <div className="jobposter-content-grid">
+              {/* Left Column - Main Content */}
+              <div className="jobposter-main-content">
+                <h2 className="jobposter-section-title">About Us</h2>
+                <p className="company-description">
+                  {user?.companyDescription ||
+                    `Dei Champions is a leading tech company dedicated to`}
+                </p>
 
-              <div className="values-grid overflowAuto">
-                <div className="value-card">
-                  <i className="bi bi-people value-icon"></i>
-                  <h3 className="value-title">Inclusion</h3>
-                  <p>
-                    We create environments where everyone feels they belong and
-                    can contribute their authentic selves.
-                  </p>
-                </div>
+                {user?.people && (
+                  <>
+                    <h4 className="mt-4" style={{ fontSize: "18px" }}>
+                      Our People
+                    </h4>
+                    <p>{user.people}</p>
+                  </>
+                )}
 
-                <div className="value-card">
-                  <i className="bi bi-lightbulb value-icon"></i>
-                  <h3 className="value-title">Innovation</h3>
-                  <p>
-                    We embrace new ideas and approaches to solve complex
-                    challenges in workplace diversity.
-                  </p>
-                </div>
+                {user?.recruitments && (
+                  <>
+                    <h4 className="mt-4" style={{ fontSize: "18px" }}>
+                      Recruitment Approach
+                    </h4>
+                    <p>{user.recruitments}</p>
+                  </>
+                )}
 
-                <div className="value-card">
-                  <i className="bi bi-heart value-icon"></i>
-                  <h3 className="value-title">Empathy</h3>
-                  <p>
-                    We listen deeply and seek to understand diverse perspectives
-                    and experiences.
-                  </p>
-                </div>
+                {/* Company Gallery */}
+                {user?.companyGallery && user.companyGallery.length > 0 && (
+                  <>
+                    <h2 className="jobposter-section-title mt-5">
+                      Company Gallery
+                    </h2>
+                    <div className="jobposter-gallery">
+                      {user.companyGallery.map((image, index) => (
+                        <div key={index} className="jobposter-gallery-item">
+                          <img
+                            src={image.imageUrl}
+                            alt={image.altText || "Company image"}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
 
-                <div className="value-card">
-                  <i className="bi bi-shield-check value-icon"></i>
-                  <h3 className="value-title">Integrity</h3>
-                  <p>
-                    We do what's right, even when it's difficult, and hold
-                    ourselves accountable.
-                  </p>
+                {/* Job Openings */}
+                <div className="job-openings mt-5">
+                  <h2 className="jobposter-section-title">
+                    Current Job Openings
+                  </h2>
+
+                  {Array.isArray(jobs) && jobs.length > 0 ? (
+                    jobs.map((job) => (
+                      <div className="job-card" key={job._id}>
+                        <h4 className="job-title">{job.jobTitle}</h4>
+
+                        <div className="job-meta">
+                          <div className="job-meta-item">
+                            <i className="bi bi-briefcase"></i>
+                            <span>{job.jobType?.name || "N/A"}</span>
+                          </div>
+                          <div className="job-meta-item">
+                            <i className="bi bi-geo-alt"></i>
+                            <span>
+                              {job.city}, {job.state}
+                            </span>
+                          </div>
+                          <div className="job-meta-item">
+                            <i className="bi bi-cash"></i>
+                            <span>{job.salary}</span>
+                          </div>
+                        </div>
+
+                        <p className="job-description">{job.jobDescription}</p>
+
+                        <div className="mb-3">
+                          {job.tags && job.tags.length > 0 ? (
+                            job.tags.map((tag, idx) => (
+                              <span className="skill-badge" key={idx}>
+                                {tag}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="skill-badge">No Tags</span>
+                          )}
+                        </div>
+                        <div className="d-flex justify-content-end">
+                          <a
+                            href={`/employers/manage-job-details?id=${job._id}`}
+                            class="text-primary text-decoration-none d-flex align-items-center gap-1"
+                            style={{
+                              padding: "5px 15px",
+                              border: "1px solid ",
+                              borderRadius: "30px",
+                              width: "fit-content",
+                            }}
+                          >
+                            <i class="bi bi-eye"></i> View Job Details
+                          </a>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No job openings available.</p>
+                  )}
+
+                  <div className="text-center mt-4">
+                    <button className="btn btn-primary">
+                      <i className="bi bi-search me-2"></i>View All{" "}
+                      {jobs?.length || 0} Positions
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="benefits mt-5">
-                <h2 className="section-title">Employee Benefits</h2>
-                <div className="benefit-list">
-                  <div className="benefit-item">
-                    <div className="benefit-icon">
-                      <i className="bi bi-heart-pulse"></i>
-                    </div>
-                    <div>Comprehensive health insurance</div>
+              {/* Right Column - Sidebar */}
+              <div className="jobposter-sidebar">
+                <h2 className="jobposter-section-title">Company Details</h2>
+
+                <div className="jobposter-detail-item">
+                  <div className="jobposter-detail-icon">
+                    <i className="bi bi-geo-alt-fill"></i>
                   </div>
-                  <div className="benefit-item">
-                    <div className="benefit-icon">
-                      <i className="bi bi-coin"></i>
-                    </div>
-                    <div>Generous retirement plans</div>
+                  <div className="jobposter-detail-content">
+                    <h4>Headquarters</h4>
+                    <p>
+                      {user?.city || "San Francisco"},{" "}
+                      {user?.state || "California"}
+                      <br />
+                      {user?.address || "123 Innovation Way, Suite 500"}
+                    </p>
                   </div>
-                  <div className="benefit-item">
-                    <div className="benefit-icon">
-                      <i className="bi bi-calendar-check"></i>
-                    </div>
-                    <div>Unlimited vacation policy</div>
+                </div>
+
+                <div className="jobposter-detail-item">
+                  <div className="jobposter-detail-icon">
+                    <i className="bi bi-globe"></i>
                   </div>
-                  <div className="benefit-item">
-                    <div className="benefit-icon">
-                      <i className="bi bi-house"></i>
-                    </div>
-                    <div>Remote work flexibility</div>
+                  <div className="jobposter-detail-content">
+                    <h4>Website</h4>
+                    <p>
+                      {user?.companyWebsite ? (
+                        <a
+                          href={user.companyWebsite}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {user.companyWebsite}
+                        </a>
+                      ) : (
+                        "Not provided"
+                      )}
+                    </p>
                   </div>
-                  <div className="benefit-item">
-                    <div className="benefit-icon">
-                      <i className="bi bi-mortarboard"></i>
-                    </div>
-                    <div>Professional development fund</div>
+                </div>
+
+                <div className="jobposter-detail-item">
+                  <div className="jobposter-detail-icon">
+                    <i className="bi bi-building"></i>
                   </div>
-                  <div className="benefit-item">
-                    <div className="benefit-icon">
-                      <i className="bi bi-tree"></i>
-                    </div>
-                    <div>Paid parental leave</div>
+                  <div className="jobposter-detail-content">
+                    <h4>Company Size</h4>
+                    <p>{user?.companySize || "150+ employees"}</p>
                   </div>
+                </div>
+
+                <div className="jobposter-detail-item">
+                  <div className="jobposter-detail-icon">
+                    <i className="bi bi-calendar-event"></i>
+                  </div>
+                  <div className="jobposter-detail-content">
+                    <h4>Member Since</h4>
+                    <p>
+                      {user?.memberSince
+                        ? new Date(user.memberSince).getFullYear()
+                        : "2010"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Certified Tags */}
+                {user?.certifiedTags && user.certifiedTags.length > 0 && (
+                  <>
+                    <h3 className="mt-4 mb-3 medal-badges-title">
+                      Certifications
+                    </h3>
+                    <div className="medal-badges-grid">
+                      {user.certifiedTags.map((tag, index) => {
+                        const getMedalColor = (name) => {
+                          if (name?.toLowerCase().includes("silver"))
+                            return "medal-silver";
+                          if (name?.toLowerCase().includes("gold"))
+                            return "medal-gold";
+                          if (name?.toLowerCase().includes("bronze"))
+                            return "medal-bronze";
+                          if (name?.toLowerCase().includes("platinum"))
+                            return "medal-platinum";
+                          if (
+                            name?.toLowerCase().includes("green") ||
+                            name?.toLowerCase().includes("eco")
+                          )
+                            return "medal-green";
+                          return "medal-blue";
+                        };
+
+                        const medalColor = getMedalColor(tag.name);
+
+                        return (
+                          <div
+                            key={index}
+                            className={`medal-certification-badge ${medalColor}`}
+                          >
+                            <div className="medal-badge-image">
+                              {tag.image ? (
+                                <img src={tag.image} alt={tag.name} />
+                              ) : (
+                                <i className="fas fa-award medal-default-icon"></i>
+                              )}
+                            </div>
+                            <span className="medal-badge-name">{tag.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {/* Action Buttons */}
+                <div className="d-grid gap-2 mt-4">
+                  {user?.companyWebsite && (
+                    <a
+                      href={user.companyWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-primary"
+                    >
+                      <i className="bi bi-globe me-2"></i>
+                      Visit Our Website
+                    </a>
+                  )}
+                  <button className="btn btn-outline-primary">
+                    <i className="bi bi-envelope me-2"></i>Contact Us
+                  </button>
                 </div>
               </div>
             </div>

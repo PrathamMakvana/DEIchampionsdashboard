@@ -6,13 +6,23 @@ import Layout from "@/components/layout/Layout";
 import CompanyImageGallery from "@/components/elements/ImageGallery";
 import { updateEmployersProfile } from "@/api/auth";
 import Swal from "sweetalert2";
+import DynamicSelect from "@/components/elements/DynamicSelect";
+import { getJobCategories } from "@/api/job";
+import * as Yup from "yup";
+import cityStateData from "@/utils/cityState.json";
+
+const states = cityStateData.data.map((item) => item.state);
 
 export default function CompanyProfileUpdate() {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const [logoPreview, setLogoPreview] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
   const [verificationStatus, setVerificationStatus] = useState("Unverified");
+  const [cities, setCities] = useState([]);
+
   const logoFileInputRef = useRef(null);
   const bannerFileInputRef = useRef(null);
 
@@ -20,7 +30,36 @@ export default function CompanyProfileUpdate() {
     if (user) {
       setVerificationStatus(user.companyVerified ? "Verified" : "Unverified");
     }
+    if (user?.profilePhotoUrl) {
+      setLogoPreview(user.profilePhotoUrl);
+    }
+    if (user?.bannerPhotoUrl) {
+      setBannerPreview(user.bannerPhotoUrl);
+    }
   }, [user]);
+
+  const { jobCategories } = useSelector((state) => state.job);
+
+  useEffect(() => {
+    dispatch(getJobCategories());
+  }, [dispatch]);
+
+  // Yup validation schema
+  const validationSchema = Yup.object().shape({
+    companyName: Yup.string().required("Company name is required"),
+    name: Yup.string().required("Contact person name is required"),
+    companySize: Yup.string().required("Company size is required"),
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is required"),
+    mobile: Yup.string().required("Mobile number is required"),
+    address: Yup.string().required("Address is required"),
+    city: Yup.string().required("City is required"),
+    state: Yup.string().required("State is required"),
+    pincode: Yup.string()
+      .required("Pincode is required")
+      .matches(/^[0-9]{6}$/, "Pincode must be 6 digits"),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -35,24 +74,39 @@ export default function CompanyProfileUpdate() {
       city: user?.city || "",
       state: user?.state || "",
       pincode: user?.pincode || "",
-      tagline: "",
-      aboutUs: "",
-      recruitments: "",
-      people: "",
-      companyField: "",
-      salary: "",
+
+      tagline: user?.tagline || "",
+      aboutUs: user?.companyDescription || "",
+      recruitments: user?.recruitments || "",
+      people: user?.people || "",
+      category: user?.city || "",
+      salary: user?.city || "",
       memberSince: user?.memberSince
         ? new Date(user.memberSince).toISOString().split("T")[0]
         : "",
       currentPassword: "",
       newPassword: "",
     },
+    validationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
       console.log("Form submitted:", values);
 
+      const formData = new FormData();
+
+      // append form fields
+      for (const key in values) {
+        if (values[key] !== undefined && values[key] !== null) {
+          formData.append(key, values[key]);
+        }
+      }
+
+      // append files if they exist
+      if (logoFile) formData.append("logo", logoFile);
+      if (bannerFile) formData.append("banner", bannerFile);
+
       const data = await dispatch(
-        updateEmployersProfile(values, {
+        updateEmployersProfile(formData, {
           showSuccess: (msg) =>
             Swal.fire({
               icon: "success",
@@ -69,17 +123,33 @@ export default function CompanyProfileUpdate() {
             }),
         })
       );
-      console.log("🚀data --->", data);
+
+      if (data.success) {
+        setLogoFile(null);
+        setBannerFile(null);
+      }
     },
   });
+
+  // When state changes (Formik-controlled), update cities
+  useEffect(() => {
+    const selectedState = formik.values.state;
+    if (selectedState) {
+      const selected = cityStateData.data.find(
+        (item) => item.state === selectedState
+      );
+      setCities(selected ? selected.cities : []);
+    } else {
+      setCities([]);
+    }
+  }, [formik.values.state]);
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setLogoFile(file); // store actual file
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setLogoPreview(e.target.result);
-      };
+      reader.onload = (e) => setLogoPreview(e.target.result);
       reader.readAsDataURL(file);
     }
   };
@@ -87,10 +157,9 @@ export default function CompanyProfileUpdate() {
   const handleBannerUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setBannerFile(file); // store actual file
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setBannerPreview(e.target.result);
-      };
+      reader.onload = (e) => setBannerPreview(e.target.result);
       reader.readAsDataURL(file);
     }
   };
@@ -112,13 +181,6 @@ export default function CompanyProfileUpdate() {
     <>
       <Layout>
         <div className="container py-4">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0">Company Profile</h1>
-            <span className="badge bg-info">
-              <i className="bi bi-building me-1"></i> Company Account
-            </span>
-          </div>
-
           <form onSubmit={formik.handleSubmit}>
             {/* Basic Information Card */}
             <div className="upd-pro-card mb-4">
@@ -184,12 +246,24 @@ export default function CompanyProfileUpdate() {
                         </label>
                         <input
                           type="text"
-                          className="form-control upd-pro-form-control"
+                          className={`form-control upd-pro-form-control ${
+                            formik.touched.companyName &&
+                            formik.errors.companyName
+                              ? "is-invalid"
+                              : ""
+                          }`}
                           name="companyName"
                           value={formik.values.companyName}
                           onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                           required
                         />
+                        {formik.touched.companyName &&
+                          formik.errors.companyName && (
+                            <div className="invalid-feedback">
+                              {formik.errors.companyName}
+                            </div>
+                          )}
                       </div>
                       <div className="col-md-6 upd-pro-form-group">
                         <label className="upd-pro-form-label">
@@ -197,24 +271,33 @@ export default function CompanyProfileUpdate() {
                         </label>
                         <input
                           type="text"
-                          className="form-control upd-pro-form-control"
+                          className={`form-control upd-pro-form-control ${
+                            formik.touched.name && formik.errors.name
+                              ? "is-invalid"
+                              : ""
+                          }`}
                           name="name"
                           value={formik.values.name}
                           onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                           required
                         />
+                        {formik.touched.name && formik.errors.name && (
+                          <div className="invalid-feedback">
+                            {formik.errors.name}
+                          </div>
+                        )}
                       </div>
                       <div className="col-md-6 upd-pro-form-group">
                         <label className="upd-pro-form-label">
-                          Company Designation *
+                          Member Since
                         </label>
                         <input
-                          type="text"
+                          type="date"
                           className="form-control upd-pro-form-control"
-                          name="companyDesignation"
-                          value={formik.values.companyDesignation}
+                          name="memberSince"
+                          value={formik.values.memberSince}
                           onChange={formik.handleChange}
-                          required
                         />
                       </div>
                       <div className="col-md-6 upd-pro-form-group">
@@ -232,19 +315,41 @@ export default function CompanyProfileUpdate() {
                           Company Size *
                         </label>
                         <select
-                          className="form-select upd-pro-form-control"
+                          className={`form-select upd-pro-form-control ${
+                            formik.touched.companySize &&
+                            formik.errors.companySize
+                              ? "is-invalid"
+                              : ""
+                          }`}
                           name="companySize"
                           value={formik.values.companySize}
                           onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
                         >
-                          <option>Select size</option>
-                          <option>1-10 employees</option>
-                          <option>11-50 employees</option>
-                          <option>51-200 employees</option>
-                          <option>201-500 employees</option>
-                          <option>501-1000 employees</option>
-                          <option>1000+ employees</option>
+                          <option value="">Select size</option>
+                          <option value="1-10 employees">1-10 employees</option>
+                          <option value="11-50 employees">
+                            11-50 employees
+                          </option>
+                          <option value="51-200 employees">
+                            51-200 employees
+                          </option>
+                          <option value="201-500 employees">
+                            201-500 employees
+                          </option>
+                          <option value="501-1000 employees">
+                            501-1000 employees
+                          </option>
+                          <option value="1000+ employees">
+                            1000+ employees
+                          </option>
                         </select>
+                        {formik.touched.companySize &&
+                          formik.errors.companySize && (
+                            <div className="invalid-feedback">
+                              {formik.errors.companySize}
+                            </div>
+                          )}
                       </div>
                       <div className="col-md-6 upd-pro-form-group">
                         <label className="upd-pro-form-label">
@@ -273,56 +378,6 @@ export default function CompanyProfileUpdate() {
                           placeholder="Enter your company tagline"
                         />
                       </div>
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">
-                          Company Field *
-                        </label>
-                        <select
-                          className="form-select upd-pro-form-control"
-                          name="companyField"
-                          value={formik.values.companyField}
-                          onChange={formik.handleChange}
-                        >
-                          <option value="">Select field</option>
-                          <option value="Technology">Technology</option>
-                          <option value="Manufacturing">Manufacturing</option>
-                          <option value="Healthcare">Healthcare</option>
-                          <option value="Finance">Finance</option>
-                          <option value="Education">Education</option>
-                          <option value="Retail">Retail</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">
-                          Salary Range
-                        </label>
-                        <select
-                          className="form-select upd-pro-form-control"
-                          name="salary"
-                          value={formik.values.salary}
-                          onChange={formik.handleChange}
-                        >
-                          <option value="">Select range</option>
-                          <option value="Competitive">Competitive</option>
-                          <option value="Entry Level">Entry Level</option>
-                          <option value="Mid Range">Mid Range</option>
-                          <option value="High">High</option>
-                          <option value="Not Disclosed">Not Disclosed</option>
-                        </select>
-                      </div>
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">
-                          Member Since
-                        </label>
-                        <input
-                          type="date"
-                          className="form-control upd-pro-form-control"
-                          name="memberSince"
-                          value={formik.values.memberSince}
-                          onChange={formik.handleChange}
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -342,12 +397,23 @@ export default function CompanyProfileUpdate() {
                     </label>
                     <input
                       type="email"
-                      className="form-control upd-pro-form-control"
+                      className={`form-control upd-pro-form-control ${
+                        formik.touched.email && formik.errors.email
+                          ? "is-invalid"
+                          : ""
+                      }`}
                       name="email"
                       value={formik.values.email}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       required
+                      disabled
                     />
+                    {formik.touched.email && formik.errors.email && (
+                      <div className="invalid-feedback">
+                        {formik.errors.email}
+                      </div>
+                    )}
                   </div>
                   <div className="col-md-6 upd-pro-form-group">
                     <label className="upd-pro-form-label">
@@ -355,57 +421,177 @@ export default function CompanyProfileUpdate() {
                     </label>
                     <input
                       type="tel"
-                      className="form-control upd-pro-form-control"
+                      className={`form-control upd-pro-form-control ${
+                        formik.touched.mobile && formik.errors.mobile
+                          ? "is-invalid"
+                          : ""
+                      }`}
                       name="mobile"
                       value={formik.values.mobile}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       required
                     />
+                    {formik.touched.mobile && formik.errors.mobile && (
+                      <div className="invalid-feedback">
+                        {formik.errors.mobile}
+                      </div>
+                    )}
                   </div>
                   <div className="col-md-12 upd-pro-form-group">
                     <label className="upd-pro-form-label">Address *</label>
                     <input
                       type="text"
-                      className="form-control upd-pro-form-control"
+                      className={`form-control upd-pro-form-control ${
+                        formik.touched.address && formik.errors.address
+                          ? "is-invalid"
+                          : ""
+                      }`}
                       name="address"
                       value={formik.values.address}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       required
                     />
+                    {formik.touched.address && formik.errors.address && (
+                      <div className="invalid-feedback">
+                        {formik.errors.address}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="col-md-3 upd-pro-form-group">
+                  {/* <div className="col-md-3 upd-pro-form-group">
                     <label className="upd-pro-form-label">City *</label>
                     <input
                       type="text"
-                      className="form-control upd-pro-form-control"
+                      className={`form-control upd-pro-form-control ${
+                        formik.touched.city && formik.errors.city
+                          ? "is-invalid"
+                          : ""
+                      }`}
                       name="city"
                       value={formik.values.city}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       required
                     />
+                    {formik.touched.city && formik.errors.city && (
+                      <div className="invalid-feedback">
+                        {formik.errors.city}
+                      </div>
+                    )}
                   </div>
                   <div className="col-md-3 upd-pro-form-group">
                     <label className="upd-pro-form-label">State *</label>
                     <input
                       type="text"
-                      className="form-control upd-pro-form-control"
+                      className={`form-control upd-pro-form-control ${
+                        formik.touched.state && formik.errors.state
+                          ? "is-invalid"
+                          : ""
+                      }`}
                       name="state"
                       value={formik.values.state}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       required
                     />
+                    {formik.touched.state && formik.errors.state && (
+                      <div className="invalid-feedback">
+                        {formik.errors.state}
+                      </div>
+                    )}
+                  </div> */}
+                  <div className="col-md-3 upd-pro-form-group">
+                    <label className="upd-pro-form-label">State *</label>
+                    <select
+                      name="state"
+                      className={`form-control upd-pro-form-control ${
+                        formik.touched.state && formik.errors.state
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      value={formik.values.state}
+                      onChange={(e) => {
+                        formik.handleChange(e); // update Formik value
+                        const stateValue = e.target.value;
+
+                        if (stateValue) {
+                          const selected = cityStateData.data.find(
+                            (item) => item.state === stateValue
+                          );
+                          setCities(selected ? selected.cities : []);
+                          formik.setFieldValue("city", ""); // reset city
+                        } else {
+                          setCities([]);
+                          formik.setFieldValue("city", "");
+                        }
+                      }}
+                      onBlur={formik.handleBlur}
+                      required
+                    >
+                      <option value="">Select State</option>
+                      {states.map((state) => (
+                        <option key={state} value={state}>
+                          {state}
+                        </option>
+                      ))}
+                    </select>
+                    {formik.touched.state && formik.errors.state && (
+                      <div className="invalid-feedback">
+                        {formik.errors.state}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* City Dropdown */}
+                  <div className="col-md-3 upd-pro-form-group">
+                    <label className="upd-pro-form-label">City *</label>
+                    <select
+                      name="city"
+                      className={`form-control upd-pro-form-control ${
+                        formik.touched.city && formik.errors.city
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      value={formik.values.city}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      required
+                    >
+                      <option value="">Select City</option>
+                      {cities.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                    {formik.touched.city && formik.errors.city && (
+                      <div className="invalid-feedback">
+                        {formik.errors.city}
+                      </div>
+                    )}
                   </div>
                   <div className="col-md-3 upd-pro-form-group">
                     <label className="upd-pro-form-label">Pincode *</label>
                     <input
                       type="text"
-                      className="form-control upd-pro-form-control"
+                      className={`form-control upd-pro-form-control ${
+                        formik.touched.pincode && formik.errors.pincode
+                          ? "is-invalid"
+                          : ""
+                      }`}
                       name="pincode"
                       value={formik.values.pincode}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       required
                     />
+                    {formik.touched.pincode && formik.errors.pincode && (
+                      <div className="invalid-feedback">
+                        {formik.errors.pincode}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -512,67 +698,6 @@ export default function CompanyProfileUpdate() {
                       onChange={handleBannerUpload}
                     />
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Security Card */}
-            <div className="upd-pro-card mb-4">
-              <div className="upd-pro-card-header">
-                <i className="bi bi-shield-lock me-2"></i> Security Settings
-              </div>
-              <div className="upd-pro-card-body">
-                <div className="row">
-                  <div className="col-md-6 upd-pro-form-group">
-                    <label className="upd-pro-form-label">
-                      Current Password
-                    </label>
-                    <div className="upd-pro-input-group">
-                      <input
-                        type="password"
-                        className="form-control upd-pro-form-control"
-                        placeholder="Enter current password"
-                        name="currentPassword"
-                        value={formik.values.currentPassword}
-                        onChange={formik.handleChange}
-                        id="currentPassword"
-                      />
-                      <span
-                        className="upd-pro-password-toggle"
-                        onClick={() =>
-                          togglePasswordVisibility("currentPassword")
-                        }
-                        id="toggleCurrentPassword"
-                      >
-                        <i className="bi bi-eye"></i>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-6 upd-pro-form-group">
-                    <label className="upd-pro-form-label">New Password</label>
-                    <div className="upd-pro-input-group">
-                      <input
-                        type="password"
-                        className="form-control upd-pro-form-control"
-                        placeholder="Enter new password"
-                        name="newPassword"
-                        value={formik.values.newPassword}
-                        onChange={formik.handleChange}
-                        id="newPassword"
-                      />
-                      <span
-                        className="upd-pro-password-toggle"
-                        onClick={() => togglePasswordVisibility("newPassword")}
-                        id="toggleNewPassword"
-                      >
-                        <i className="bi bi-eye"></i>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="form-text">
-                  Leave password fields blank if you don't want to change your
-                  password
                 </div>
               </div>
             </div>

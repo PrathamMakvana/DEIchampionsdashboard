@@ -4,8 +4,9 @@ import axios from "axios";
 const axiosServices = axios.create({
   // baseURL: API_BASE_URL,
   // baseURL: "https://dei-backend.onrender.com/api",
-  baseURL: "https://test-deibackend-1.onrender.com/api",
-  // baseURL: "http://localhost:5000/api",
+  // baseURL: "https://test-deibackend-1.onrender.com/api",
+  baseURL: "http://localhost:5000/api",
+  // baseURL: process.env.NEXT_PUBLIC_BACKEND_URL + "/api",
 });
 
 axiosServices.interceptors.request.use(
@@ -45,8 +46,13 @@ export const fetcher = async (args) => {
 };
 
 export const fetcherPost = async (args) => {
-  const [url, config] = Array.isArray(args) ? args : [args];
-  const res = await axiosServices.post(url, { ...config });
+  const [url, payload] = Array.isArray(args) ? args : [args];
+
+  const isFormData = payload instanceof FormData;
+
+  const res = await axiosServices.post(url, payload, {
+    headers: isFormData ? { "Content-Type": "multipart/form-data" } : undefined,
+  });
   return res.data;
 };
 

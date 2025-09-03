@@ -1,13 +1,13 @@
 import { setLoading, setUser } from "@/store/slice/authSlice";
 import { persistor } from "@/store/store";
-import { fetcherPost } from "@/utils/axios";
+import { fetcher, fetcherPost } from "@/utils/axios";
 
 export const registerUser =
   (formData, { showSuccess, showError }) =>
   async (dispatch) => {
     try {
       dispatch(setLoading(true));
-      const data = await fetcherPost(["/users/register", formData]);
+      const data = await fetcherPost(["/users/employee/register", formData]);
       if (data?.user) {
         dispatch(setUser(data.user));
       }
@@ -104,6 +104,21 @@ export const registerJobPoster =
     }
   };
 
+export const getuser = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcher(`/users/get-one-user`);
+    console.log("🚀res --->", res);
+    dispatch(setUser(res || null));
+    dispatch(setLoading(false));
+    return res;
+  } catch (error) {
+    console.error("Error fetching job:", error);
+    dispatch(setLoading(false));
+    return null;
+  }
+};
+
 export const updateEmployersProfile =
   (formData, { showSuccess, showError }) =>
   async (dispatch) => {
@@ -115,12 +130,44 @@ export const updateEmployersProfile =
         formData,
       ]);
       dispatch(setLoading(false));
+      if (data?.data) {
+        dispatch(setUser(data.data));
+      }
+      dispatch(getuser());
       showSuccess("Profile updated successfully!");
       return data;
     } catch (error) {
-      console.log("🚀error --->", error);
       dispatch(setLoading(false));
       showError(error?.response?.data?.message || "Failed to update Profile.");
+      return null;
+    }
+  };
+
+export const updateUserProfileWithResume =
+  (formData, { showSuccess, showError }) =>
+  async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const data = await fetcherPost([
+        "/users/update-profile-with-resume",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      ]);
+
+      if (data?.data) {
+        dispatch(setUser(data.data));
+      }
+      dispatch(getuser());
+      dispatch(setLoading(false));
+      showSuccess("Profile updated successfully!");
+      return data;
+    } catch (error) {
+      dispatch(setLoading(false));
+      showError(error?.response?.data?.message || "Failed to update profile.");
       return null;
     }
   };

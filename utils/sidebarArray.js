@@ -143,15 +143,15 @@ export const employersLinks = [
   //   icon: "bi-people", // Candidates
   // },
   {
-    path: "/employers/profile",
+    path: "/employers/company-details",
     label: "My Profile",
     icon: "bi-person", // Profile
   },
-  {
-    path: "/employers/update-profile",
-    label: "update Profile",
-    icon: "bi-person", // Profile
-  },
+  // {
+  //   path: "/employers/update-profile",
+  //   label: "update Profile",
+  //   icon: "bi-person", // Profile
+  // },
   // {
   //   path: "/employers/register",
   //   label: "Register",
@@ -190,11 +190,7 @@ export const employeeLinks = [
     label: "Profile Details",
     icon: "bi-file-earmark-person", // CV Manager
   },
-  {
-    path: "/employee/update-profile",
-    label: "update Details",
-    icon: "bi-file-earmark-person", // CV Manager
-  },
+
   // {
   //   path: "/employee/cv-manager",
   //   label: "CV Manager",

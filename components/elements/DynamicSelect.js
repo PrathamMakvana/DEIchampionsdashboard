@@ -4,17 +4,23 @@ const DynamicSelect = ({
   label,
   name,
   formik,
+  required = true,
   options = [],
   valueKey = "value",
   labelKey = "label",
   placeholder = "Select an option",
+  className = "font-sm color-text-mutted mb-10",
+  selectClassName = "form-control",
 }) => {
   return (
     <div className="form-group mb-30">
-      <label className="font-sm color-text-mutted mb-10">{label} *</label>
+      <label className={className}>
+        {label}
+        {required && "*"}
+      </label>
       <select
         name={name}
-        className="form-control"
+        className={selectClassName}
         value={formik.values[name] || ""}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}

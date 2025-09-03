@@ -60,7 +60,6 @@ export default function Home() {
   const { jobCategories, jobTypes, currentJob, loading } = useSelector(
     (state) => state.job
   );
-  console.log("🚀currentJob --->", currentJob);
 
   useEffect(() => {
     dispatch(getJobCategories());

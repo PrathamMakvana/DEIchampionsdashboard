@@ -1,14 +1,90 @@
 import { useFormik, FieldArray, FormikProvider } from "formik";
+import * as Yup from "yup";
 import { useState, useRef, useEffect } from "react";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import DynamicSelect from "@/components/elements/DynamicSelect";
+import { getJobCategories, getJobTypes } from "@/api/job";
+import { updateUserProfileWithResume } from "@/api/auth";
+import Swal from "sweetalert2";
+import moment from "moment";
+
+const salaryOptions = [
+  { value: "10-20 lac", label: "10-20 lac" },
+  { value: "20-30 lac", label: "20-30 lac" },
+  { value: "30-40 lac", label: "30-40 lac" },
+  { value: "40-50 lac", label: "40-50 lac" },
+];
+
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("Full name is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  mobile: Yup.string()
+    .matches(/^[0-9]{10}$/, "Mobile must be 10 digits")
+    .required("Mobile number is required"),
+  workStatus: Yup.string().required("Work status is required"),
+  address: Yup.string().required("Address is required"),
+  city: Yup.string().required("City is required"),
+  state: Yup.string().required("State is required"),
+  dateOfBirth: Yup.date()
+    .nullable()
+    .max(new Date(), "Date of birth cannot be in the future"),
+  pincode: Yup.string()
+    .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
+    .required("Pincode is required"),
+  education: Yup.array().of(
+    Yup.object().shape({
+      degree: Yup.string().required("Degree is required"),
+      institution: Yup.string().required("Institution is required"),
+      graduationYear: Yup.number()
+        .typeError("Graduation year must be a number")
+        .min(1950, "Year must be >= 1950")
+        .max(2030, "Year must be <= 2030")
+        .required("Graduation year is required"),
+    })
+  ),
+  experience: Yup.array().of(
+    Yup.object().shape({
+      companyName: Yup.string().required("Company name is required"),
+      position: Yup.string().required("Position is required"),
+      startDate: Yup.date().required("Start date is required"),
+      endDate: Yup.date().nullable(),
+      currentJob: Yup.boolean(),
+      description: Yup.string().nullable(),
+    })
+  ),
+});
 
 export default function UserProfileUpdate() {
   const user = useSelector((state) => state.auth.user);
+  console.log("🚀user --->", user);
+  const dispatch = useDispatch();
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [resumeFile, setResumeFile] = useState(null);
+  const [resumeFileName, setResumeFileName] = useState("");
   const [skills, setSkills] = useState([]);
   const fileInputRef = useRef(null);
+  const resumeFileInputRef = useRef(null);
+
+  const { jobCategories, jobTypes, loading } = useSelector(
+    (state) => state.job
+  );
+
+  useEffect(() => {
+    dispatch(getJobCategories());
+    dispatch(getJobTypes());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (user?.profilePhotoUrl) {
+      setPhotoPreview(user.profilePhotoUrl);
+    }
+    if (user?.resumeUrl) {
+      setResumeFileName(user.resumeUrl.split("/").pop());
+    }
+  }, [user]);
 
   const defaultInitialValues = {
     name: "",
@@ -38,7 +114,7 @@ export default function UserProfileUpdate() {
     ],
     experience: [
       {
-        company: "",
+        companyName: "",
         position: "",
         startDate: "",
         endDate: "",
@@ -50,13 +126,59 @@ export default function UserProfileUpdate() {
 
   const formik = useFormik({
     initialValues: defaultInitialValues,
-    onSubmit: (values) => {
-      // Simulate form submission
-      console.log("Form submitted:", {
-        ...values,
-        skills,
-        photo: photoPreview,
+    validationSchema,
+    onSubmit: async (values) => {
+      const formData = new FormData();
+
+      // Append all form fields
+      Object.keys(values).forEach((key) => {
+        if (values[key] !== null && values[key] !== undefined) {
+          if (
+            ["skills", "education", "experience", "preferences"].includes(key)
+          ) {
+            formData.append(key, JSON.stringify(values[key]));
+          } else {
+            formData.append(key, values[key]);
+          }
+        }
       });
+
+      // Append photo file if exists
+      if (photoFile) {
+        formData.append("photo", photoFile);
+      }
+
+      // Append resume file if exists
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      }
+
+      // Append skills
+      formData.append("skills", JSON.stringify(skills));
+
+      const data = await dispatch(
+        updateUserProfileWithResume(formData, {
+          showSuccess: (msg) =>
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: msg,
+              timer: 1500,
+              showConfirmButton: false,
+            }),
+          showError: (msg) =>
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: msg,
+            }),
+        })
+      );
+
+      if (data?.success) {
+        setPhotoFile(null);
+        setResumeFile(null);
+      }
     },
     enableReinitialize: true,
   });
@@ -67,6 +189,17 @@ export default function UserProfileUpdate() {
         ...defaultInitialValues,
         name: user.name || "",
         email: user.email || "",
+        mobile: user.mobile || "",
+        dateOfBirth: user.dateOfBirth
+          ? moment(user.dateOfBirth).format("YYYY-MM-DD")
+          : "",
+        gender: user.gender || "",
+        workStatus: user.workStatus || "unemployed",
+        address: user.address || "",
+        city: user.city || "",
+        state: user.state || "",
+        country: user.country || "",
+        pincode: user.pincode || "",
         education:
           user.education?.length > 0
             ? user.education
@@ -77,6 +210,8 @@ export default function UserProfileUpdate() {
             : defaultInitialValues.experience,
         jobType: user.preferences?.jobTypes?.[0] || "",
         department: user.preferences?.department?.[0] || "",
+        category: user.preferences?.category?.[0] || "",
+        salaryRange: user.preferences?.salary_range || "",
         preferredLocations:
           user.preferences?.preffered_locations?.join(", ") || "",
       });
@@ -88,11 +223,20 @@ export default function UserProfileUpdate() {
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setPhotoFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setPhotoPreview(e.target.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResumeUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setResumeFile(file);
+      setResumeFileName(file.name);
     }
   };
 
@@ -181,8 +325,13 @@ export default function UserProfileUpdate() {
                             placeholder="Enter your full name"
                             value={formik.values.name}
                             onChange={formik.handleChange}
-                            required
+                            onBlur={formik.handleBlur}
                           />
+                          {formik.touched.name && formik.errors.name && (
+                            <div className="text-danger">
+                              {formik.errors.name}
+                            </div>
+                          )}
                         </div>
                         <div className="col-md-6 user-upt-profile-form-group">
                           <label className="user-upt-profile-form-label">
@@ -192,11 +341,16 @@ export default function UserProfileUpdate() {
                             type="email"
                             className="form-control user-upt-profile-form-control"
                             name="email"
-                            placeholder="Enter your email address"
                             value={formik.values.email}
                             onChange={formik.handleChange}
-                            required
+                            onBlur={formik.handleBlur}
+                            disabled
                           />
+                          {formik.touched.email && formik.errors.email && (
+                            <div className="text-danger">
+                              {formik.errors.email}
+                            </div>
+                          )}
                         </div>
                         <div className="col-md-6 user-upt-profile-form-group">
                           <label className="user-upt-profile-form-label">
@@ -205,12 +359,17 @@ export default function UserProfileUpdate() {
                           <input
                             type="tel"
                             className="form-control user-upt-profile-form-control"
-                            placeholder="Enter your mobile number"
                             name="mobile"
+                            placeholder="Enter your mobile number"
                             value={formik.values.mobile}
                             onChange={formik.handleChange}
-                            required
+                            onBlur={formik.handleBlur}
                           />
+                          {formik.touched.mobile && formik.errors.mobile && (
+                            <div className="text-danger">
+                              {formik.errors.mobile}
+                            </div>
+                          )}
                         </div>
                         <div className="col-md-6 user-upt-profile-form-group">
                           <label className="user-upt-profile-form-label">
@@ -253,7 +412,7 @@ export default function UserProfileUpdate() {
                             name="workStatus"
                             value={formik.values.workStatus}
                             onChange={formik.handleChange}
-                            required
+                            onBlur={formik.handleBlur}
                           >
                             <option value="">Select Status</option>
                             <option value="employed">Employed</option>
@@ -261,6 +420,12 @@ export default function UserProfileUpdate() {
                             <option value="student">Student</option>
                             <option value="self-employed">Self-Employed</option>
                           </select>
+                          {formik.touched.workStatus &&
+                            formik.errors.workStatus && (
+                              <div className="text-danger">
+                                {formik.errors.workStatus}
+                              </div>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -282,13 +447,17 @@ export default function UserProfileUpdate() {
 
                       <input
                         type="text"
-                        className="form-control user-upt-profile-form-control"
-                        placeholder="Enter your address"
                         name="address"
+                        placeholder="Enter your address"
                         value={formik.values.address}
                         onChange={formik.handleChange}
-                        required
+                        onBlur={formik.handleBlur}
                       />
+                      {formik.touched.address && formik.errors.address && (
+                        <div className="text-danger">
+                          {formik.errors.address}
+                        </div>
+                      )}
                     </div>
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
@@ -303,6 +472,9 @@ export default function UserProfileUpdate() {
                         onChange={formik.handleChange}
                         required
                       />
+                      {formik.touched.city && formik.errors.city && (
+                        <div className="text-danger">{formik.errors.city}</div>
+                      )}
                     </div>
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
@@ -317,6 +489,9 @@ export default function UserProfileUpdate() {
                         onChange={formik.handleChange}
                         required
                       />
+                      {formik.touched.state && formik.errors.state && (
+                        <div className="text-danger">{formik.errors.state}</div>
+                      )}
                     </div>
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
@@ -330,6 +505,11 @@ export default function UserProfileUpdate() {
                         value={formik.values.country}
                         onChange={formik.handleChange}
                       />
+                      {formik.touched.country && formik.errors.country && (
+                        <div className="text-danger">
+                          {formik.errors.country}
+                        </div>
+                      )}
                     </div>
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
@@ -344,6 +524,11 @@ export default function UserProfileUpdate() {
                         onChange={formik.handleChange}
                         required
                       />
+                      {formik.touched.pincode && formik.errors.pincode && (
+                        <div className="text-danger">
+                          {formik.errors.pincode}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -422,12 +607,18 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="text"
-                                  className="form-control user-upt-profile-form-control"
-                                  placeholder="e.g. Bachelor of Technology"
                                   name={`education[${index}].degree`}
+                                  placeholder="e.g. Bachelor of Science in Computer Science"
                                   value={formik.values.education[index].degree}
                                   onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
                                 />
+                                {formik.touched.education?.[index]?.degree &&
+                                  formik.errors.education?.[index]?.degree && (
+                                    <div className="text-danger">
+                                      {formik.errors.education[index].degree}
+                                    </div>
+                                  )}
                               </div>
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
@@ -443,6 +634,17 @@ export default function UserProfileUpdate() {
                                   }
                                   onChange={formik.handleChange}
                                 />
+                                {formik.touched.education?.[index]
+                                  ?.institution &&
+                                  formik.errors.education?.[index]
+                                    ?.institution && (
+                                    <div className="text-danger">
+                                      {
+                                        formik.errors.education[index]
+                                          .institution
+                                      }
+                                    </div>
+                                  )}
                               </div>
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
@@ -461,6 +663,17 @@ export default function UserProfileUpdate() {
                                   }
                                   onChange={formik.handleChange}
                                 />
+                                {formik.touched.education?.[index]
+                                  ?.graduationYear &&
+                                  formik.errors.education?.[index]
+                                    ?.graduationYear && (
+                                    <div className="text-danger">
+                                      {
+                                        formik.errors.education[index]
+                                          .graduationYear
+                                      }
+                                    </div>
+                                  )}
                               </div>
                             </div>
                           </div>
@@ -511,15 +724,25 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="text"
-                                  className="form-control user-upt-profile-form-control"
-                                  placeholder="e.g. ABC Corporation"
-                                  name={`experience[${index}].company`}
-                                  onChange={formik.handleChange}
+                                  name={`experience[${index}].companyName`}
                                   value={
-                                    formik.values.experience[index].company
+                                    formik.values.experience[index].companyName
                                   }
-                                  required
+                                  placeholder="e.g. Example Corporation"
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
                                 />
+                                {formik.touched.experience?.[index]
+                                  ?.companyName &&
+                                  formik.errors.experience?.[index]
+                                    ?.companyName && (
+                                    <div className="text-danger">
+                                      {
+                                        formik.errors.experience[index]
+                                          .companyName
+                                      }
+                                    </div>
+                                  )}
                               </div>
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
@@ -536,6 +759,14 @@ export default function UserProfileUpdate() {
                                   }
                                   required
                                 />
+
+                                {formik.touched.experience?.[index]?.position &&
+                                  formik.errors.experience?.[index]
+                                    ?.position && (
+                                    <div className="text-danger">
+                                      {formik.errors.experience[index].position}
+                                    </div>
+                                  )}
                               </div>
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
@@ -546,11 +777,22 @@ export default function UserProfileUpdate() {
                                   className="form-control user-upt-profile-form-control"
                                   name={`experience[${index}].startDate`}
                                   onChange={formik.handleChange}
-                                  value={
+                                  value={moment(
                                     formik.values.experience[index].startDate
-                                  }
+                                  ).format("YYYY-MM-DD")}
                                   required
                                 />
+                                {formik.touched.experience?.[index]
+                                  ?.startDate &&
+                                  formik.errors.experience?.[index]
+                                    ?.startDate && (
+                                    <div className="text-danger">
+                                      {
+                                        formik.errors.experience[index]
+                                          .startDate
+                                      }
+                                    </div>
+                                  )}
                               </div>
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
@@ -562,9 +804,9 @@ export default function UserProfileUpdate() {
                                   placeholder="YYYY-MM-DD"
                                   name={`experience[${index}].endDate`}
                                   onChange={formik.handleChange}
-                                  value={
+                                  value={moment(
                                     formik.values.experience[index].endDate
-                                  }
+                                  ).format("YYYY-MM-DD")}
                                   disabled={
                                     formik.values.experience[index].currentJob
                                   }
@@ -606,7 +848,7 @@ export default function UserProfileUpdate() {
                           className="user-upt-profile-add-btn"
                           onClick={() =>
                             push({
-                              company: "",
+                              companyName: "",
                               position: "",
                               startDate: "",
                               endDate: "",
@@ -631,86 +873,47 @@ export default function UserProfileUpdate() {
                 <div className="user-upt-profile-card-body">
                   <div className="row">
                     <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Job Type
-                      </label>
-                      <select
-                        className="form-select user-upt-profile-form-control"
+                      <DynamicSelect
+                        label="Job Type"
                         name="jobType"
-                        value={formik.values.jobType}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Job Type</option>
-                        <option value="full-time">Full Time</option>
-                        <option value="part-time">Part Time</option>
-                        <option value="contract">Contract</option>
-                        <option value="internship">Internship</option>
-                        <option value="remote">Remote</option>
-                      </select>
+                        formik={formik}
+                        options={jobTypes}
+                        valueKey="_id"
+                        labelKey="name"
+                        placeholder="Select Type"
+                        className="user-upt-profile-form-label"
+                        required={false}
+                        selectClassName="form-control user-upt-profile-form-control"
+                      />
                     </div>
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Department
-                      </label>
-                      <select
-                        className="form-select user-upt-profile-form-control"
-                        name="department"
-                        value={formik.values.department}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Department</option>
-                        <option value="it">IT</option>
-                        <option value="hr">HR</option>
-                        <option value="finance">Finance</option>
-                        <option value="marketing">Marketing</option>
-                        <option value="operations">Operations</option>
-                        <option value="sales">Sales</option>
-                        <option value="customer-service">
-                          Customer Service
-                        </option>
-                        <option value="design">Design</option>
-                        <option value="engineering">Engineering</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Category
-                      </label>
-                      <select
-                        className="form-select user-upt-profile-form-control"
+                    {/*<div className="col-md-6 user-upt-profile-form-group">
+                      <DynamicSelect
+                        label="Job Category"
                         name="category"
-                        value={formik.values.category}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Category</option>
-                        <option value="entry-level">Entry Level</option>
-                        <option value="mid-level">Mid Level</option>
-                        <option value="senior-level">Senior Level</option>
-                        <option value="management">Management</option>
-                        <option value="executive">Executive</option>
-                        <option value="freelance">Freelance</option>
-                        <option value="consultant">Consultant</option>
-                      </select>
+                        formik={formik}
+                        options={jobCategories}
+                        valueKey="_id"
+                        labelKey="title"
+                        placeholder="Select Category"
+                        className="user-upt-profile-form-label"
+                        selectClassName="form-control user-upt-profile-form-control"
+                      />
+                    </div>*/}
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <DynamicSelect
+                        label="Salary"
+                        name="salaryRange"
+                        required={false}
+                        formik={formik}
+                        options={salaryOptions}
+                        valueKey="value"
+                        labelKey="label"
+                        placeholder="Select Salary"
+                        className="user-upt-profile-form-label"
+                        selectClassName="form-control user-upt-profile-form-control"
+                      />
                     </div>
                     <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Salary Range
-                      </label>
-                      <select
-                        className="form-select user-upt-profile-form-control"
-                        name="salaryRange"
-                        value={formik.values.salaryRange}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Salary Range</option>
-                        <option value="0-3">0-3 LPA</option>
-                        <option value="3-6">3-6 LPA</option>
-                        <option value="6-10">6-10 LPA</option>
-                        <option value="10-15">10-15 LPA</option>
-                        <option value="15+">15+ LPA</option>
-                      </select>
-                    </div>
-                    <div className="col-md-12 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
                         Preferred Locations
                       </label>
@@ -741,16 +944,39 @@ export default function UserProfileUpdate() {
                       type="file"
                       className="form-control user-upt-profile-form-control"
                       accept=".pdf,.doc,.docx"
+                      ref={resumeFileInputRef}
+                      onChange={handleResumeUpload}
                     />
                     <div className="form-text">
                       Accepted formats: PDF, DOC, DOCX (Max size: 5MB)
                     </div>
+                    {(user?.resume || resumeFileName) && (
+                      <div className="mt-2 d-flex align-items-center justify-content-end">
+                        {/* <span>
+                          Selected file:{" "}
+                          {resumeFileName ? resumeFileName : user?.resume}
+                        </span> */}
+                        {user?.resume && (
+                          <a
+                            href={`${
+                              process.env.NEXT_PUBLIC_BACKEND_URL
+                            }/${user.resume.replace(/^src[\\/]/, "")}`}
+                            className="btn btn-link ms-3"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <i className="bi bi-eye me-1"></i>View Current
+                            Resume
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Security Card */}
-              <div className="user-upt-profile-card">
+              {/* <div className="user-upt-profile-card">
                 <div className="user-upt-profile-card-header">
                   <i className="bi bi-shield-lock me-2"></i> Security
                 </div>
@@ -810,7 +1036,7 @@ export default function UserProfileUpdate() {
                     password
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Action Buttons */}
               <div className="d-flex justify-content-between mt-4">
