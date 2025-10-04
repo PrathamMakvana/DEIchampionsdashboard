@@ -7,6 +7,8 @@ const jobSlice = createSlice({
     jobTypes: [],
     jobs: [],
     currentJob: null,
+    myApplications: [], 
+      mySavedJobs: [],
     loading: false,
   },
   reducers: {
@@ -25,6 +27,12 @@ const jobSlice = createSlice({
     setCurrentJob: (state, action) => {
       state.currentJob = action.payload || null;
     },
+    setMyApplications: (state, action) => {  
+      state.myApplications = action.payload || [];
+    },
+    setMySavedJobs: (state, action) => {   
+    state.mySavedJobs = action.payload || [];
+  },
   },
 });
 
@@ -34,5 +42,8 @@ export const {
   setJobTypes,
   setJobs,
   setCurrentJob,
+  setMyApplications, 
+  setMySavedJobs,
 } = jobSlice.actions;
+
 export default jobSlice.reducer;

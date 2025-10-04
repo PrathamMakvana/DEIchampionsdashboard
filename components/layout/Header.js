@@ -11,6 +11,8 @@ export default function Header() {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  console.log("user",user)
+  
   useEffect(() => {
     document.addEventListener("scroll", () => {
       const scrollCheck = window.scrollY > 100;
@@ -38,6 +40,7 @@ export default function Header() {
       }
     });
   };
+
   return (
     <>
       <header className={`header sticky-bar ${scroll ? "stick" : ""}`}>
@@ -48,12 +51,16 @@ export default function Header() {
                 <Link className="d-flex justify-content-center" href="/">
                   <img
                     alt="jobBox"
-                    src="../assets/imgs/page/dashboard/logo2.png"
+                    src="/assets/imgs/page/dashboard/logo2.png"
                     style={{ width: "160px", height: "33px" }}
+                    onError={(e) => {
+                      // Fallback if image doesn't load
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = '<span style="font-size: 24px; font-weight: 700; color: #3b82f6;">JobPortal</span>';
+                    }}
                   />
                 </Link>
               </div>
-              {/* <span className="btn btn-grey-small ml-10">Admin area</span> */}
             </div>
             <div className="header-search">
               <div className="box-search">
@@ -67,22 +74,6 @@ export default function Header() {
                 </form>
               </div>
             </div>
-            {/* <div className="header-menu d-none d-md-block">
-              <ul>
-                <li>
-                  {" "}
-                  <Link href="#">Home </Link>
-                </li>
-                <li>
-                  {" "}
-                  <Link href="#">About us </Link>
-                </li>
-                <li>
-                  {" "}
-                  <Link href="#">Contact</Link>
-                </li>
-              </ul>
-            </div> */}
             <div className="header-right">
               <div className="block-signin">
                 {!employee && (
@@ -119,16 +110,23 @@ export default function Header() {
                 </Menu>
 
                 <div className="member-login">
-                  <img alt="" src="../assets/imgs/page/dashboard/profile.png" />
+                  <img 
+                    alt={user?.name || "User"} 
+                    src={user?.profilePhotoUrl || "/assets/imgs/page/dashboard/profile.png"}
+                    onError={(e) => {
+                      e.target.src = "/assets/imgs/page/dashboard/profile.png";
+                    }}
+                  />
                   <div className="info-member">
-                    {" "}
-                    <strong className="color-brand-1">Steven Jobs</strong>
+                    <strong className="color-brand-1">
+                      {user?.name || user?.companyName || "Steven Jobs"}
+                    </strong>
                     <Menu as="div" className="dropdown">
                       <Menu.Button
                         as="a"
                         className="font-xs color-text-paragraph-2 icon-down"
                       >
-                        Super Admin
+                        {user?.roleId === 2 ? "Employer" : user?.roleId === 3 ? "Employee" : "Admin"}
                       </Menu.Button>
                       <Menu.Items
                         as="ul"
@@ -138,24 +136,20 @@ export default function Header() {
                         <li>
                           <Link
                             className="dropdown-item"
-                            href="/employers/company-details"
+                            href={employee ? "/employee/Profile-details" : "/employers/company-details"}
                           >
-                            Profiles
+                            Profile
                           </Link>
                         </li>
-                        {/* <li>
-                          <Link className="dropdown-item" href="/my-resume">
-                            CV Manager
-                          </Link>
-                        </li> */}
-                        {/* <li>
+                        <li>
                           <span
                             className="dropdown-item"
+                            style={{ cursor: "pointer" }}
                             onClick={handleLogout}
                           >
                             Logout
                           </span>
-                        </li> */}
+                        </li>
                       </Menu.Items>
                     </Menu>
                   </div>

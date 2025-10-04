@@ -1,69 +1,16 @@
 "use client";
 import Layout from "@/components/layout/Layout";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getMyApplications, unapplyJob } from "@/api/job";
+import Swal from "sweetalert2";
 
 export default function AppliedJobs() {
-  const [activeFilter, setActiveFilter] = useState("All Applications");
+  const dispatch = useDispatch();
+  const { myApplications, loading } = useSelector((state) => state.job);
 
-  const jobData = [
-    {
-      id: 1,
-      title: "Senior Frontend Developer",
-      company: "TechInnovate Inc.",
-      status: "In Review",
-      statusClass: "status-review",
-      location: "San Francisco, CA",
-      type: "Full-time",
-      salary: "$120K - $140K",
-      appliedDate: "June 15, 2023",
-      description:
-        "Your application is currently being reviewed by the hiring team. We'll notify you when there's an update.",
-      icon: "hourglass-split",
-    },
-    {
-      id: 2,
-      title: "UX/UI Designer",
-      company: "Creative Solutions Ltd.",
-      status: "Applied",
-      statusClass: "status-applied",
-      location: "New York, NY",
-      type: "Remote",
-      salary: "$95K - $110K",
-      appliedDate: "June 20, 2023",
-      description:
-        "Your application has been successfully submitted! The hiring team will review your profile shortly.",
-      icon: "send-check",
-    },
-    {
-      id: 3,
-      title: "Product Manager",
-      company: "InnovateX Corporation",
-      status: "Accepted",
-      statusClass: "status-accepted",
-      location: "Austin, TX",
-      type: "Full-time",
-      salary: "$130K - $150K",
-      appliedDate: "May 28, 2023",
-      description:
-        "Congratulations! Your application has been accepted. The HR team will contact you with the next steps.",
-      icon: "check-circle",
-    },
-    {
-      id: 4,
-      title: "Data Scientist",
-      company: "AnalyticsPro",
-      status: "Rejected",
-      statusClass: "status-rejected",
-      location: "Boston, MA",
-      type: "Hybrid",
-      salary: "$140K - $160K",
-      appliedDate: "June 5, 2023",
-      description:
-        "We appreciate your interest but have decided to move forward with other candidates. We encourage you to apply for future positions.",
-      icon: "x-circle",
-    },
-  ];
+  const [activeFilter, setActiveFilter] = useState("All Applications");
 
   const filters = [
     "All Applications",
@@ -74,117 +21,184 @@ export default function AppliedJobs() {
     "Rejected",
   ];
 
+  useEffect(() => {
+    dispatch(getMyApplications());
+  }, [dispatch]);
+
   return (
-    <>
-      <Layout>
-        {/* Page Header */}
-        <div className="page-header">
-          <div className="header-content">
-            <div>
-              <h1 className="page-title">Applied Jobs</h1>
-              <p className="page-subtitle">
-                Track the status of all your job applications in one place
-              </p>
-            </div>
-            <div className="header-stats">
-              <span className="app-count">
-                <span className="count-number">12</span> applications
-              </span>
-            </div>
+    <Layout>
+      {/* Page Header */}
+      <div className="page-header">
+        <div className="header-content">
+          <div>
+            <h1 className="page-title">Applied Jobs</h1>
+            <p className="page-subtitle">
+              Track the status of all your job applications in one place
+            </p>
+          </div>
+          <div className="header-stats">
+            <span className="app-count">
+              <span className="count-number">
+                {myApplications?.length || 0}
+              </span>{" "}
+              applications
+            </span>
           </div>
         </div>
+      </div>
 
-        {/* Stats Section */}
-        <div className="stats-row">
-          <div className="stats-col">
-            <div className="stats-card">
-              <div className="stats-number">8</div>
-              <div className="stats-label">In Review</div>
-            </div>
-          </div>
-          <div className="stats-col">
-            <div className="stats-card">
-              <div className="stats-number">2</div>
-              <div className="stats-label">Interviewing</div>
-            </div>
-          </div>
-          <div className="stats-col">
-            <div className="stats-card">
-              <div className="stats-number">1</div>
-              <div className="stats-label">Accepted</div>
-            </div>
-          </div>
-          <div className="stats-col">
-            <div className="stats-card">
-              <div className="stats-number">1</div>
-              <div className="stats-label">Rejected</div>
-            </div>
+      {/* Stats Section */}
+      <div className="stats-row">
+        <div className="stats-col">
+          <div className="stats-card">
+            <div className="stats-number">8</div>
+            <div className="stats-label">In Review</div>
           </div>
         </div>
-
-        {/* Filters */}
-        <div className="filter-section">
-          <h5 className="filter-title">Filter by Status</h5>
-          <div className="filter-options">
-            {filters.map((filter) => (
-              <button
-                key={filter}
-                className={`filter-btn ${
-                  activeFilter === filter ? "active" : ""
-                }`}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter}
-              </button>
-            ))}
+        <div className="stats-col">
+          <div className="stats-card">
+            <div className="stats-number">2</div>
+            <div className="stats-label">Interviewing</div>
           </div>
         </div>
+        <div className="stats-col">
+          <div className="stats-card">
+            <div className="stats-number">1</div>
+            <div className="stats-label">Accepted</div>
+          </div>
+        </div>
+        <div className="stats-col">
+          <div className="stats-card">
+            <div className="stats-number">1</div>
+            <div className="stats-label">Rejected</div>
+          </div>
+        </div>
+      </div>
 
-        {/* Applied Jobs List */}
-        <div className="jobs-grid">
-          {jobData.map((job) => (
-            <div key={job.id} className="job-card">
-              <div className="job-card-header">
-                <h3 className="job-title">{job.title}</h3>
-                <p className="company-name">{job.company}</p>
-                <span className={`status-badge ${job.statusClass}`}>
-                  <i className={`bi bi-${job.icon} me-1`}></i>
-                  <span>{job.status}</span>
-                </span>
+      {/* Filters */}
+      <div className="filter-section">
+        <h5 className="filter-title">Filter by Status</h5>
+        <div className="filter-options">
+          {filters.map((filter) => (
+            <button
+              key={filter}
+              className={`filter-btn ${
+                activeFilter === filter ? "active" : ""
+              }`}
+              onClick={() => setActiveFilter(filter)}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      </div>
 
-                <div className="job-meta rmborder">
-                  <span className="job-meta-item">
-                    <i className="bi bi-geo-alt"></i> {job.location}
+      {/* Applied Jobs List */}
+      <div className="jobs-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {loading ? (
+          <p>Loading applications...</p>
+        ) : myApplications?.length > 0 ? (
+          myApplications.map((job) => (
+            <div
+              key={job._id}
+              className="job-card flex flex-col h-full border rounded-2xl shadow-md p-4 bg-white"
+            >
+              {/* Content (fills remaining height) */}
+              <div className="flex-grow">
+                <div className="job-card-header mb-3">
+                  <h3
+                    className="job-title font-semibold text-lg truncate"
+                    style={{ textTransform: "uppercase" }}
+                  >
+                    {job.jobTitle}
+                  </h3>
+
+                  <p className="company-name text-sm text-gray-600 truncate">
+                    {job.postedBy?.companyName}
+                  </p>
+                  <span className="status-badge inline-flex items-center text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded-md mt-2">
+                    <i className="bi bi-send-check me-1"></i>
+                    <span>Applied</span>
                   </span>
-                  <span className="job-meta-item">
-                    <i className="bi bi-briefcase"></i> {job.type}
+                </div>
+
+                {/* Meta Info */}
+                <div className="job-meta flex flex-wrap gap-3 text-sm text-gray-500 mb-3">
+                  <span className="job-meta-item flex items-center gap-1 truncate max-w-[150px]">
+                    <i className="bi bi-geo-alt"></i>
+                    {job.city}, {job.state}
                   </span>
-                  <span className="job-meta-item">
+                  <span className="job-meta-item flex items-center gap-1 truncate max-w-[120px]">
+                    <i className="bi bi-briefcase"></i> {job.jobType?.name}
+                  </span>
+                  <span className="job-meta-item flex items-center gap-1 truncate max-w-[100px]">
                     <i className="bi bi-cash"></i> {job.salary}
                   </span>
                 </div>
+
+                {/* Applied Date + Description */}
+                <div className="applied-date text-xs text-gray-500 mb-2">
+                  <i className="bi bi-calendar-check"></i> Applied on:{" "}
+                  {new Date(job.createdAt).toLocaleDateString()}
+                </div>
+                <p
+                  className="job-description text-sm text-gray-700"
+                  style={{
+                    flexGrow: "1",
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitLineClamp: "3",
+                    WebkitBoxOrient: "vertical",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {job.jobDescription}
+                </p>
               </div>
 
-              <div className="job-card-body">
-                <div className="applied-date">
-                  <i className="bi bi-calendar-check"></i> Applied on:{" "}
-                  {job.appliedDate}
-                </div>
-                <p className="job-description">{job.description}</p>
+              {/* Actions (pinned to bottom) */}
+              <div className="job-actions flex justify-between pt-3 border-t mt-auto">
+                <Link
+                  className="btn-details text-blue-600 hover:underline flex items-center"
+                  href={`/employee/job-details/${job._id}`}
+                >
+                  <i className="bi bi-eye me-1"></i> View Details
+                </Link>
 
-                <div className="job-actions">
-                  <Link className="btn-details" href={`/employee/job-details`}>
-                    <i className="bi bi-eye me-1"></i> View Details
-                  </Link>
-                  <button className="btn-save">
-                    <i className="bi bi-bookmark me-1"></i> Save Job
-                  </button>
-                </div>
+                <button
+                  className="btn-unapply text-red-600 hover:text-red-800 flex items-center"
+                  onClick={() => {
+                    Swal.fire({
+                      title: "Are you sure?",
+                      text: "You will unapply from this job.",
+                      icon: "warning",
+                      showCancelButton: true,
+                      confirmButtonColor: "#d33",
+                      cancelButtonColor: "#3085d6",
+                      confirmButtonText: "Yes, Unapply",
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        dispatch(
+                          unapplyJob(job._id, {
+                            showSuccess: (msg) =>
+                              Swal.fire("Success", msg, "success"),
+                            showError: (msg) =>
+                              Swal.fire("Error", msg, "error"),
+                          })
+                        );
+                      }
+                    });
+                  }}
+                >
+                  <i className="bi bi-x-circle me-1"></i> Unapply
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      </Layout>
-    </>
+          ))
+        ) : (
+          <p>No applications found.</p>
+        )}
+      </div>
+    </Layout>
   );
 }

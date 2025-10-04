@@ -4,6 +4,8 @@ import {
   setJobTypes,
   setLoading,
   setCurrentJob,
+  setMyApplications, 
+  setMySavedJobs
 } from "@/store/slice/jobSlice";
 import { fetcher, fetcherDelete, fetcherPost } from "@/utils/axios";
 
@@ -115,3 +117,116 @@ export const deleteJob =
       return null;
     }
   };
+
+
+
+  
+export const getMyApplications = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcher("job/my-applications");
+    dispatch(setMyApplications(res?.data || []));
+    dispatch(setLoading(false));
+    return res;
+  } catch (error) {
+    console.error("Error fetching my applications:", error);
+    dispatch(setLoading(false));
+    return null;
+  }
+};
+
+
+export const applyJob = (id, { showSuccess, showError }) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcherPost(`/job/apply/${id}`);
+    dispatch(setLoading(false));
+
+    dispatch(getMyApplications());
+
+    showSuccess("You have successfully applied for this job.");
+    return res;
+  } catch (error) {
+    console.error("Error applying job:", error);
+    dispatch(setLoading(false));
+    showError(error?.response?.data?.message || "Failed to apply for job.");
+    return null;
+  }
+};
+
+
+
+
+export const unapplyJob = (id, { showSuccess, showError }) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcherPost(`/job/unapply/${id}`);
+    dispatch(setLoading(false));
+
+    dispatch(getMyApplications());
+
+    showSuccess("You have unapplied from this job.");
+    return res;
+  } catch (error) {
+    console.error("Error unapplying job:", error);
+    dispatch(setLoading(false));
+    showError(error?.response?.data?.message || "Failed to unapply job.");
+    return null;
+  }
+};
+
+
+
+export const getMySavedJobs = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcher("/job/my-saved");  
+    dispatch(setMySavedJobs(res?.data || []));
+    dispatch(setLoading(false));
+    return res;
+  } catch (error) {
+    console.error("Error fetching saved jobs:", error);
+    dispatch(setLoading(false));
+    return null;
+  }
+};
+
+
+
+export const saveJob = (id, { showSuccess, showError }) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcherPost(`/job/save/${id}`);
+    dispatch(setLoading(false));
+
+    // Refresh saved jobs
+    dispatch(getMySavedJobs());
+
+    showSuccess("Job saved successfully.");
+    return res;
+  } catch (error) {
+    console.error("Error saving job:", error);
+    dispatch(setLoading(false));
+    showError(error?.response?.data?.message || "Failed to save job.");
+    return null;
+  }
+};
+
+export const unsaveJob = (id, { showSuccess, showError }) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcherPost(`/job/unsave/${id}`);
+    dispatch(setLoading(false));
+
+    // Refresh saved jobs
+    dispatch(getMySavedJobs());
+
+    showSuccess("Job unsaved successfully.");
+    return res;
+  } catch (error) {
+    console.error("Error unsaving job:", error);
+    dispatch(setLoading(false));
+    showError(error?.response?.data?.message || "Failed to unsave job.");
+    return null;
+  }
+};
