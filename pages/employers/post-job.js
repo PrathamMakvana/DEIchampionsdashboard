@@ -31,6 +31,7 @@ const validationSchema = Yup.object({
   city: Yup.string().required("City is required"),
   state: Yup.string().required("State is required"),
   country: Yup.string().required("Country is required"),
+  status: Yup.string().required("Status is required"),
   salary: Yup.string().required("Salary range is required"),
   category: Yup.string().required("Category is required"),
   tags: Yup.string(),
@@ -51,6 +52,7 @@ export default function Home() {
     city: "",
     state: "",
     country: "",
+    status: "open",
     salary: "",
     category: "",
     tags: "",
@@ -80,6 +82,7 @@ export default function Home() {
         city: currentJob.city || "",
         state: currentJob.state || "",
         country: currentJob.country || "",
+        status: currentJob.status || "open",
         salary: currentJob.salary || "",
         category: currentJob.category?._id || "",
         tags: Array.isArray(currentJob.tags) ? currentJob.tags.join(", ") : "",
@@ -409,6 +412,35 @@ export default function Home() {
                                   )}
                               </div>
                             </div>
+
+                            {/* Status */}
+                            {isEditMode && (
+                              <div className="col-lg-6 col-md-6">
+                                <div className="form-group mb-30">
+                                  <label className="font-sm color-text-mutted mb-10">
+                                    Status *
+                                  </label>
+                                  <select
+                                    name="status"
+                                    className="form-control"
+                                    value={formik.values.status}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                  >
+                                    <option value="">Select Status</option>
+                                    <option value="open">Open</option>
+                                    <option value="closed">Closed</option>
+                                    <option value="draft">Draft</option>
+                                  </select>
+                                  {formik.touched.status &&
+                                    formik.errors.status && (
+                                      <p className="text-danger">
+                                        {formik.errors.status}
+                                      </p>
+                                    )}
+                                </div>
+                              </div>
+                            )}
 
                             {/* Submit Button */}
                             <div className="col-lg-12">

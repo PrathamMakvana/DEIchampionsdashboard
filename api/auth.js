@@ -171,3 +171,16 @@ export const updateUserProfileWithResume =
       return null;
     }
   };
+
+export const getuserbyid = (id) => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcher(`/users/get-one/${id}`);
+    dispatch(setLoading(false));
+    return res;
+  } catch (error) {
+    console.error("Error fetching job:", error);
+    dispatch(setLoading(false));
+    return null;
+  }
+};

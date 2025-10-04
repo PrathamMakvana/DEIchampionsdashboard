@@ -28,7 +28,6 @@ export default function JobPosterRegistration() {
     password: "",
     companyName: "",
     companyEmail: "",
-    companyDesignation: "",
     companySize: "",
     // industry: "",
     companyWebsite: "",
@@ -67,7 +66,6 @@ export default function JobPosterRegistration() {
     companyEmail: Yup.string()
       .email("Invalid email address")
       .required("Company email is required"),
-    companyDesignation: Yup.string().required("Designation is required"),
     companySize: Yup.string().required("Company size is required"),
     // industry: Yup.string().required("Industry is required"),
   });
@@ -417,28 +415,6 @@ export default function JobPosterRegistration() {
       <div className="row">
         <div className="col-md-6 mb-4">
           <label className="form-label">
-            Your Designation<span className="text-danger">*</span>
-          </label>
-          <div className="input-group">
-            <span className="input-group-text bg-light border-end-0">
-              <i className="bi bi-briefcase text-primary"></i>
-            </span>
-            <Field
-              type="text"
-              name="companyDesignation"
-              className="form-control form-control-lg border-start-0"
-              placeholder="e.g., HR Manager, CEO"
-            />
-          </div>
-          <ErrorMessage
-            name="companyDesignation"
-            component="div"
-            className="text-danger small mt-1"
-          />
-        </div>
-
-        <div className="col-md-6 mb-4">
-          <label className="form-label">
             Company Size<span className="text-danger">*</span>
           </label>
           <div className="input-group">
@@ -463,6 +439,21 @@ export default function JobPosterRegistration() {
             component="div"
             className="text-danger small mt-1"
           />
+        </div>
+
+        <div className="col-md-6 mb-4">
+          <label className="form-label">Website (Optional)</label>
+          <div className="input-group">
+            <span className="input-group-text bg-light border-end-0">
+              <i className="bi bi-globe text-primary"></i>
+            </span>
+            <Field
+              type="url"
+              name="companyWebsite"
+              className="form-control form-control-lg border-start-0"
+              placeholder="https://yourcompany.com"
+            />
+          </div>
         </div>
       </div>
 
@@ -494,21 +485,6 @@ export default function JobPosterRegistration() {
             className="text-danger small mt-1"
           />
         </div> */}
-
-        <div className="col-md-6 mb-4">
-          <label className="form-label">Website (Optional)</label>
-          <div className="input-group">
-            <span className="input-group-text bg-light border-end-0">
-              <i className="bi bi-globe text-primary"></i>
-            </span>
-            <Field
-              type="url"
-              name="companyWebsite"
-              className="form-control form-control-lg border-start-0"
-              placeholder="https://yourcompany.com"
-            />
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -190,7 +190,7 @@ const JobSeekerProfile = () => {
                   {/* About Tab */}
                   {activeTab === "about" && (
                     <div>
-                      <h4 className="jobseeker-section-title">
+                      {/* <h4 className="jobseeker-section-title">
                         Professional Summary
                       </h4>
                       <p className="lead">
@@ -198,7 +198,7 @@ const JobSeekerProfile = () => {
                         experience in various fields. Passionate about
                         transforming complex problems into simple, beautiful,
                         and intuitive solutions.
-                      </p>
+                      </p> */}
 
                       <div className="row mt-4">
                         <div className="col-md-6">

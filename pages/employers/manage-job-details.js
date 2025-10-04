@@ -473,7 +473,14 @@ const JobDetailsPage = () => {
                           </div>
                         </div>
                         <div className="col-12 col-md-4 text-md-end">
-                          <button className="btn-action btn-view me-2 mt-2 mt-md-0">
+                          <button
+                            className="btn-action btn-view me-2 mt-2 mt-md-0"
+                            onClick={() =>
+                              router.push(
+                                `/employers/application-details?id=${applicant._id}`
+                              )
+                            }
+                          >
                             <i className="bi bi-eye"></i> View Application
                           </button>
                           <button className="btn-action btn-edit mt-2 mt-md-0">

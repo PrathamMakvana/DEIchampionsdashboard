@@ -7,7 +7,12 @@ import {
   setMyApplications, 
   setMySavedJobs
 } from "@/store/slice/jobSlice";
-import { fetcher, fetcherDelete, fetcherPost } from "@/utils/axios";
+import {
+  fetcher,
+  fetcherDelete,
+  fetcherPost,
+  fetcherUpdate,
+} from "@/utils/axios";
 
 export const getJobCategories = () => async (dispatch) => {
   try {
@@ -87,7 +92,7 @@ export const updateJob =
   async (dispatch) => {
     try {
       dispatch(setLoading(true));
-      const data = await fetcherPost([`/job/update/${id}`, formData]);
+      const data = await fetcherUpdate([`/job/update/${id}`, formData]);
       dispatch(setLoading(false));
       showSuccess("Job updated successfully!");
       return data;

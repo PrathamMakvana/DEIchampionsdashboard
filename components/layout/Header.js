@@ -11,8 +11,7 @@ export default function Header() {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  console.log("user",user)
-  
+
   useEffect(() => {
     document.addEventListener("scroll", () => {
       const scrollCheck = window.scrollY > 100;
@@ -55,8 +54,9 @@ export default function Header() {
                     style={{ width: "160px", height: "33px" }}
                     onError={(e) => {
                       // Fallback if image doesn't load
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = '<span style="font-size: 24px; font-weight: 700; color: #3b82f6;">JobPortal</span>';
+                      e.target.style.display = "none";
+                      e.target.parentElement.innerHTML =
+                        '<span style="font-size: 24px; font-weight: 700; color: #3b82f6;">JobPortal</span>';
                     }}
                   />
                 </Link>
@@ -110,9 +110,12 @@ export default function Header() {
                 </Menu>
 
                 <div className="member-login">
-                  <img 
-                    alt={user?.name || "User"} 
-                    src={user?.profilePhotoUrl || "/assets/imgs/page/dashboard/profile.png"}
+                  <img
+                    alt={user?.name || "User"}
+                    src={
+                      user?.profilePhotoUrl ||
+                      "/assets/imgs/page/dashboard/profile.png"
+                    }
                     onError={(e) => {
                       e.target.src = "/assets/imgs/page/dashboard/profile.png";
                     }}
@@ -126,7 +129,11 @@ export default function Header() {
                         as="a"
                         className="font-xs color-text-paragraph-2 icon-down"
                       >
-                        {user?.roleId === 2 ? "Employer" : user?.roleId === 3 ? "Employee" : "Admin"}
+                        {user?.roleId === 2
+                          ? "Employer"
+                          : user?.roleId === 3
+                          ? "Employee"
+                          : "Admin"}
                       </Menu.Button>
                       <Menu.Items
                         as="ul"
@@ -136,7 +143,11 @@ export default function Header() {
                         <li>
                           <Link
                             className="dropdown-item"
-                            href={employee ? "/employee/Profile-details" : "/employers/company-details"}
+                            href={
+                              employee
+                                ? "/employee/Profile-details"
+                                : "/employers/company-details"
+                            }
                           >
                             Profile
                           </Link>
