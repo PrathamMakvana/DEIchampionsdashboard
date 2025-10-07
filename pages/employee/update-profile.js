@@ -33,6 +33,8 @@ const validationSchema = Yup.object().shape({
   pincode: Yup.string()
     .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
     .required("Pincode is required"),
+    employeeDescription: Yup.string()
+    .required("Description is required"),
   education: Yup.array().of(
     Yup.object().shape({
       degree: Yup.string().required("Degree is required"),
@@ -91,6 +93,7 @@ export default function UserProfileUpdate() {
     email: "",
     mobile: "",
     dateOfBirth: null,
+    employeeDescription:"",
     gender: "",
     workStatus: "unemployed",
     address: "",
@@ -194,6 +197,7 @@ export default function UserProfileUpdate() {
           ? moment(user.dateOfBirth).format("YYYY-MM-DD")
           : "",
         gender: user.gender || "",
+        employeeDescription: user.employeeDescription || "",
         workStatus: user.workStatus || "unemployed",
         address: user.address || "",
         city: user.city || "",
@@ -428,6 +432,27 @@ export default function UserProfileUpdate() {
                             )}
                         </div>
                       </div>
+
+                        <div className="col-md-12 user-upt-profile-form-group">
+      <label className="user-upt-profile-form-label">
+       Description
+      </label>
+      <textarea
+        className="form-control user-upt-profile-form-control"
+        name="employeeDescription"
+        placeholder="Write a short description about yourself"
+        rows="4"
+        value={formik.values.employeeDescription}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+      />
+      {formik.touched.employeeDescription &&
+        formik.errors.employeeDescription && (
+          <div className="text-danger">{formik.errors.employeeDescription}</div>
+        )}
+    </div>
+                   
+                   
                     </div>
                   </div>
                 </div>

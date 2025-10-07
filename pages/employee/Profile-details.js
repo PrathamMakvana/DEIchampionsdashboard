@@ -105,21 +105,9 @@ const JobSeekerProfile = () => {
                     )}
                   </div>
 
-                  <div className="jobseeker-skills-container">
-                    <h5 className="jobseeker-section-title">
-                      <i className="bi bi-tools me-2"></i>Skills & Expertise
-                    </h5>
-                    <div className="d-flex flex-wrap">
-                      {user.skills &&
-                        user.skills.map((skill, index) => (
-                          <span key={index} className="jobseeker-skill-badge">
-                            {skill}
-                          </span>
-                        ))}
-                    </div>
-                  </div>
+                
 
-                  <div className="jobseeker-social-links">
+                  {/* <div className="jobseeker-social-links">
                     <a href="#" className="jobseeker-social-icon">
                       <i className="bi bi-facebook"></i>
                     </a>
@@ -132,7 +120,8 @@ const JobSeekerProfile = () => {
                     <a href="#" className="jobseeker-social-icon">
                       <i className="bi bi-linkedin"></i>
                     </a>
-                  </div>
+                  </div> */}
+
                 </div>
               </div>
 
@@ -200,6 +189,17 @@ const JobSeekerProfile = () => {
                         and intuitive solutions.
                       </p> */}
 
+                       <div className="row mt-4">
+                        <div className="col-md-6">
+                          <h5 className="jobseeker-section-title">
+                            <i className="bi bi-info-circle me-2"></i>About Me
+                          </h5>
+                          <p className="fw-bold">
+                            {user.employeeDescription || "Not specified"}
+                          </p>
+                        </div>
+                      </div>
+
                       <div className="row mt-4">
                         <div className="col-md-6">
                           <h5 className="jobseeker-section-title">
@@ -210,6 +210,20 @@ const JobSeekerProfile = () => {
                           </p>
                         </div>
                       </div>
+
+                        <div className="jobseeker-skills-container my-4">
+                    <h5 className="jobseeker-section-title">
+                      <i className="bi bi-tools me-2"></i>Skills & Expertise
+                    </h5>
+                    <div className="d-flex flex-wrap">
+                      {user.skills &&
+                        user.skills.map((skill, index) => (
+                          <span key={index} className="jobseeker-skill-badge">
+                            {skill}
+                          </span>
+                        ))}
+                    </div>
+                  </div>
 
                       <div className="row mt-4">
                         <div className="col-md-6">
