@@ -1,4 +1,4 @@
-import { getJob, deleteJob } from "@/api/job";
+import { getJob, deleteJob, updateApplicationStatus, getJobs } from "@/api/job";
 import Layout from "@/components/layout/Layout";
 import { LocaleRouteMatcher } from "next/dist/server/future/route-matchers/locale-route-matcher";
 import { useRouter } from "next/router";
@@ -25,6 +25,53 @@ const JobDetailsPage = () => {
       setApplicants(currentJob.applicants);
     }
   }, [currentJob]);
+
+  // Function to get applicant status
+  const getApplicantStatus = (applicantId) => {
+    if (!currentJob.applicationStatus) return "pending";
+
+    const statusObj = currentJob.applicationStatus.find(
+      (status) => status.applicant === applicantId
+    );
+
+    return statusObj ? statusObj.status : "pending";
+  };
+
+  // Function to get status badge
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      open: { class: "status-active", icon: "bi-check-circle", text: "Active" },
+      closed: { class: "status-closed", icon: "bi-x-circle", text: "Closed" },
+      draft: { class: "status-draft", icon: "bi-file-earmark", text: "Draft" },
+      accepted: {
+        class: "bg-success-subtle text-success border",
+        icon: "bi-check-circle",
+        text: "Accepted",
+      },
+      rejected: {
+        class: "bg-danger-subtle text-danger border",
+        icon: "bi-x-circle",
+        text: "Rejected",
+      },
+      pending: {
+        class: "bg-warning-subtle text-warning border",
+        icon: "bi-clock",
+        text: "Pending",
+      },
+    };
+
+    const config = statusConfig[status] || {
+      class: "bg-secondary-subtle text-secondary border",
+      icon: "bi-question-circle",
+      text: status,
+    };
+
+    return (
+      <span className={`badge ${config.class}`}>
+        <i className={`bi ${config.icon} me-1`}></i> {config.text}
+      </span>
+    );
+  };
 
   const handleEditJob = () => {
     router.push(`/employers/post-job?id=${id}`);
@@ -58,7 +105,34 @@ const JobDetailsPage = () => {
     });
   };
 
-  const getStatusBadge = (status) => {
+  const handleApplicationStatus = (applicantId, status) => {
+    Swal.fire({
+      title: `Are you sure you want to ${status} this applicant?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${status}`,
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(
+          updateApplicationStatus(
+            { jobId: id, applicantId, status },
+            {
+              showSuccess: (msg) => {
+                Swal.fire("Success!", msg, "success");
+                dispatch(getJob(id));
+              },
+              showError: (msg) => {
+                Swal.fire("Error!", msg, "error");
+              },
+            }
+          )
+        );
+      }
+    });
+  };
+
+  const getJobStatusBadge = (status) => {
     const statusConfig = {
       open: { class: "status-active", icon: "bi-check-circle", text: "Active" },
       closed: { class: "status-closed", icon: "bi-x-circle", text: "Closed" },
@@ -163,7 +237,7 @@ const JobDetailsPage = () => {
                         {formatDate(currentJob.createdAt)}
                       </p>
                     </div>
-                    {getStatusBadge(currentJob.status)}
+                    {getJobStatusBadge(currentJob.status)}
                   </div>
 
                   <div className="job-meta d-flex flex-wrap gap-4">
@@ -420,86 +494,115 @@ const JobDetailsPage = () => {
               </div>
               <div className="card-body">
                 {Array.isArray(applicants) &&
-                  applicants.map((applicant, index) => (
-                    <div key={index} className="applicant-card container">
-                      <div className="row applicant-header align-items-center">
-                        <div className="col-auto">
-                          <div className="applicant-avatar">
-                            {applicant?.name
-                              ? applicant.name.charAt(0).toUpperCase()
-                              : "A"}
+                  applicants.map((applicant, index) => {
+                    const applicantStatus = getApplicantStatus(applicant._id);
+
+                    return (
+                      <div
+                        key={index}
+                        className="applicant-card container mb-4 p-3 border rounded"
+                      >
+                        <div className="row applicant-header align-items-center">
+                          <div className="col-auto">
+                            <div
+                              className="applicant-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                              style={{ width: 45, height: 45 }}
+                            >
+                              {applicant?.name
+                                ? applicant.name.charAt(0).toUpperCase()
+                                : "A"}
+                            </div>
+                          </div>
+                          <div className="col">
+                            <div className="applicant-info">
+                              <h5 className="mb-1 fs-6 fw-semibold">
+                                {applicant.name || "Applicant"}
+                              </h5>
+                              <p className="text-muted fs-7 mb-0">
+                                {applicant.workStatus ||
+                                  "No experience specified"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="col-auto ms-auto">
+                            {getStatusBadge(applicantStatus)}
                           </div>
                         </div>
-                        <div className="col">
-                          <div className="applicant-info">
-                            <h4>{applicant.name || "Applicant"}</h4>
-                            <p>
-                              {applicant.workStatus ||
-                                "No experience specified"}
+
+                        <div className="row applicant-meta text-center text-md-start mt-3">
+                          <div className="col-12 col-md-3 mb-3 mb-md-0">
+                            <h6 className="fw-semibold fs-7 mb-1">Location</h6>
+                            <p className="mb-0 fs-7 text-muted">
+                              {applicant.city || "Not specified"}
+                            </p>
+                          </div>
+                          <div className="col-12 col-md-3 mb-3 mb-md-0">
+                            <h6 className="fw-semibold fs-7 mb-1">Applied</h6>
+                            <p className="mb-0 fs-7 text-muted">
+                              {formatDate(applicant.createdAt)}
+                            </p>
+                          </div>
+                          <div className="col-12 col-md-3">
+                            <h6 className="fw-semibold fs-7 mb-1">Status</h6>
+                            <p
+                              className={`mb-0 fs-7 ${
+                                applicant.status
+                                  ? "text-success"
+                                  : "text-danger"
+                              }`}
+                            >
+                              {applicant.status ? "Active" : "Inactive"}
                             </p>
                           </div>
                         </div>
-                        <div className="col-auto ms-auto">
-                          <span className="status-badge status-active">
-                            <i className="bi bi-star"></i> Top Candidate
-                          </span>
-                        </div>
-                      </div>
 
-                      <div className="row applicant-meta text-center text-md-start mt-3">
-                        <div className="col-12 col-md-2 mb-3 mb-md-0">
-                          <h5>Location</h5>
-                          <p>{applicant.city || "Not specified"}</p>
-                        </div>
-                        <div className="col-12 col-md-2 mb-3 mb-md-0">
-                          <h5>Applied</h5>
-                          <p>{formatDate(applicant.createdAt)}</p>
-                        </div>
-                        <div className="col-12 col-md-2">
-                          <h5>Status</h5>
-                          <p className="text-success">
-                            {applicant.status ? "Active" : "Inactive"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="row justify-content-between align-items-center mt-3">
-                        <div className="col-12 col-md-8">
-                          <div className="d-flex justify-content-between justify-content-md-start applicant-stats flex-wrap">
-                            <div className="stat-item me-3 mb-2">
-                              <div className="stat-value">98%</div>
-                              <div className="stat-label">Match</div>
-                            </div>
-                            <div className="stat-item me-3 mb-2">
-                              <div className="stat-value">4.8</div>
-                              <div className="stat-label">Rating</div>
-                            </div>
-                            <div className="stat-item mb-2">
-                              <div className="stat-value">
-                                {applicant.experience?.length || 0}
-                              </div>
-                              <div className="stat-label">Experiences</div>
-                            </div>
+                        <div className="row justify-content-between align-items-center mt-3">
+                          <div className="col-12 text-md-end d-flex flex-wrap justify-content-center justify-content-md-end">
+                            <button
+                              className="btn btn-outline-primary btn-sm me-2 mt-2 mt-md-0"
+                              onClick={() =>
+                                router.push(
+                                  `/employers/application-details?id=${applicant._id}`
+                                )
+                              }
+                            >
+                              <i className="bi bi-eye me-1"></i> View
+                            </button>
+                            <button className="btn btn-outline-secondary btn-sm me-2 mt-2 mt-md-0">
+                              <i className="bi bi-chat me-1"></i> Message
+                            </button>
+                            {applicantStatus !== "accepted" && (
+                              <button
+                                className="btn btn-success btn-sm me-2 mt-2 mt-md-0"
+                                onClick={() =>
+                                  handleApplicationStatus(
+                                    applicant._id,
+                                    "accepted"
+                                  )
+                                }
+                              >
+                                <i className="bi bi-check-circle me-1"></i>{" "}
+                                Accept
+                              </button>
+                            )}
+                            {applicantStatus !== "rejected" && (
+                              <button
+                                className="btn btn-danger btn-sm mt-2 mt-md-0"
+                                onClick={() =>
+                                  handleApplicationStatus(
+                                    applicant._id,
+                                    "rejected"
+                                  )
+                                }
+                              >
+                                <i className="bi bi-x-circle me-1"></i> Reject
+                              </button>
+                            )}
                           </div>
                         </div>
-                        <div className="col-12 col-md-4 text-md-end">
-                          <button
-                            className="btn-action btn-view me-2 mt-2 mt-md-0"
-                            onClick={() =>
-                              router.push(
-                                `/employers/application-details?id=${applicant._id}`
-                              )
-                            }
-                          >
-                            <i className="bi bi-eye"></i> View Application
-                          </button>
-                          <button className="btn-action btn-edit mt-2 mt-md-0">
-                            <i className="bi bi-chat"></i> Message
-                          </button>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             </div>
           )}

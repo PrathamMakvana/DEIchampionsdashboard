@@ -62,7 +62,14 @@ export default function Header() {
                 </Link>
               </div>
             </div>
-            <div className="header-search">
+            <div className="header-search d-flex align-items-center gap-3">
+              {/* Back Arrow (visible only on large screens) */}
+              <div
+                className="back-arrow d-none d-lg-block"
+                onClick={() => router.back()}
+              >
+                <i className="bi bi-arrow-left"></i>
+              </div>
               <div className="box-search">
                 <form>
                   <input

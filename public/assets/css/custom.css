@@ -1994,10 +1994,9 @@ body {
   text-align: center;
 }
 
-
 .btn-unapply {
   background: white;
-  color: #dc2626; 
+  color: #dc2626;
   border: 1px solid #dc2626;
   border-radius: 8px;
   padding: 8px 16px;
@@ -2010,7 +2009,6 @@ body {
   background: #dc2626;
   color: white;
 }
-
 
 .stats-number {
   font-size: 2rem;
@@ -3928,4 +3926,29 @@ footer {
   background: linear-gradient(to right, #c8e6c9, #81c784);
   color: #1b5e20;
   border-color: #4caf50;
+}
+
+.back-arrow {
+  color: var(--bs-primary); /* Bootstrap primary color */
+  font-size: 1.25rem; /* fs-5 */
+  padding: 0.25rem 0.5rem; /* py-1 px-2 */
+  border-radius: 10px; /* rounded-circle */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-arrow:hover {
+  background-color: var(--bs-primary); /* hover-bg-primary */
+  color: #fff; /* hover-text-white */
+}
+
+.ck.ck-editor__main > .ck-editor__editable {
+  padding-left: 25px;
+}
+.ck-editor__editable_inline {
+  min-height: 120px; /* 5 lines */
+  overflow-y: auto;
 }

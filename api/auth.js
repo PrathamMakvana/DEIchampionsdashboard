@@ -47,14 +47,16 @@ export const loginUser =
       return null;
     }
   };
-export const logoutUser = () => (dispatch) => {
+export const logoutUser = () => async (dispatch) => {
   localStorage.removeItem("jobportaltoken");
   localStorage.removeItem("userRole");
+  const res = await fetcher("/users/auth/logout");
 
   dispatch(setUser(null));
   dispatch(setLoading(false));
 
   persistor.purge();
+  return res.data;
 };
 
 export const verifyOtpUser =
@@ -181,6 +183,16 @@ export const getuserbyid = (id) => async (dispatch) => {
   } catch (error) {
     console.error("Error fetching job:", error);
     dispatch(setLoading(false));
+    return null;
+  }
+};
+
+export const getAuthUser = async () => {
+  try {
+    const res = await fetcher("/users/auth/me");
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching about hero:", error);
     return null;
   }
 };

@@ -132,11 +132,11 @@ export const employersLinks = [
     label: "Manage Job",
     icon: "bi-clipboard-plus", // Post Job
   },
-  {
-    path: "/employers/candidate",
-    label: "Candidates",
-    icon: "bi-list-ul", // Posted Jobs
-  },
+  // {
+  //   path: "/employers/candidate",
+  //   label: "Candidates",
+  //   icon: "bi-list-ul", // Posted Jobs
+  // },
   // {
   //   path: "/employers/candidates",
   //   label: "Candidates",

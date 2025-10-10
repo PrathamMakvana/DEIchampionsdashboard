@@ -4,9 +4,9 @@ import {
   setJobTypes,
   setLoading,
   setCurrentJob,
-  setMyApplications, 
+  setMyApplications,
   setDepartments,
-  setMySavedJobs
+  setMySavedJobs,
 } from "@/store/slice/jobSlice";
 import {
   fetcher,
@@ -124,9 +124,6 @@ export const deleteJob =
     }
   };
 
-
-
-  
 export const getMyApplications = () => async (dispatch) => {
   try {
     dispatch(setLoading(true));
@@ -141,52 +138,50 @@ export const getMyApplications = () => async (dispatch) => {
   }
 };
 
+export const applyJob =
+  (id, { showSuccess, showError }) =>
+  async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const res = await fetcherPost(`/job/apply/${id}`);
+      dispatch(setLoading(false));
 
-export const applyJob = (id, { showSuccess, showError }) => async (dispatch) => {
-  try {
-    dispatch(setLoading(true));
-    const res = await fetcherPost(`/job/apply/${id}`);
-    dispatch(setLoading(false));
+      dispatch(getMyApplications());
 
-    dispatch(getMyApplications());
+      showSuccess("You have successfully applied for this job.");
+      return res;
+    } catch (error) {
+      console.error("Error applying job:", error);
+      dispatch(setLoading(false));
+      showError(error?.response?.data?.message || "Failed to apply for job.");
+      return null;
+    }
+  };
 
-    showSuccess("You have successfully applied for this job.");
-    return res;
-  } catch (error) {
-    console.error("Error applying job:", error);
-    dispatch(setLoading(false));
-    showError(error?.response?.data?.message || "Failed to apply for job.");
-    return null;
-  }
-};
+export const unapplyJob =
+  (id, { showSuccess, showError }) =>
+  async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const res = await fetcherPost(`/job/unapply/${id}`);
+      dispatch(setLoading(false));
 
+      dispatch(getMyApplications());
 
-
-
-export const unapplyJob = (id, { showSuccess, showError }) => async (dispatch) => {
-  try {
-    dispatch(setLoading(true));
-    const res = await fetcherPost(`/job/unapply/${id}`);
-    dispatch(setLoading(false));
-
-    dispatch(getMyApplications());
-
-    showSuccess("You have unapplied from this job.");
-    return res;
-  } catch (error) {
-    console.error("Error unapplying job:", error);
-    dispatch(setLoading(false));
-    showError(error?.response?.data?.message || "Failed to unapply job.");
-    return null;
-  }
-};
-
-
+      showSuccess("You have unapplied from this job.");
+      return res;
+    } catch (error) {
+      console.error("Error unapplying job:", error);
+      dispatch(setLoading(false));
+      showError(error?.response?.data?.message || "Failed to unapply job.");
+      return null;
+    }
+  };
 
 export const getMySavedJobs = () => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    const res = await fetcher("/job/my-saved");  
+    const res = await fetcher("/job/my-saved");
     dispatch(setMySavedJobs(res?.data || []));
     dispatch(setLoading(false));
     return res;
@@ -197,47 +192,47 @@ export const getMySavedJobs = () => async (dispatch) => {
   }
 };
 
+export const saveJob =
+  (id, { showSuccess, showError }) =>
+  async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const res = await fetcherPost(`/job/save/${id}`);
+      dispatch(setLoading(false));
 
+      // Refresh saved jobs
+      dispatch(getMySavedJobs());
 
-export const saveJob = (id, { showSuccess, showError }) => async (dispatch) => {
-  try {
-    dispatch(setLoading(true));
-    const res = await fetcherPost(`/job/save/${id}`);
-    dispatch(setLoading(false));
+      showSuccess("Job saved successfully.");
+      return res;
+    } catch (error) {
+      console.error("Error saving job:", error);
+      dispatch(setLoading(false));
+      showError(error?.response?.data?.message || "Failed to save job.");
+      return null;
+    }
+  };
 
-    // Refresh saved jobs
-    dispatch(getMySavedJobs());
+export const unsaveJob =
+  (id, { showSuccess, showError }) =>
+  async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const res = await fetcherPost(`/job/unsave/${id}`);
+      dispatch(setLoading(false));
 
-    showSuccess("Job saved successfully.");
-    return res;
-  } catch (error) {
-    console.error("Error saving job:", error);
-    dispatch(setLoading(false));
-    showError(error?.response?.data?.message || "Failed to save job.");
-    return null;
-  }
-};
+      // Refresh saved jobs
+      dispatch(getMySavedJobs());
 
-export const unsaveJob = (id, { showSuccess, showError }) => async (dispatch) => {
-  try {
-    dispatch(setLoading(true));
-    const res = await fetcherPost(`/job/unsave/${id}`);
-    dispatch(setLoading(false));
-
-    // Refresh saved jobs
-    dispatch(getMySavedJobs());
-
-    showSuccess("Job unsaved successfully.");
-    return res;
-  } catch (error) {
-    console.error("Error unsaving job:", error);
-    dispatch(setLoading(false));
-    showError(error?.response?.data?.message || "Failed to unsave job.");
-    return null;
-  }
-};
-
-
+      showSuccess("Job unsaved successfully.");
+      return res;
+    } catch (error) {
+      console.error("Error unsaving job:", error);
+      dispatch(setLoading(false));
+      showError(error?.response?.data?.message || "Failed to unsave job.");
+      return null;
+    }
+  };
 
 export const getDepartments = () => async (dispatch) => {
   try {
@@ -252,3 +247,24 @@ export const getDepartments = () => async (dispatch) => {
     return null;
   }
 };
+export const updateApplicationStatus =
+  ({ jobId, applicantId, status }, { showSuccess, showError }) =>
+  async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const response = await fetcherUpdate([
+        "/job/application/status",
+        { jobId, applicantId, status },
+      ]);
+      dispatch(setLoading(false));
+      showSuccess(`Applicant ${status} successfully!`);
+      return response;
+    } catch (error) {
+      console.error("🚀 ~ updateApplicationStatus error:", error);
+      dispatch(setLoading(false));
+      showError(
+        error?.response?.data?.error || "Failed to update application status."
+      );
+      return null;
+    }
+  };

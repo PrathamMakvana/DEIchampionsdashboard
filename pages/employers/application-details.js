@@ -313,7 +313,7 @@ const ApplicationDetails = () => {
               )}
 
               {/* Actions */}
-              <div className="appView-section text-center">
+              {/* <div className="appView-section text-center">
                 <button className="btn appView-btn-primary me-3">
                   <FaCheckCircle className="me-2" />
                   Approve Application
@@ -322,7 +322,7 @@ const ApplicationDetails = () => {
                   <FaTimesCircle className="me-2" />
                   Reject Application
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

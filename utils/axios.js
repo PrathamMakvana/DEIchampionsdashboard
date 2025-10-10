@@ -7,6 +7,7 @@ const axiosServices = axios.create({
   // baseURL: "https://test-deibackend-1.onrender.com/api",
   // baseURL: "http://localhost:5000/api",
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL + "/api",
+  withCredentials: true,
 });
 console.log(
   "🚀process.env.NEXT_PUBLIC_BACKEND_URL --->",

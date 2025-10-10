@@ -1,3 +1,4 @@
+import { getAuthUser } from "@/api/auth";
 import VacancyChart from "@/components/elements/VacancyChart";
 import Layout from "@/components/layout/Layout";
 import BrandSlider from "@/components/slider/BrandSlider";
@@ -5,6 +6,8 @@ import { Menu } from "@headlessui/react";
 import Link from "next/link";
 
 export default function Home() {
+  const data = getAuthUser();
+  console.log("🚀data --->", data);
   return (
     <>
       <Layout breadcrumbTitle="Dashboard" breadcrumbActive="Dashboard">

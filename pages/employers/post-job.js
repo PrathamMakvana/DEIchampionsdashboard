@@ -16,6 +16,18 @@ import * as Yup from "yup";
 import cityStateData from "@/utils/cityState.json";
 import Swal from "sweetalert2";
 import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
+const CKEditor = dynamic(
+  async () => {
+    const { CKEditor } = await import("@ckeditor/ckeditor5-react");
+    const ClassicEditor = (await import("@ckeditor/ckeditor5-build-classic"))
+      .default;
+    return function EditorComponent(props) {
+      return <CKEditor editor={ClassicEditor} {...props} />;
+    };
+  },
+  { ssr: false }
+);
 
 const salaryOptions = [
   { value: "10-20 lac", label: "10-20 lac" },
@@ -213,20 +225,34 @@ export default function Home() {
                             </div>
 
                             {/* Job Description */}
+                            {/* Job Description */}
                             <div className="col-lg-12">
                               <div className="form-group mb-30">
                                 <label className="font-sm color-text-mutted mb-10">
                                   Add your job description *
                                 </label>
-                                <textarea
-                                  name="jobDescription"
-                                  className="form-control"
-                                  rows={6}
-                                  placeholder="Describe the job responsibilities, skills, etc."
-                                  value={formik.values.jobDescription}
-                                  onChange={formik.handleChange}
-                                  onBlur={formik.handleBlur}
+
+                                <CKEditor
+                                  data={formik.values.jobDescription}
+                                  onChange={(event, editor) => {
+                                    const data = editor.getData();
+                                    formik.setFieldValue(
+                                      "jobDescription",
+                                      data
+                                    );
+                                  }}
+                                  onBlur={() =>
+                                    formik.setFieldTouched(
+                                      "jobDescription",
+                                      true
+                                    )
+                                  }
+                                  config={{
+                                    placeholder:
+                                      "Describe the job responsibilities, skills, etc.",
+                                  }}
                                 />
+
                                 {formik.touched.jobDescription &&
                                   formik.errors.jobDescription && (
                                     <p className="text-danger">

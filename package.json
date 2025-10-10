@@ -10,6 +10,8 @@
         "sass": "sass --watch public/assets/scss/style.scss:public/assets/css/style.css"
     },
     "dependencies": {
+        "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+        "@ckeditor/ckeditor5-react": "^11.0.0",
         "@headlessui/react": "^1.7.13",
         "@reduxjs/toolkit": "^2.8.2",
         "axios": "^1.11.0",
