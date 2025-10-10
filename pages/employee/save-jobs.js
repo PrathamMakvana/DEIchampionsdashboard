@@ -69,7 +69,7 @@ export default function SavedJobs() {
       </div>
 
       {/* Filters */}
-      <div className="filter-section">
+      {/* <div className="filter-section">
         <h5 className="filter-title">Filter by Status</h5>
         <div className="filter-options">
           {filters.map((filter) => (
@@ -82,7 +82,7 @@ export default function SavedJobs() {
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Saved Jobs List */}
       <div className="jobs-grid">

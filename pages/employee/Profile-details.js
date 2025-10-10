@@ -337,11 +337,11 @@ const JobSeekerProfile = () => {
                     rel="noopener noreferrer"
                     className="jobseeker-btn-primary"
                   >
-                    <i className="bi bi-download me-2"></i>Download Resume
+                    <i className="bi bi-eye me-2"></i>View Resume
                   </a>
-                  <button className="jobseeker-btn-outline-primary">
+                  {/* <button className="jobseeker-btn-outline-primary">
                     <i className="bi bi-chat-dots me-2"></i>Send Message
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>

@@ -956,49 +956,63 @@ export default function UserProfileUpdate() {
               </div>
 
               {/* Resume Card */}
-              <div className="user-upt-profile-card">
-                <div className="user-upt-profile-card-header">
-                  <i className="bi bi-file-earmark me-2"></i> Resume
-                </div>
-                <div className="user-upt-profile-card-body">
-                  <div className="user-upt-profile-form-group">
-                    <label className="user-upt-profile-form-label">
-                      Upload Your Resume
-                    </label>
-                    <input
-                      type="file"
-                      className="form-control user-upt-profile-form-control"
-                      accept=".pdf,.doc,.docx"
-                      ref={resumeFileInputRef}
-                      onChange={handleResumeUpload}
-                    />
-                    <div className="form-text">
-                      Accepted formats: PDF, DOC, DOCX (Max size: 5MB)
-                    </div>
-                    {(user?.resume || resumeFileName) && (
-                      <div className="mt-2 d-flex align-items-center justify-content-end">
-                        {/* <span>
-                          Selected file:{" "}
-                          {resumeFileName ? resumeFileName : user?.resume}
-                        </span> */}
-                        {user?.resume && (
-                          <a
-                            href={`${
-                              process.env.NEXT_PUBLIC_BACKEND_URL
-                            }/${user.resume.replace(/^src[\\/]/, "")}`}
-                            className="btn btn-link ms-3"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <i className="bi bi-eye me-1"></i>View Current
-                            Resume
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+ <div className="user-upt-profile-card">
+  <div className="user-upt-profile-card-header">
+    <i className="bi bi-file-earmark me-2"></i> Resume
+  </div>
+  <div className="user-upt-profile-card-body">
+    <div className="user-upt-profile-form-group">
+      <label className="user-upt-profile-form-label">
+        Upload Your Resume
+      </label>
+      <input
+        type="file"
+        className="form-control user-upt-profile-form-control"
+        accept=".pdf,.doc,.docx"
+        ref={resumeFileInputRef}
+        onChange={handleResumeUpload}
+      />
+      <div className="form-text mt-1">
+        Accepted formats: PDF, DOC, DOCX (Max size: 5MB)
+      </div>
+
+      {/* Show existing file info */}
+      {(user?.resume || resumeFileName) && (
+        <div className="mt-3 d-flex align-items-center justify-content-between w-100">
+         <span
+  className="fw-semibold text-dark text-truncate me-3"
+  style={{ maxWidth: "70%" }}
+>
+  {resumeFileName ? (
+    <>
+      <span className="text-muted">Selected file: </span>
+      {resumeFileName}
+    </>
+  ) : (
+    <>
+      <span className="text-muted">Current file: </span>
+      {user.resume.split("/").pop().replace(/^\d+-/, "")}
+    </>
+  )}
+</span>
+
+          {user?.resume && (
+            <a
+              href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.resume.replace(/^src[\\/]/, "")}`}
+              className="btn btn-sm btn-outline-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i className="bi bi-eye me-1"></i> View Resume
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+
 
               {/* Security Card */}
               {/* <div className="user-upt-profile-card">

@@ -166,7 +166,7 @@ const JobDetailsPage = () => {
                     {getStatusBadge(currentJob.status)}
                   </div>
 
-                  <div className="job-meta">
+                  <div className="job-meta d-flex flex-wrap gap-4">
                     <div className="meta-item">
                       <div className="meta-icon">
                         <i className="bi bi-briefcase"></i>
@@ -174,6 +174,16 @@ const JobDetailsPage = () => {
                       <div className="meta-content">
                         <h5>Job Type</h5>
                         <p>{currentJob.jobType?.name || "N/A"}</p>
+                      </div>
+                    </div>
+
+                    <div className="meta-item">
+                      <div className="meta-icon">
+                        <i className="bi bi-building"></i>
+                      </div>
+                      <div className="meta-content">
+                        <h5>Department</h5>
+                        <p>{currentJob.department?.name || "N/A"}</p>
                       </div>
                     </div>
 

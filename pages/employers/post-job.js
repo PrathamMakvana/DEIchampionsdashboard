@@ -5,6 +5,7 @@ import {
   getJob,
   getJobCategories,
   getJobTypes,
+  getDepartments
 } from "@/api/job";
 import DynamicSelect from "@/components/elements/DynamicSelect";
 import Layout from "@/components/layout/Layout";
@@ -36,6 +37,7 @@ const validationSchema = Yup.object({
   category: Yup.string().required("Category is required"),
   tags: Yup.string(),
   jobType: Yup.string().required("Job type is required"),
+   department: Yup.string().required("Department is required"),
 });
 
 export default function Home() {
@@ -57,15 +59,17 @@ export default function Home() {
     category: "",
     tags: "",
     jobType: "",
+    department: "",
   });
 
-  const { jobCategories, jobTypes, currentJob, loading } = useSelector(
+  const { jobCategories, jobTypes,departments, currentJob, loading } = useSelector(
     (state) => state.job
   );
 
   useEffect(() => {
     dispatch(getJobCategories());
     dispatch(getJobTypes());
+     dispatch(getDepartments()); 
 
     if (id) {
       dispatch(getJob(id));
@@ -87,6 +91,7 @@ export default function Home() {
         category: currentJob.category?._id || "",
         tags: Array.isArray(currentJob.tags) ? currentJob.tags.join(", ") : "",
         jobType: currentJob.jobType?._id || "",
+        department: currentJob.department?._id || "",
       };
 
       setInitialValues(values);
@@ -230,6 +235,21 @@ export default function Home() {
                                   )}
                               </div>
                             </div>
+
+
+                            {/* Department */}
+<div className="col-lg-6 col-md-6">
+  <DynamicSelect
+    label="Department"
+    name="department"
+    formik={formik}
+    options={departments}
+    valueKey="_id"
+    labelKey="name"
+    placeholder="Select Department"
+  />
+</div>
+
 
                             {/* Salary */}
                             <div className="col-lg-6 col-md-6">

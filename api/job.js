@@ -5,6 +5,7 @@ import {
   setLoading,
   setCurrentJob,
   setMyApplications, 
+  setDepartments,
   setMySavedJobs
 } from "@/store/slice/jobSlice";
 import {
@@ -232,6 +233,22 @@ export const unsaveJob = (id, { showSuccess, showError }) => async (dispatch) =>
     console.error("Error unsaving job:", error);
     dispatch(setLoading(false));
     showError(error?.response?.data?.message || "Failed to unsave job.");
+    return null;
+  }
+};
+
+
+
+export const getDepartments = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcher("/department/get-all");
+    dispatch(setDepartments(res?.data || []));
+    dispatch(setLoading(false));
+    return res;
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    dispatch(setLoading(false));
     return null;
   }
 };

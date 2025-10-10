@@ -5,10 +5,11 @@ const jobSlice = createSlice({
   initialState: {
     jobCategories: [],
     jobTypes: [],
+    departments: [],   
     jobs: [],
     currentJob: null,
     myApplications: [], 
-      mySavedJobs: [],
+    mySavedJobs: [],
     loading: false,
   },
   reducers: {
@@ -21,6 +22,9 @@ const jobSlice = createSlice({
     setJobTypes: (state, action) => {
       state.jobTypes = action.payload || [];
     },
+    setDepartments: (state, action) => {   
+      state.departments = action.payload || [];
+    },
     setJobs: (state, action) => {
       state.jobs = action.payload || [];
     },
@@ -31,8 +35,8 @@ const jobSlice = createSlice({
       state.myApplications = action.payload || [];
     },
     setMySavedJobs: (state, action) => {   
-    state.mySavedJobs = action.payload || [];
-  },
+      state.mySavedJobs = action.payload || [];
+    },
   },
 });
 
@@ -40,6 +44,7 @@ export const {
   setLoading,
   setJobCategories,
   setJobTypes,
+  setDepartments,  
   setJobs,
   setCurrentJob,
   setMyApplications, 
