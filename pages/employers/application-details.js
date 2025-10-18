@@ -300,7 +300,7 @@ const ApplicationDetails = () => {
                       <p className="mb-0 text-muted">{resume}</p>
                     </div>
                     <a
-                      href={`${process.env.NEXT_PUBLIC_API_URL}/${resume}`}
+                      href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${resume}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn appView-btn-outline ms-auto"

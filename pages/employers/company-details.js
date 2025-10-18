@@ -380,7 +380,20 @@ const CompanyProfile = () => {
                           </div>
                         </div>
 
-                        <p className="job-description">{job.jobDescription}</p>
+                        <p
+                          className="job-description line-clamp-3"
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            lineHeight: "1.5em",
+                            maxHeight: "4.5em",
+                          }}
+                          dangerouslySetInnerHTML={{
+                            __html: job.jobDescription,
+                          }}
+                        />
 
                         <div className="mb-3">
                           {job.tags && job.tags.length > 0 ? (
