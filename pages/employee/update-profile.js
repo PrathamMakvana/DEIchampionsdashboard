@@ -33,8 +33,7 @@ const validationSchema = Yup.object().shape({
   pincode: Yup.string()
     .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
     .required("Pincode is required"),
-    employeeDescription: Yup.string()
-    .required("Description is required"),
+  employeeDescription: Yup.string().required("Description is required"),
   education: Yup.array().of(
     Yup.object().shape({
       degree: Yup.string().required("Degree is required"),
@@ -67,6 +66,7 @@ export default function UserProfileUpdate() {
   const [resumeFile, setResumeFile] = useState(null);
   const [resumeFileName, setResumeFileName] = useState("");
   const [skills, setSkills] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
   const resumeFileInputRef = useRef(null);
 
@@ -93,7 +93,7 @@ export default function UserProfileUpdate() {
     email: "",
     mobile: "",
     dateOfBirth: null,
-    employeeDescription:"",
+    employeeDescription: "",
     gender: "",
     workStatus: "unemployed",
     address: "",
@@ -130,57 +130,94 @@ export default function UserProfileUpdate() {
   const formik = useFormik({
     initialValues: defaultInitialValues,
     validationSchema,
-    onSubmit: async (values) => {
-      const formData = new FormData();
+    validateOnBlur: true,
+    validateOnChange: false,
+    onSubmit: async (values, { setSubmitting, validateForm }) => {
+      try {
+        setIsSubmitting(true);
 
-      // Append all form fields
-      Object.keys(values).forEach((key) => {
-        if (values[key] !== null && values[key] !== undefined) {
-          if (
-            ["skills", "education", "experience", "preferences"].includes(key)
-          ) {
-            formData.append(key, JSON.stringify(values[key]));
-          } else {
-            formData.append(key, values[key]);
-          }
+        // Validate the form before submission
+        const errors = await validateForm();
+
+        // If there are validation errors, don't submit
+        if (Object.keys(errors).length > 0) {
+          // Mark all fields as touched to show errors
+          const touched = {};
+          Object.keys(values).forEach((key) => {
+            touched[key] = true;
+          });
+          formik.setTouched(touched);
+
+          Swal.fire({
+            icon: "error",
+            title: "Validation Error",
+            text: "Please fix all the errors before submitting the form",
+            timer: 3000,
+          });
+          return;
         }
-      });
 
-      // Append photo file if exists
-      if (photoFile) {
-        formData.append("photo", photoFile);
-      }
+        const formData = new FormData();
 
-      // Append resume file if exists
-      if (resumeFile) {
-        formData.append("resume", resumeFile);
-      }
+        // Append all form fields
+        Object.keys(values).forEach((key) => {
+          if (values[key] !== null && values[key] !== undefined) {
+            if (
+              ["skills", "education", "experience", "preferences"].includes(key)
+            ) {
+              formData.append(key, JSON.stringify(values[key]));
+            } else {
+              formData.append(key, values[key]);
+            }
+          }
+        });
 
-      // Append skills
-      formData.append("skills", JSON.stringify(skills));
+        // Append photo file if exists
+        if (photoFile) {
+          formData.append("photo", photoFile);
+        }
 
-      const data = await dispatch(
-        updateUserProfileWithResume(formData, {
-          showSuccess: (msg) =>
-            Swal.fire({
-              icon: "success",
-              title: "Success",
-              text: msg,
-              timer: 1500,
-              showConfirmButton: false,
-            }),
-          showError: (msg) =>
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: msg,
-            }),
-        })
-      );
+        // Append resume file if exists
+        if (resumeFile) {
+          formData.append("resume", resumeFile);
+        }
 
-      if (data?.success) {
-        setPhotoFile(null);
-        setResumeFile(null);
+        // Append skills
+        formData.append("skills", JSON.stringify(skills));
+
+        const data = await dispatch(
+          updateUserProfileWithResume(formData, {
+            showSuccess: (msg) =>
+              Swal.fire({
+                icon: "success",
+                title: "Success",
+                text: msg,
+                timer: 1500,
+                showConfirmButton: false,
+              }),
+            showError: (msg) =>
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: msg,
+              }),
+          })
+        );
+
+        if (data?.success) {
+          setPhotoFile(null);
+          setResumeFile(null);
+        }
+      } catch (error) {
+        console.error("Submission error:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Submission Failed",
+          text: "Something went wrong. Please try again.",
+        });
+      } finally {
+        setIsSubmitting(false);
+        setSubmitting(false);
       }
     },
     enableReinitialize: true,
@@ -266,6 +303,45 @@ export default function UserProfileUpdate() {
     passwordInput.setAttribute("type", type);
   };
 
+  const handleCancel = () => {
+    // Reset form to initial values
+    if (user) {
+      formik.setValues({
+        ...defaultInitialValues,
+        name: user.name || "",
+        email: user.email || "",
+        mobile: user.mobile || "",
+        dateOfBirth: user.dateOfBirth
+          ? moment(user.dateOfBirth).format("YYYY-MM-DD")
+          : "",
+        gender: user.gender || "",
+        employeeDescription: user.employeeDescription || "",
+        workStatus: user.workStatus || "unemployed",
+        address: user.address || "",
+        city: user.city || "",
+        state: user.state || "",
+        country: user.country || "",
+        pincode: user.pincode || "",
+        education:
+          user.education?.length > 0
+            ? user.education
+            : defaultInitialValues.education,
+        experience:
+          user.experience?.length > 0
+            ? user.experience
+            : defaultInitialValues.experience,
+        jobType: user.preferences?.jobTypes?.[0] || "",
+        department: user.preferences?.department?.[0] || "",
+        category: user.preferences?.category?.[0] || "",
+        salaryRange: user.preferences?.salary_range || "",
+        preferredLocations:
+          user.preferences?.preffered_locations?.join(", ") || "",
+      });
+      setSkills(user.skills || []);
+    }
+    formik.setTouched({});
+  };
+
   return (
     <>
       <Layout>
@@ -324,7 +400,11 @@ export default function UserProfileUpdate() {
                           </label>
                           <input
                             type="text"
-                            className="form-control user-upt-profile-form-control"
+                            className={`form-control user-upt-profile-form-control ${
+                              formik.touched.name && formik.errors.name
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="name"
                             placeholder="Enter your full name"
                             value={formik.values.name}
@@ -332,7 +412,7 @@ export default function UserProfileUpdate() {
                             onBlur={formik.handleBlur}
                           />
                           {formik.touched.name && formik.errors.name && (
-                            <div className="text-danger">
+                            <div className="text-danger small mt-1">
                               {formik.errors.name}
                             </div>
                           )}
@@ -343,7 +423,11 @@ export default function UserProfileUpdate() {
                           </label>
                           <input
                             type="email"
-                            className="form-control user-upt-profile-form-control"
+                            className={`form-control user-upt-profile-form-control ${
+                              formik.touched.email && formik.errors.email
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="email"
                             value={formik.values.email}
                             onChange={formik.handleChange}
@@ -351,7 +435,7 @@ export default function UserProfileUpdate() {
                             disabled
                           />
                           {formik.touched.email && formik.errors.email && (
-                            <div className="text-danger">
+                            <div className="text-danger small mt-1">
                               {formik.errors.email}
                             </div>
                           )}
@@ -362,7 +446,11 @@ export default function UserProfileUpdate() {
                           </label>
                           <input
                             type="tel"
-                            className="form-control user-upt-profile-form-control"
+                            className={`form-control user-upt-profile-form-control ${
+                              formik.touched.mobile && formik.errors.mobile
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="mobile"
                             placeholder="Enter your mobile number"
                             value={formik.values.mobile}
@@ -370,7 +458,7 @@ export default function UserProfileUpdate() {
                             onBlur={formik.handleBlur}
                           />
                           {formik.touched.mobile && formik.errors.mobile && (
-                            <div className="text-danger">
+                            <div className="text-danger small mt-1">
                               {formik.errors.mobile}
                             </div>
                           )}
@@ -381,12 +469,24 @@ export default function UserProfileUpdate() {
                           </label>
                           <input
                             type="date"
-                            className="form-control user-upt-profile-form-control"
+                            className={`form-control user-upt-profile-form-control ${
+                              formik.touched.dateOfBirth &&
+                              formik.errors.dateOfBirth
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             placeholder="YYYY-MM-DD"
                             name="dateOfBirth"
                             value={formik.values.dateOfBirth || ""}
                             onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
                           />
+                          {formik.touched.dateOfBirth &&
+                            formik.errors.dateOfBirth && (
+                              <div className="text-danger small mt-1">
+                                {formik.errors.dateOfBirth}
+                              </div>
+                            )}
                         </div>
                         <div className="col-md-6 user-upt-profile-form-group">
                           <label className="user-upt-profile-form-label">
@@ -412,7 +512,12 @@ export default function UserProfileUpdate() {
                             Work Status *
                           </label>
                           <select
-                            className="form-select user-upt-profile-form-control"
+                            className={`form-select user-upt-profile-form-control ${
+                              formik.touched.workStatus &&
+                              formik.errors.workStatus
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="workStatus"
                             value={formik.values.workStatus}
                             onChange={formik.handleChange}
@@ -426,33 +531,38 @@ export default function UserProfileUpdate() {
                           </select>
                           {formik.touched.workStatus &&
                             formik.errors.workStatus && (
-                              <div className="text-danger">
+                              <div className="text-danger small mt-1">
                                 {formik.errors.workStatus}
                               </div>
                             )}
                         </div>
                       </div>
 
-                        <div className="col-md-12 user-upt-profile-form-group">
-      <label className="user-upt-profile-form-label">
-       Description
-      </label>
-      <textarea
-        className="form-control user-upt-profile-form-control"
-        name="employeeDescription"
-        placeholder="Write a short description about yourself"
-        rows="4"
-        value={formik.values.employeeDescription}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-      />
-      {formik.touched.employeeDescription &&
-        formik.errors.employeeDescription && (
-          <div className="text-danger">{formik.errors.employeeDescription}</div>
-        )}
-    </div>
-                   
-                   
+                      <div className="col-md-12 user-upt-profile-form-group">
+                        <label className="user-upt-profile-form-label">
+                          Description *
+                        </label>
+                        <textarea
+                          className={`form-control user-upt-profile-form-control ${
+                            formik.touched.employeeDescription &&
+                            formik.errors.employeeDescription
+                              ? "is-invalid"
+                              : ""
+                          }`}
+                          name="employeeDescription"
+                          placeholder="Write a short description about yourself"
+                          rows="4"
+                          value={formik.values.employeeDescription}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                        />
+                        {formik.touched.employeeDescription &&
+                          formik.errors.employeeDescription && (
+                            <div className="text-danger small mt-1">
+                              {formik.errors.employeeDescription}
+                            </div>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -469,9 +579,13 @@ export default function UserProfileUpdate() {
                       <label className="user-upt-profile-form-label">
                         Address *
                       </label>
-
                       <input
                         type="text"
+                        className={`form-control user-upt-profile-form-control ${
+                          formik.touched.address && formik.errors.address
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         name="address"
                         placeholder="Enter your address"
                         value={formik.values.address}
@@ -479,7 +593,7 @@ export default function UserProfileUpdate() {
                         onBlur={formik.handleBlur}
                       />
                       {formik.touched.address && formik.errors.address && (
-                        <div className="text-danger">
+                        <div className="text-danger small mt-1">
                           {formik.errors.address}
                         </div>
                       )}
@@ -490,15 +604,21 @@ export default function UserProfileUpdate() {
                       </label>
                       <input
                         type="text"
+                        className={`form-control user-upt-profile-form-control ${
+                          formik.touched.city && formik.errors.city
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         placeholder="Enter your city"
-                        className="form-control user-upt-profile-form-control"
                         name="city"
                         value={formik.values.city}
                         onChange={formik.handleChange}
-                        required
+                        onBlur={formik.handleBlur}
                       />
                       {formik.touched.city && formik.errors.city && (
-                        <div className="text-danger">{formik.errors.city}</div>
+                        <div className="text-danger small mt-1">
+                          {formik.errors.city}
+                        </div>
                       )}
                     </div>
                     <div className="col-md-6 user-upt-profile-form-group">
@@ -507,15 +627,21 @@ export default function UserProfileUpdate() {
                       </label>
                       <input
                         type="text"
-                        className="form-control user-upt-profile-form-control"
+                        className={`form-control user-upt-profile-form-control ${
+                          formik.touched.state && formik.errors.state
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         name="state"
                         placeholder="Enter your state"
                         value={formik.values.state}
                         onChange={formik.handleChange}
-                        required
+                        onBlur={formik.handleBlur}
                       />
                       {formik.touched.state && formik.errors.state && (
-                        <div className="text-danger">{formik.errors.state}</div>
+                        <div className="text-danger small mt-1">
+                          {formik.errors.state}
+                        </div>
                       )}
                     </div>
                     <div className="col-md-6 user-upt-profile-form-group">
@@ -530,11 +656,6 @@ export default function UserProfileUpdate() {
                         value={formik.values.country}
                         onChange={formik.handleChange}
                       />
-                      {formik.touched.country && formik.errors.country && (
-                        <div className="text-danger">
-                          {formik.errors.country}
-                        </div>
-                      )}
                     </div>
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
@@ -542,15 +663,19 @@ export default function UserProfileUpdate() {
                       </label>
                       <input
                         type="text"
+                        className={`form-control user-upt-profile-form-control ${
+                          formik.touched.pincode && formik.errors.pincode
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         placeholder="Enter your pincode"
-                        className="form-control user-upt-profile-form-control"
                         name="pincode"
                         value={formik.values.pincode}
                         onChange={formik.handleChange}
-                        required
+                        onBlur={formik.handleBlur}
                       />
                       {formik.touched.pincode && formik.errors.pincode && (
-                        <div className="text-danger">
+                        <div className="text-danger small mt-1">
                           {formik.errors.pincode}
                         </div>
                       )}
@@ -632,6 +757,12 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="text"
+                                  className={`form-control user-upt-profile-form-control ${
+                                    formik.touched.education?.[index]?.degree &&
+                                    formik.errors.education?.[index]?.degree
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
                                   name={`education[${index}].degree`}
                                   placeholder="e.g. Bachelor of Science in Computer Science"
                                   value={formik.values.education[index].degree}
@@ -640,7 +771,7 @@ export default function UserProfileUpdate() {
                                 />
                                 {formik.touched.education?.[index]?.degree &&
                                   formik.errors.education?.[index]?.degree && (
-                                    <div className="text-danger">
+                                    <div className="text-danger small mt-1">
                                       {formik.errors.education[index].degree}
                                     </div>
                                   )}
@@ -651,19 +782,27 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="text"
-                                  className="form-control user-upt-profile-form-control"
+                                  className={`form-control user-upt-profile-form-control ${
+                                    formik.touched.education?.[index]
+                                      ?.institution &&
+                                    formik.errors.education?.[index]
+                                      ?.institution
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
                                   placeholder="e.g. University of Example"
                                   name={`education[${index}].institution`}
                                   value={
                                     formik.values.education[index].institution
                                   }
                                   onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
                                 />
                                 {formik.touched.education?.[index]
                                   ?.institution &&
                                   formik.errors.education?.[index]
                                     ?.institution && (
-                                    <div className="text-danger">
+                                    <div className="text-danger small mt-1">
                                       {
                                         formik.errors.education[index]
                                           .institution
@@ -677,7 +816,14 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="number"
-                                  className="form-control user-upt-profile-form-control"
+                                  className={`form-control user-upt-profile-form-control ${
+                                    formik.touched.education?.[index]
+                                      ?.graduationYear &&
+                                    formik.errors.education?.[index]
+                                      ?.graduationYear
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
                                   placeholder="e.g. 2020"
                                   min="1950"
                                   max="2030"
@@ -687,12 +833,13 @@ export default function UserProfileUpdate() {
                                       .graduationYear
                                   }
                                   onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
                                 />
                                 {formik.touched.education?.[index]
                                   ?.graduationYear &&
                                   formik.errors.education?.[index]
                                     ?.graduationYear && (
-                                    <div className="text-danger">
+                                    <div className="text-danger small mt-1">
                                       {
                                         formik.errors.education[index]
                                           .graduationYear
@@ -749,6 +896,14 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="text"
+                                  className={`form-control user-upt-profile-form-control ${
+                                    formik.touched.experience?.[index]
+                                      ?.companyName &&
+                                    formik.errors.experience?.[index]
+                                      ?.companyName
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
                                   name={`experience[${index}].companyName`}
                                   value={
                                     formik.values.experience[index].companyName
@@ -761,7 +916,7 @@ export default function UserProfileUpdate() {
                                   ?.companyName &&
                                   formik.errors.experience?.[index]
                                     ?.companyName && (
-                                    <div className="text-danger">
+                                    <div className="text-danger small mt-1">
                                       {
                                         formik.errors.experience[index]
                                           .companyName
@@ -775,20 +930,25 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="text"
-                                  className="form-control user-upt-profile-form-control"
+                                  className={`form-control user-upt-profile-form-control ${
+                                    formik.touched.experience?.[index]
+                                      ?.position &&
+                                    formik.errors.experience?.[index]?.position
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
                                   placeholder="e.g. Software Developer"
                                   name={`experience[${index}].position`}
                                   onChange={formik.handleChange}
                                   value={
                                     formik.values.experience[index].position
                                   }
-                                  required
+                                  onBlur={formik.handleBlur}
                                 />
-
                                 {formik.touched.experience?.[index]?.position &&
                                   formik.errors.experience?.[index]
                                     ?.position && (
-                                    <div className="text-danger">
+                                    <div className="text-danger small mt-1">
                                       {formik.errors.experience[index].position}
                                     </div>
                                   )}
@@ -799,19 +959,25 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="date"
-                                  className="form-control user-upt-profile-form-control"
+                                  className={`form-control user-upt-profile-form-control ${
+                                    formik.touched.experience?.[index]
+                                      ?.startDate &&
+                                    formik.errors.experience?.[index]?.startDate
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
                                   name={`experience[${index}].startDate`}
                                   onChange={formik.handleChange}
                                   value={moment(
                                     formik.values.experience[index].startDate
                                   ).format("YYYY-MM-DD")}
-                                  required
+                                  onBlur={formik.handleBlur}
                                 />
                                 {formik.touched.experience?.[index]
                                   ?.startDate &&
                                   formik.errors.experience?.[index]
                                     ?.startDate && (
-                                    <div className="text-danger">
+                                    <div className="text-danger small mt-1">
                                       {
                                         formik.errors.experience[index]
                                           .startDate
@@ -911,19 +1077,6 @@ export default function UserProfileUpdate() {
                         selectClassName="form-control user-upt-profile-form-control"
                       />
                     </div>
-                    {/*<div className="col-md-6 user-upt-profile-form-group">
-                      <DynamicSelect
-                        label="Job Category"
-                        name="category"
-                        formik={formik}
-                        options={jobCategories}
-                        valueKey="_id"
-                        labelKey="title"
-                        placeholder="Select Category"
-                        className="user-upt-profile-form-label"
-                        selectClassName="form-control user-upt-profile-form-control"
-                      />
-                    </div>*/}
                     <div className="col-md-6 user-upt-profile-form-group">
                       <DynamicSelect
                         label="Salary"
@@ -956,140 +1109,86 @@ export default function UserProfileUpdate() {
               </div>
 
               {/* Resume Card */}
- <div className="user-upt-profile-card">
-  <div className="user-upt-profile-card-header">
-    <i className="bi bi-file-earmark me-2"></i> Resume
-  </div>
-  <div className="user-upt-profile-card-body">
-    <div className="user-upt-profile-form-group">
-      <label className="user-upt-profile-form-label">
-        Upload Your Resume
-      </label>
-      <input
-        type="file"
-        className="form-control user-upt-profile-form-control"
-        accept=".pdf,.doc,.docx"
-        ref={resumeFileInputRef}
-        onChange={handleResumeUpload}
-      />
-      <div className="form-text mt-1">
-        Accepted formats: PDF, DOC, DOCX (Max size: 5MB)
-      </div>
-
-      {/* Show existing file info */}
-      {(user?.resume || resumeFileName) && (
-        <div className="mt-3 d-flex align-items-center justify-content-between w-100">
-         <span
-  className="fw-semibold text-dark text-truncate me-3"
-  style={{ maxWidth: "70%" }}
->
-  {resumeFileName ? (
-    <>
-      <span className="text-muted">Selected file: </span>
-      {resumeFileName}
-    </>
-  ) : (
-    <>
-      <span className="text-muted">Current file: </span>
-      {user.resume.split("/").pop().replace(/^\d+-/, "")}
-    </>
-  )}
-</span>
-
-          {user?.resume && (
-            <a
-              href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.resume.replace(/^src[\\/]/, "")}`}
-              className="btn btn-sm btn-outline-primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i className="bi bi-eye me-1"></i> View Resume
-            </a>
-          )}
-        </div>
-      )}
-    </div>
-  </div>
-</div>
-
-
-
-              {/* Security Card */}
-              {/* <div className="user-upt-profile-card">
+              <div className="user-upt-profile-card">
                 <div className="user-upt-profile-card-header">
-                  <i className="bi bi-shield-lock me-2"></i> Security
+                  <i className="bi bi-file-earmark me-2"></i> Resume
                 </div>
                 <div className="user-upt-profile-card-body">
-                  <div className="row">
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Current Password
-                      </label>
-                      <div className="user-upt-profile-input-group">
-                        <input
-                          type="password"
-                          className="form-control user-upt-profile-form-control"
-                          placeholder="Enter current password"
-                          name="currentPassword"
-                          id="currentPassword"
-                          value={formik.values.currentPassword}
-                          onChange={formik.handleChange}
-                        />
-                        <span
-                          className="user-upt-profile-password-toggle"
-                          onClick={() =>
-                            togglePasswordVisibility("currentPassword")
-                          }
-                        >
-                          <i className="bi bi-eye"></i>
-                        </span>
-                      </div>
+                  <div className="user-upt-profile-form-group">
+                    <label className="user-upt-profile-form-label">
+                      Upload Your Resume
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control user-upt-profile-form-control"
+                      accept=".pdf,.doc,.docx"
+                      ref={resumeFileInputRef}
+                      onChange={handleResumeUpload}
+                    />
+                    <div className="form-text mt-1">
+                      Accepted formats: PDF, DOC, DOCX (Max size: 5MB)
                     </div>
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        New Password
-                      </label>
-                      <div className="user-upt-profile-input-group">
-                        <input
-                          type="password"
-                          className="form-control user-upt-profile-form-control"
-                          placeholder="Enter new password"
-                          name="newPassword"
-                          id="newPassword"
-                          value={formik.values.newPassword}
-                          onChange={formik.handleChange}
-                        />
+
+                    {/* Show existing file info */}
+                    {(user?.resume || resumeFileName) && (
+                      <div className="mt-3 d-flex align-items-center justify-content-between w-100">
                         <span
-                          className="user-upt-profile-password-toggle"
-                          onClick={() =>
-                            togglePasswordVisibility("newPassword")
-                          }
+                          className="fw-semibold text-dark text-truncate me-3"
+                          style={{ maxWidth: "70%" }}
                         >
-                          <i className="bi bi-eye"></i>
+                          {resumeFileName ? (
+                            <>
+                              <span className="text-muted">
+                                Selected file:{" "}
+                              </span>
+                              {resumeFileName}
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-muted">Current file: </span>
+                              {user.resume
+                                .split("/")
+                                .pop()
+                                .replace(/^\d+-/, "")}
+                            </>
+                          )}
                         </span>
+
+                        {user?.resume && (
+                          <a
+                            href={`${
+                              process.env.NEXT_PUBLIC_BACKEND_URL
+                            }/${user.resume.replace(/^src[\\/]/, "")}`}
+                            className="btn btn-sm btn-outline-primary"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <i className="bi bi-eye me-1"></i> View Resume
+                          </a>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                  <div className="form-text">
-                    Leave password fields blank if you don't want to change your
-                    password
+                    )}
                   </div>
                 </div>
-              </div> */}
+              </div>
 
               {/* Action Buttons */}
               <div className="d-flex justify-content-between mt-4">
                 <button
                   type="button"
                   className="btn btn-light user-upt-profile-btn-outline"
+                  onClick={handleCancel}
+                  disabled={isSubmitting}
                 >
                   <i className="bi bi-x-circle me-2"></i> Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn user-upt-profile-btn-primary"
+                  disabled={isSubmitting}
                 >
-                  <i className="bi bi-check-circle me-2"></i> Save Changes
+                  <i className="bi bi-check-circle me-2"></i>
+                  {isSubmitting ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </form>

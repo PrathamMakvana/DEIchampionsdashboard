@@ -5,12 +5,13 @@ import {
   getJob,
   getJobCategories,
   getJobTypes,
-  getDepartments
+  getDepartments,
+  getSalaryData,
 } from "@/api/job";
 import DynamicSelect from "@/components/elements/DynamicSelect";
 import Layout from "@/components/layout/Layout";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import cityStateData from "@/utils/cityState.json";
@@ -29,12 +30,12 @@ const CKEditor = dynamic(
   { ssr: false }
 );
 
-const salaryOptions = [
-  { value: "10-20 lac", label: "10-20 lac" },
-  { value: "20-30 lac", label: "20-30 lac" },
-  { value: "30-40 lac", label: "30-40 lac" },
-  { value: "40-50 lac", label: "40-50 lac" },
-];
+// const salaryOptions = [
+//   { value: "10-20 lac", label: "10-20 lac" },
+//   { value: "20-30 lac", label: "20-30 lac" },
+//   { value: "30-40 lac", label: "30-40 lac" },
+//   { value: "40-50 lac", label: "40-50 lac" },
+// ];
 
 // Yup validation schema
 const validationSchema = Yup.object({
@@ -49,7 +50,7 @@ const validationSchema = Yup.object({
   category: Yup.string().required("Category is required"),
   tags: Yup.string(),
   jobType: Yup.string().required("Job type is required"),
-   department: Yup.string().required("Department is required"),
+  department: Yup.string().required("Department is required"),
 });
 
 export default function Home() {
@@ -74,14 +75,20 @@ export default function Home() {
     department: "",
   });
 
-  const { jobCategories, jobTypes,departments, currentJob, loading } = useSelector(
-    (state) => state.job
-  );
+  const {
+    jobCategories,
+    jobTypes,
+    departments,
+    currentJob,
+    salaryRanges,
+    loading,
+  } = useSelector((state) => state.job);
 
   useEffect(() => {
     dispatch(getJobCategories());
     dispatch(getJobTypes());
-     dispatch(getDepartments()); 
+    dispatch(getDepartments());
+    dispatch(getSalaryData());
 
     if (id) {
       dispatch(getJob(id));
@@ -118,6 +125,13 @@ export default function Home() {
       }
     }
   }, [currentJob, isEditMode]);
+
+  const salaryOptions = useMemo(() => {
+    return salaryRanges.map((range) => ({
+      value: range.range,
+      label: range.range,
+    }));
+  }, [salaryRanges]);
 
   const formik = useFormik({
     initialValues,
@@ -262,20 +276,18 @@ export default function Home() {
                               </div>
                             </div>
 
-
                             {/* Department */}
-<div className="col-lg-6 col-md-6">
-  <DynamicSelect
-    label="Department"
-    name="department"
-    formik={formik}
-    options={departments}
-    valueKey="_id"
-    labelKey="name"
-    placeholder="Select Department"
-  />
-</div>
-
+                            <div className="col-lg-6 col-md-6">
+                              <DynamicSelect
+                                label="Department"
+                                name="department"
+                                formik={formik}
+                                options={departments}
+                                valueKey="_id"
+                                labelKey="name"
+                                placeholder="Select Department"
+                              />
+                            </div>
 
                             {/* Salary */}
                             <div className="col-lg-6 col-md-6">

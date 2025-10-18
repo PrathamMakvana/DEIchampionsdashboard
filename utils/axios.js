@@ -26,21 +26,21 @@ axiosServices.interceptors.request.use(
 );
 
 // Handling response errors such as unauthorized (401)
-axiosServices.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // console.error('Error response:', error.response);
-    if (
-      error.response?.status === 401 &&
-      !window.location.href.includes("/login")
-    ) {
-      window.location.pathname = "/maintenance/500";
-    } else if (error.response?.status === 500) {
-      console.error("Internal Server Error:", error);
-    }
-    return Promise.reject(error);
-  }
-);
+// axiosServices.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     // console.error('Error response:', error.response);
+//     if (
+//       error.response?.status === 401 &&
+//       !window.location.href.includes("/login")
+//     ) {
+//       window.location.pathname = "/maintenance/500";
+//     } else if (error.response?.status === 500) {
+//       console.error("Internal Server Error:", error);
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 export default axiosServices;
 

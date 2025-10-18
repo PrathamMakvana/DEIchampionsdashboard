@@ -7,6 +7,7 @@ import {
   setMyApplications,
   setDepartments,
   setMySavedJobs,
+  setSalaryRanges,
 } from "@/store/slice/jobSlice";
 import {
   fetcher,
@@ -268,3 +269,17 @@ export const updateApplicationStatus =
       return null;
     }
   };
+
+export const getSalaryData = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcher("/salary/get-all");
+    dispatch(setSalaryRanges(res?.data || []));
+    dispatch(setLoading(false));
+    return res;
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    dispatch(setLoading(false));
+    return null;
+  }
+};

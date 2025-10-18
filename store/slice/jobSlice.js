@@ -5,10 +5,11 @@ const jobSlice = createSlice({
   initialState: {
     jobCategories: [],
     jobTypes: [],
-    departments: [],   
+    departments: [],
+    salaryRanges: [],
     jobs: [],
     currentJob: null,
-    myApplications: [], 
+    myApplications: [],
     mySavedJobs: [],
     loading: false,
   },
@@ -22,7 +23,7 @@ const jobSlice = createSlice({
     setJobTypes: (state, action) => {
       state.jobTypes = action.payload || [];
     },
-    setDepartments: (state, action) => {   
+    setDepartments: (state, action) => {
       state.departments = action.payload || [];
     },
     setJobs: (state, action) => {
@@ -31,11 +32,14 @@ const jobSlice = createSlice({
     setCurrentJob: (state, action) => {
       state.currentJob = action.payload || null;
     },
-    setMyApplications: (state, action) => {  
+    setMyApplications: (state, action) => {
       state.myApplications = action.payload || [];
     },
-    setMySavedJobs: (state, action) => {   
+    setMySavedJobs: (state, action) => {
       state.mySavedJobs = action.payload || [];
+    },
+    setSalaryRanges: (state, action) => {
+      state.salaryRanges = action.payload || [];
     },
   },
 });
@@ -44,11 +48,12 @@ export const {
   setLoading,
   setJobCategories,
   setJobTypes,
-  setDepartments,  
+  setDepartments,
   setJobs,
   setCurrentJob,
-  setMyApplications, 
+  setMyApplications,
   setMySavedJobs,
+  setSalaryRanges,
 } = jobSlice.actions;
 
 export default jobSlice.reducer;

@@ -2,38 +2,53 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Layout from "@/components/layout/Layout";
-import { getJob,unapplyJob,saveJob,unsaveJob, getMyApplications, getMySavedJobs,applyJob } from "@/api/job";
+import {
+  getJob,
+  unapplyJob,
+  saveJob,
+  unsaveJob,
+  getMyApplications,
+  getMySavedJobs,
+  applyJob,
+} from "@/api/job";
 import Swal from "sweetalert2";
 
 const JobDetailsPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const dispatch = useDispatch();
-const { currentJob: job, loading, myApplications, mySavedJobs } = useSelector((state) => state.job); const [isBookmarked, setIsBookmarked] = useState(false);
+  const {
+    currentJob: job,
+    loading,
+    myApplications,
+    mySavedJobs,
+  } = useSelector((state) => state.job);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
- useEffect(() => {
-  if (!id) return;
+  useEffect(() => {
+    if (!id) return;
 
-  dispatch(getJob(id));
+    dispatch(getJob(id));
 
-  dispatch(getMyApplications());
-  dispatch(getMySavedJobs());
-}, [id, dispatch]);
+    dispatch(getMyApplications());
+    dispatch(getMySavedJobs());
+  }, [id, dispatch]);
 
-
-if (loading || !job) {
-  return (
-    <div className="container py-5 d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
-      <div className="spinner-border text-primary" role="status">
-        <span className="visually-hidden">Loading...</span>
+  if (loading || !job) {
+    return (
+      <div
+        className="container py-5 d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-
-    const isApplied = myApplications?.some((applied) => applied._id === job?._id);
-const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
+  const isApplied = myApplications?.some((applied) => applied._id === job?._id);
+  const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
 
   const {
     jobTitle,
@@ -48,9 +63,6 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
     state,
     country,
   } = job;
-
-
-
 
   return (
     <>
@@ -174,7 +186,7 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
           color: var(--gray-color);
           font-size: 1.05rem;
           white-space: pre-wrap;
-          text-align:justify;
+          text-align: justify;
         }
 
         .requirements-list {
@@ -387,9 +399,9 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
         .footer-links a:hover {
           color: white;
         }
-          .text-justify{
-          text-align:justify;
-          }
+        .text-justify {
+          text-align: justify;
+        }
 
         /* Responsive Adjustments */
         @media (max-width: 768px) {
@@ -423,46 +435,45 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
           }
 
           .job-description {
-  font-size: 15px;
-  color: #374151; /* neutral gray for readability */
-  line-height: 1.8;
-}
+            font-size: 15px;
+            color: #374151; /* neutral gray for readability */
+            line-height: 1.8;
+          }
 
-.job-description h3 {
-  font-size: 18px;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  color: #111827;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+          .job-description h3 {
+            font-size: 18px;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          }
 
-.job-description p {
-  margin-bottom: 0.75rem;
-}
+          .job-description p {
+            margin-bottom: 0.75rem;
+          }
 
-.job-description ul {
-  padding-left: 1.5rem;
-  margin-bottom: 1rem;
-}
+          .job-description ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+          }
 
-.job-description li {
-  margin-bottom: 0.35rem;
-  list-style-type: "✅ ";
-}
+          .job-description li {
+            margin-bottom: 0.35rem;
+            list-style-type: "✅ ";
+          }
 
-.job-description strong {
-  font-weight: 600;
-}
+          .job-description strong {
+            font-weight: 600;
+          }
 
-.section-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #1f2937;
-}
-
+          .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1f2937;
+          }
         }
       `}</style>
 
@@ -476,14 +487,19 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <h1 className="job-title">{jobTitle}</h1>
-                      <p className="company-name">{postedBy?.companyName || "Company"}</p>
+                      <p className="company-name">
+                        {postedBy?.companyName || "Company"}
+                      </p>
                       <div className="salary-badge">
-                        <i className="bi bi-currency-dollar"></i> {salary || "Competitive"}
+                        <i className="bi bi-currency-dollar"></i>{" "}
+                        {salary || "Competitive"}
                       </div>
                       <div className="job-meta">
                         <div className="meta-item">
                           <i className="bi bi-geo-alt"></i>
-                          <span>{`${city || ''}, ${state || ''}, ${country || ''}`}</span>
+                          <span>{`${city || ""}, ${state || ""}, ${
+                            country || ""
+                          }`}</span>
                         </div>
                         <div className="meta-item">
                           <i className="bi bi-briefcase"></i>
@@ -507,14 +523,17 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
                             alt={postedBy.companyName || "Company Logo"}
                             className="company-logo"
                             onError={(e) => {
-                              e.target.style.display = 'none';
-                              const icon = e.target.parentElement.querySelector('.company-logo-icon');
-                              if (icon) icon.style.display = 'block';
+                              e.target.style.display = "none";
+                              const icon =
+                                e.target.parentElement.querySelector(
+                                  ".company-logo-icon"
+                                );
+                              if (icon) icon.style.display = "block";
                             }}
                           />
                           <i
                             className="bi bi-building company-logo-icon"
-                            style={{ display: 'none' }}
+                            style={{ display: "none" }}
                           ></i>
                         </>
                       ) : (
@@ -526,128 +545,134 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
 
                 <div className="job-body">
                   {/* Job Description */}
- <div className="mb-5">
-  <h3 className="section-title">Job Description</h3>
-  <div
-    className="job-description"
-    dangerouslySetInnerHTML={{
-      __html: jobDescription || "<p>No description available.</p>",
-    }}
-  ></div>
-</div>
+                  <div className="mb-5">
+                    <h3 className="section-title">Job Description</h3>
+                    <div
+                      className="job-description"
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          jobDescription || "<p>No description available.</p>",
+                      }}
+                    ></div>
+                  </div>
 
+                  <div className="d-flex flex-wrap gap-3 btn-container mt-5">
+                    {isApplied ? (
+                      <button
+                        className="btn btn-danger d-flex align-items-center gap-2"
+                        onClick={() => {
+                          Swal.fire({
+                            title: "Are you sure?",
+                            text: "You will unapply from this job.",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#d33",
+                            cancelButtonColor: "#3085d6",
+                            confirmButtonText: "Yes, Unapply",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              dispatch(
+                                unapplyJob(id, {
+                                  showSuccess: (msg) => {
+                                    Swal.fire("Success", msg, "success");
+                                    router.push("/employee/applied-jobs");
+                                  },
+                                  showError: (msg) =>
+                                    Swal.fire("Error", msg, "error"),
+                                })
+                              );
+                            }
+                          });
+                        }}
+                      >
+                        <i className="bi bi-x-circle"></i> Unapply Job
+                      </button>
+                    ) : (
+                      <button
+                        className="btn-apply d-flex align-items-center gap-2"
+                        onClick={() => {
+                          Swal.fire({
+                            title: "Apply for this job?",
+                            text: "Do you want to submit your application?",
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#6c757d",
+                            confirmButtonText: "Yes, Apply",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              dispatch(
+                                applyJob(id, {
+                                  showSuccess: (msg) =>
+                                    Swal.fire("Success", msg, "success"),
+                                  showError: (msg) =>
+                                    Swal.fire("Error", msg, "error"),
+                                })
+                              );
+                            }
+                          });
+                        }}
+                      >
+                        <i className="bi bi-send"></i> Apply Job
+                      </button>
+                    )}
 
-
-
-
-<div className="d-flex flex-wrap gap-3 btn-container mt-5">
-  {isApplied ? (
-    <button
-      className="btn btn-danger d-flex align-items-center gap-2"
-      onClick={() => {
-        Swal.fire({
-          title: "Are you sure?",
-          text: "You will unapply from this job.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
-          confirmButtonText: "Yes, Unapply",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            dispatch(
-              unapplyJob(id, {
-                showSuccess: (msg) => {
-                  Swal.fire("Success", msg, "success");
-                  router.push("/employee/applied-jobs");
-                },
-                showError: (msg) => Swal.fire("Error", msg, "error"),
-              })
-            );
-          }
-        });
-      }}
-    >
-      <i className="bi bi-x-circle"></i> Unapply Job
-    </button>
-  ) : (
-    <button
-      className="btn-apply d-flex align-items-center gap-2"
-      onClick={() => {
-        Swal.fire({
-          title: "Apply for this job?",
-          text: "Do you want to submit your application?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#6c757d",
-          confirmButtonText: "Yes, Apply",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            dispatch(
-              applyJob(id, {
-                showSuccess: (msg) => Swal.fire("Success", msg, "success"),
-                showError: (msg) => Swal.fire("Error", msg, "error"),
-              })
-            );
-          }
-        });
-      }}
-    >
-      <i className="bi bi-send"></i> Apply Job
-    </button>
-  )}
-
-  <button
-    className={`btn-bookmark ${isSaved ? "bookmarked" : ""}`}
-    onClick={() => {
-      if (isSaved) {
-        Swal.fire({
-          title: "Remove from Saved?",
-          text: "This job will be removed from your saved list.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
-          confirmButtonText: "Yes, Unsave",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            dispatch(
-              unsaveJob(id, {
-                showSuccess: (msg) => Swal.fire("Success", msg, "success"),
-                showError: (msg) => Swal.fire("Error", msg, "error"),
-              })
-            );
-          }
-        });
-      } else {
-        Swal.fire({
-          title: "Save this job?",
-          text: "This job will be added to your saved list.",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#6c757d",
-          confirmButtonText: "Yes, Save",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            dispatch(
-              saveJob(id, {
-                showSuccess: (msg) => Swal.fire("Success", msg, "success"),
-                showError: (msg) => Swal.fire("Error", msg, "error"),
-              })
-            );
-          }
-        });
-      }
-    }}
-  >
-    <i className={`bi ${isSaved ? "bi-bookmark-fill" : "bi-bookmark"}`}></i>
-    {isSaved ? "Saved" : "Save Job"}
-  </button>
-</div>
-
-
+                    <button
+                      className={`btn-bookmark ${isSaved ? "bookmarked" : ""}`}
+                      onClick={() => {
+                        if (isSaved) {
+                          Swal.fire({
+                            title: "Remove from Saved?",
+                            text: "This job will be removed from your saved list.",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#d33",
+                            cancelButtonColor: "#3085d6",
+                            confirmButtonText: "Yes, Unsave",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              dispatch(
+                                unsaveJob(id, {
+                                  showSuccess: (msg) =>
+                                    Swal.fire("Success", msg, "success"),
+                                  showError: (msg) =>
+                                    Swal.fire("Error", msg, "error"),
+                                })
+                              );
+                            }
+                          });
+                        } else {
+                          Swal.fire({
+                            title: "Save this job?",
+                            text: "This job will be added to your saved list.",
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#6c757d",
+                            confirmButtonText: "Yes, Save",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              dispatch(
+                                saveJob(id, {
+                                  showSuccess: (msg) =>
+                                    Swal.fire("Success", msg, "success"),
+                                  showError: (msg) =>
+                                    Swal.fire("Error", msg, "error"),
+                                })
+                              );
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      <i
+                        className={`bi ${
+                          isSaved ? "bi-bookmark-fill" : "bi-bookmark"
+                        }`}
+                      ></i>
+                      {isSaved ? "Saved" : "Save Job"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -656,21 +681,28 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
             <div className="col-lg-4">
               <div className="info-box mb-4">
                 <h4 className="info-title">About the Company</h4>
-                <p className="text-justify">{postedBy?.companyDescription || "No description available"}</p>
+                <p className="text-justify">
+                  {postedBy?.companyDescription || "No description available"}
+                </p>
                 <div className="d-flex mt-4">
                   <div className="me-4">
                     <div className="fw-bold text-dark">Company size</div>
-                    <div className="text-muted">{postedBy?.companySize || "-"}</div>
+                    <div className="text-muted">
+                      {postedBy?.companySize || "-"}
+                    </div>
                   </div>
                   <div>
                     <div className="fw-bold text-dark">Website</div>
                     <div className="text-muted">
                       {postedBy?.companyWebsite ? (
-                        <a 
-                          href={postedBy.companyWebsite} 
-                          target="_blank" 
+                        <a
+                          href={postedBy.companyWebsite}
+                          target="_blank"
                           rel="noopener noreferrer"
-                          style={{ color: 'var(--primary-color)', textDecoration: 'none' }}
+                          style={{
+                            color: "var(--primary-color)",
+                            textDecoration: "none",
+                          }}
                         >
                           Visit
                         </a>
@@ -684,7 +716,7 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
                   <div className="fw-bold text-dark">Verified</div>
                   <div className="text-muted">
                     {postedBy?.companyVerified ? (
-                      <span style={{ color: 'var(--accent-color)' }}>
+                      <span style={{ color: "var(--accent-color)" }}>
                         <i className="bi bi-check-circle-fill me-1"></i>
                         Yes
                       </span>
@@ -707,7 +739,7 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
                         alt={img.altText || `Gallery image ${index + 1}`}
                         className="gallery-image"
                         onError={(e) => {
-                          e.target.style.display = 'none';
+                          e.target.style.display = "none";
                         }}
                       />
                     ))}

@@ -217,7 +217,9 @@ export default function AppliedJobs() {
                       WebkitBoxOrient: "vertical",
                       textOverflow: "ellipsis",
                     }}
-                    dangerouslySetInnerHTML={{ __html: job.jobDescription }}
+                    dangerouslySetInnerHTML={{
+                      __html: job.jobDescription || "No description available.",
+                    }}
                   ></p>
                 </div>
 

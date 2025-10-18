@@ -30,6 +30,7 @@ export default function Layout({
     });
     window.wow.init();
   });
+
   return (
     <>
       <PageHead headTitle={headTitle} />

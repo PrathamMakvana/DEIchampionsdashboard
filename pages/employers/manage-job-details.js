@@ -13,6 +13,8 @@ const JobDetailsPage = () => {
   const { currentJob, loading } = useSelector((state) => state.job);
   console.log("🚀currentJob --->", currentJob);
   const [applicants, setApplicants] = useState([]);
+  const [filteredApplicants, setFilteredApplicants] = useState([]);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     if (id) {
@@ -23,8 +25,27 @@ const JobDetailsPage = () => {
   useEffect(() => {
     if (currentJob && currentJob.applicants) {
       setApplicants(currentJob.applicants);
+      setFilteredApplicants(currentJob.applicants);
     }
   }, [currentJob]);
+
+  // Filter applicants based on status
+  useEffect(() => {
+    if (activeFilter === "all") {
+      setFilteredApplicants(applicants);
+    } else {
+      const filtered = applicants.filter((applicant) => {
+        const status = getApplicantStatus(applicant._id);
+        return status === activeFilter;
+      });
+      setFilteredApplicants(filtered);
+    }
+  }, [activeFilter, applicants]);
+
+  // Function to handle filter changes
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+  };
 
   // Function to get applicant status
   const getApplicantStatus = (applicantId) => {
@@ -43,20 +64,35 @@ const JobDetailsPage = () => {
       open: { class: "status-active", icon: "bi-check-circle", text: "Active" },
       closed: { class: "status-closed", icon: "bi-x-circle", text: "Closed" },
       draft: { class: "status-draft", icon: "bi-file-earmark", text: "Draft" },
+      pending: {
+        class: "bg-warning-subtle text-warning border",
+        icon: "bi-clock",
+        text: "New",
+      },
       accepted: {
-        class: "bg-success-subtle text-success border",
+        class: "bg-info-subtle text-info border",
         icon: "bi-check-circle",
-        text: "Accepted",
+        text: "Reviewed",
+      },
+      interviewing: {
+        class: "bg-primary-subtle text-primary border",
+        icon: "bi-calendar-check",
+        text: "Interview",
+      },
+      negotiation: {
+        class: "bg-warning-subtle text-warning border",
+        icon: "bi-currency-exchange",
+        text: "Negotiation",
+      },
+      hired: {
+        class: "bg-success-subtle text-success border",
+        icon: "bi-award",
+        text: "Hired",
       },
       rejected: {
         class: "bg-danger-subtle text-danger border",
         icon: "bi-x-circle",
         text: "Rejected",
-      },
-      pending: {
-        class: "bg-warning-subtle text-warning border",
-        icon: "bi-clock",
-        text: "Pending",
       },
     };
 
@@ -396,13 +432,27 @@ const JobDetailsPage = () => {
                   <div className="mt-2">
                     <div className="d-flex justify-content-between mb-2">
                       <span>New</span>
-                      <span>12</span>
+                      <span>
+                        {
+                          applicants.filter(
+                            (app) => getApplicantStatus(app._id) === "pending"
+                          ).length
+                        }
+                      </span>
                     </div>
                     <div className="progress" style={{ height: "8px" }}>
                       <div
                         className="progress-bar bg-warning"
                         role="progressbar"
-                        style={{ width: "28%" }}
+                        style={{
+                          width: `${
+                            (applicants.filter(
+                              (app) => getApplicantStatus(app._id) === "pending"
+                            ).length /
+                              applicants.length) *
+                            100
+                          }%`,
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -410,13 +460,28 @@ const JobDetailsPage = () => {
                   <div className="mt-3">
                     <div className="d-flex justify-content-between mb-2">
                       <span>Reviewed</span>
-                      <span>18</span>
+                      <span>
+                        {
+                          applicants.filter(
+                            (app) => getApplicantStatus(app._id) === "accepted"
+                          ).length
+                        }
+                      </span>
                     </div>
                     <div className="progress" style={{ height: "8px" }}>
                       <div
                         className="progress-bar bg-info"
                         role="progressbar"
-                        style={{ width: "43%" }}
+                        style={{
+                          width: `${
+                            (applicants.filter(
+                              (app) =>
+                                getApplicantStatus(app._id) === "accepted"
+                            ).length /
+                              applicants.length) *
+                            100
+                          }%`,
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -424,13 +489,87 @@ const JobDetailsPage = () => {
                   <div className="mt-3">
                     <div className="d-flex justify-content-between mb-2">
                       <span>Interview</span>
-                      <span>8</span>
+                      <span>
+                        {
+                          applicants.filter(
+                            (app) =>
+                              getApplicantStatus(app._id) === "interviewing"
+                          ).length
+                        }
+                      </span>
                     </div>
                     <div className="progress" style={{ height: "8px" }}>
                       <div
                         className="progress-bar bg-primary"
                         role="progressbar"
-                        style={{ width: "19%" }}
+                        style={{
+                          width: `${
+                            (applicants.filter(
+                              (app) =>
+                                getApplicantStatus(app._id) === "interviewing"
+                            ).length /
+                              applicants.length) *
+                            100
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="d-flex justify-content-between mb-2">
+                      <span>Negotiation</span>
+                      <span>
+                        {
+                          applicants.filter(
+                            (app) =>
+                              getApplicantStatus(app._id) === "negotiation"
+                          ).length
+                        }
+                      </span>
+                    </div>
+                    <div className="progress" style={{ height: "8px" }}>
+                      <div
+                        className="progress-bar bg-warning"
+                        role="progressbar"
+                        style={{
+                          width: `${
+                            (applicants.filter(
+                              (app) =>
+                                getApplicantStatus(app._id) === "negotiation"
+                            ).length /
+                              applicants.length) *
+                            100
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="d-flex justify-content-between mb-2">
+                      <span>Hired</span>
+                      <span>
+                        {
+                          applicants.filter(
+                            (app) => getApplicantStatus(app._id) === "hired"
+                          ).length
+                        }
+                      </span>
+                    </div>
+                    <div className="progress" style={{ height: "8px" }}>
+                      <div
+                        className="progress-bar bg-success"
+                        role="progressbar"
+                        style={{
+                          width: `${
+                            (applicants.filter(
+                              (app) => getApplicantStatus(app._id) === "hired"
+                            ).length /
+                              applicants.length) *
+                            100
+                          }%`,
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -438,49 +577,33 @@ const JobDetailsPage = () => {
                   <div className="mt-3">
                     <div className="d-flex justify-content-between mb-2">
                       <span>Rejected</span>
-                      <span>4</span>
+                      <span>
+                        {
+                          applicants.filter(
+                            (app) => getApplicantStatus(app._id) === "rejected"
+                          ).length
+                        }
+                      </span>
                     </div>
                     <div className="progress" style={{ height: "8px" }}>
                       <div
                         className="progress-bar bg-danger"
                         role="progressbar"
-                        style={{ width: "10%" }}
+                        style={{
+                          width: `${
+                            (applicants.filter(
+                              (app) =>
+                                getApplicantStatus(app._id) === "rejected"
+                            ).length /
+                              applicants.length) *
+                            100
+                          }%`,
+                        }}
                       ></div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Actions Card */}
-              {/* <div className="job-overview-card container">
-                <div className="row">
-                  <div className="col-12">
-                    <h4 className="section-title d-flex align-items-center">
-                      <i className="bi bi-lightning me-2"></i> Quick Actions
-                    </h4>
-                  </div>
-                  <div className="col-12 mt-4">
-                    <div className="d-grid gap-2">
-                      <button className="btn btn-primary w-100 mb-3">
-                        <i className="bi bi-person-plus-fill me-2"></i> Add New
-                        Candidate
-                      </button>
-                      <button className="btn btn-primary w-100 mb-3">
-                        <i className="bi bi-envelope-fill me-2"></i> Email
-                        Candidates
-                      </button>
-                      <button className="btn btn-primary w-100 mb-3">
-                        <i className="bi bi-calendar-event-fill me-2"></i>{" "}
-                        Schedule Interview
-                      </button>
-                      <button className="btn btn-primary w-100">
-                        <i className="bi bi-box-arrow-up-right me-2"></i> Export
-                        Applications
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
 
@@ -490,19 +613,71 @@ const JobDetailsPage = () => {
               <div className="card-header">
                 <h3 className="card-title" style={{ fontSize: "24px" }}>
                   <i className="bi bi-people me-2"></i> Applicants (
-                  {applicants.length})
+                  {filteredApplicants.length})
                 </h3>
                 <div className="filters-container">
-                  <button className="filter-btn active">All</button>
-                  <button className="filter-btn">New</button>
-                  <button className="filter-btn">Reviewed</button>
-                  <button className="filter-btn">Interview</button>
-                  <button className="filter-btn">Rejected</button>
+                  <button
+                    className={`filter-btn ${
+                      activeFilter === "all" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("all")}
+                  >
+                    All
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activeFilter === "pending" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("pending")}
+                  >
+                    New
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activeFilter === "accepted" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("accepted")}
+                  >
+                    Reviewed
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activeFilter === "interviewing" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("interviewing")}
+                  >
+                    Interview
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activeFilter === "negotiation" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("negotiation")}
+                  >
+                    Negotiation
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activeFilter === "hired" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("hired")}
+                  >
+                    Hired
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activeFilter === "rejected" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("rejected")}
+                  >
+                    Rejected
+                  </button>
                 </div>
               </div>
               <div className="card-body">
-                {Array.isArray(applicants) &&
-                  applicants.map((applicant, index) => {
+                {Array.isArray(filteredApplicants) &&
+                filteredApplicants.length > 0 ? (
+                  filteredApplicants.map((applicant, index) => {
                     const applicantStatus = getApplicantStatus(applicant._id);
 
                     return (
@@ -579,38 +754,116 @@ const JobDetailsPage = () => {
                             <button className="btn btn-outline-secondary btn-sm me-2 mt-2 mt-md-0">
                               <i className="bi bi-chat me-1"></i> Message
                             </button>
-                            {applicantStatus !== "accepted" && (
+
+                            {/* Dynamic Status Buttons based on current status */}
+                            {applicantStatus === "pending" && (
+                              <>
+                                <button
+                                  className="btn btn-success btn-sm me-2 mt-2 mt-md-0"
+                                  onClick={() =>
+                                    handleApplicationStatus(
+                                      applicant._id,
+                                      "accepted"
+                                    )
+                                  }
+                                >
+                                  <i className="bi bi-check-circle me-1"></i>{" "}
+                                  Accept
+                                </button>
+                              </>
+                            )}
+
+                            {applicantStatus === "accepted" && (
+                              <button
+                                className="btn btn-info btn-sm me-2 mt-2 mt-md-0"
+                                onClick={() =>
+                                  handleApplicationStatus(
+                                    applicant._id,
+                                    "interviewing"
+                                  )
+                                }
+                              >
+                                <i className="bi bi-calendar-check me-1"></i>{" "}
+                                Schedule Interview
+                              </button>
+                            )}
+
+                            {applicantStatus === "interviewing" && (
+                              <button
+                                className="btn btn-warning btn-sm me-2 mt-2 mt-md-0"
+                                onClick={() =>
+                                  handleApplicationStatus(
+                                    applicant._id,
+                                    "negotiation"
+                                  )
+                                }
+                              >
+                                <i className="bi bi-currency-exchange me-1"></i>{" "}
+                                Move to Negotiation
+                              </button>
+                            )}
+
+                            {applicantStatus === "negotiation" && (
                               <button
                                 className="btn btn-success btn-sm me-2 mt-2 mt-md-0"
                                 onClick={() =>
                                   handleApplicationStatus(
                                     applicant._id,
-                                    "accepted"
+                                    "hired"
                                   )
                                 }
                               >
-                                <i className="bi bi-check-circle me-1"></i>{" "}
-                                Accept
+                                <i className="bi bi-award me-1"></i> Hire
                               </button>
                             )}
-                            {applicantStatus !== "rejected" && (
-                              <button
-                                className="btn btn-danger btn-sm mt-2 mt-md-0"
-                                onClick={() =>
-                                  handleApplicationStatus(
-                                    applicant._id,
-                                    "rejected"
-                                  )
-                                }
-                              >
-                                <i className="bi bi-x-circle me-1"></i> Reject
-                              </button>
+
+                            {/* Reject button available in all stages except rejected and hired */}
+                            {applicantStatus !== "rejected" &&
+                              applicantStatus !== "hired" && (
+                                <button
+                                  className="btn btn-danger btn-sm mt-2 mt-md-0"
+                                  onClick={() =>
+                                    handleApplicationStatus(
+                                      applicant._id,
+                                      "rejected"
+                                    )
+                                  }
+                                >
+                                  <i className="bi bi-x-circle me-1"></i> Reject
+                                </button>
+                              )}
+
+                            {/* Show message when hired */}
+                            {applicantStatus === "hired" && (
+                              <span className="d-flex align-items-center text-success fw-semibold mt-2 mt-md-0">
+                                <i className="bi bi-check-circle me-1"></i>{" "}
+                                Successfully Hired
+                              </span>
+                            )}
+
+                            {/* Show message when rejected */}
+                            {applicantStatus === "rejected" && (
+                              <span className="d-flex align-items-center text-danger fw-semibold mt-2 mt-md-0">
+                                <i className="bi bi-x-circle me-1"></i>{" "}
+                                Application Rejected
+                              </span>
                             )}
                           </div>
                         </div>
                       </div>
                     );
-                  })}
+                  })
+                ) : (
+                  <div className="text-center py-4">
+                    <i
+                      className="bi bi-people text-muted"
+                      style={{ fontSize: "3rem" }}
+                    ></i>
+                    <p className="text-muted mt-3">
+                      No applicants found for the selected filter.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}

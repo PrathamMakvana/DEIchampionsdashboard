@@ -10,7 +10,7 @@ import gallery from "./slice/imageGallerySlice";
 const authPersistConfig = {
   key: "auth",
   storage,
-  blacklist: ["loading"], // do not persist loading
+  blacklist: ["loading"],
 };
 
 const rootReducer = combineReducers({
@@ -22,7 +22,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"], // only persist auth
+  whitelist: ["auth"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
