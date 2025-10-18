@@ -421,6 +421,48 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
           .gallery-image {
             width: 100%;
           }
+
+          .job-description {
+  font-size: 15px;
+  color: #374151; /* neutral gray for readability */
+  line-height: 1.8;
+}
+
+.job-description h3 {
+  font-size: 18px;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.job-description p {
+  margin-bottom: 0.75rem;
+}
+
+.job-description ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.job-description li {
+  margin-bottom: 0.35rem;
+  list-style-type: "✅ ";
+}
+
+.job-description strong {
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
         }
       `}</style>
 
@@ -484,10 +526,18 @@ const isSaved = mySavedJobs?.some((saved) => saved._id === job?._id);
 
                 <div className="job-body">
                   {/* Job Description */}
-                  <div className="mb-5">
-                    <h3 className="section-title">Job Description</h3>
-                    <p className="job-description">{jobDescription || "No description available."}</p>
-                  </div>
+ <div className="mb-5">
+  <h3 className="section-title">Job Description</h3>
+  <div
+    className="job-description"
+    dangerouslySetInnerHTML={{
+      __html: jobDescription || "<p>No description available.</p>",
+    }}
+  ></div>
+</div>
+
+
+
 
 
 <div className="d-flex flex-wrap gap-3 btn-container mt-5">

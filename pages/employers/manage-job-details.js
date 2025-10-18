@@ -308,9 +308,17 @@ const JobDetailsPage = () => {
                     <h4 className="section-title">
                       <i className="bi bi-card-text"></i> Job Description
                     </h4>
-                    <p>
-                      {currentJob.jobDescription || "No description provided."}
-                    </p>
+                    <div>
+                      {currentJob.jobDescription ? (
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: currentJob.jobDescription,
+                          }}
+                        ></div>
+                      ) : (
+                        <p>No description provided.</p>
+                      )}
+                    </div>
                   </div>
 
                   {currentJob.tags && currentJob.tags.length > 0 && (

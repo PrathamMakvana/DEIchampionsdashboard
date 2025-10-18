@@ -11,7 +11,15 @@ export default function AppliedJobs() {
   const { myApplications, loading } = useSelector((state) => state.job);
 
   const [activeFilter, setActiveFilter] = useState("All Applications");
-  const filters = ["All Applications", "Pending", "Accepted", "Rejected"];
+  const filters = [
+    "All Applications",
+    "Pending",
+    "Accepted",
+    "Interviewing",
+    "Negotiation",
+    "Hired",
+    "Rejected",
+  ];
 
   useEffect(() => {
     dispatch(getMyApplications());
@@ -26,7 +34,6 @@ export default function AppliedJobs() {
           return job.myStatus.toLowerCase() === activeFilter.toLowerCase();
         });
 
-  // Helper to get status badge color
   const getStatusBadge = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
@@ -41,11 +48,35 @@ export default function AppliedJobs() {
           color: "#065F46",
           borderColor: "#A7F3D0",
         };
+      case "interviewing":
+        return {
+          backgroundColor: "#DBEAFE",
+          color: "#1E40AF",
+          borderColor: "#BFDBFE",
+        };
+      case "negotiation":
+        return {
+          backgroundColor: "#E0E7FF",
+          color: "#3730A3",
+          borderColor: "#C7D2FE",
+        };
+      case "hired":
+        return {
+          backgroundColor: "#DCFCE7",
+          color: "#166534",
+          borderColor: "#BBF7D0",
+        };
       case "rejected":
         return {
           backgroundColor: "#FEE2E2",
           color: "#991B1B",
           borderColor: "#FECACA",
+        };
+      case "all applications":
+        return {
+          backgroundColor: "#E5E7EB",
+          color: "#374151",
+          borderColor: "#D1D5DB",
         };
       default:
         return {
@@ -77,7 +108,9 @@ export default function AppliedJobs() {
           </div>
           <div className="header-stats text-gray-700">
             <span className="app-count font-medium">
-              <span className="count-number">{myApplications?.length || 0}</span>{" "}
+              <span className="count-number">
+                {myApplications?.length || 0}
+              </span>{" "}
               applications
             </span>
           </div>
@@ -184,9 +217,8 @@ export default function AppliedJobs() {
                       WebkitBoxOrient: "vertical",
                       textOverflow: "ellipsis",
                     }}
-                  >
-                    {job.jobDescription}
-                  </p>
+                    dangerouslySetInnerHTML={{ __html: job.jobDescription }}
+                  ></p>
                 </div>
 
                 {/* Actions */}
