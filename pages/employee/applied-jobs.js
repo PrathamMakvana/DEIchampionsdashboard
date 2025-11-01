@@ -5,12 +5,24 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMyApplications, unapplyJob } from "@/api/job";
 import Swal from "sweetalert2";
+import {
+  FaAngleDoubleLeft,
+  FaAngleLeft,
+  FaAngleRight,
+  FaAngleDoubleRight,
+} from "react-icons/fa";
+import { useSearchParams } from "next/navigation";
 
 export default function AppliedJobs() {
   const dispatch = useDispatch();
+  const searchParams = useSearchParams();
   const { myApplications, loading } = useSelector((state) => state.job);
 
-  const [activeFilter, setActiveFilter] = useState("All Applications");
+ const initialFilter = searchParams.get("filter") || "All Applications";
+ const [activeFilter, setActiveFilter] = useState(initialFilter);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
+
   const filters = [
     "All Applications",
     "Pending",
@@ -30,9 +42,20 @@ export default function AppliedJobs() {
     activeFilter === "All Applications"
       ? myApplications
       : myApplications.filter((job) => {
-          // Use the myStatus field added by backend
-          return job.myStatus.toLowerCase() === activeFilter.toLowerCase();
+          return job.myStatus?.toLowerCase() === activeFilter.toLowerCase();
         });
+
+  // Pagination calculations
+  const totalPages = Math.ceil((filteredApplications?.length || 0) / rowsPerPage);
+  const paginatedApplications = filteredApplications?.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  useEffect(() => {
+    // Reset to first page when filter changes
+    setCurrentPage(1);
+  }, [activeFilter]);
 
   const getStatusBadge = (status) => {
     switch (status?.toLowerCase()) {
@@ -87,9 +110,8 @@ export default function AppliedJobs() {
     }
   };
 
-  // Get logged-in user's application status for a job
   const getMyStatus = (job) => {
-    const statusEntry = job.applicationStatus.find(
+    const statusEntry = job.applicationStatus?.find(
       (app) => app.applicant?._id === job.loggedInUserId
     );
     return statusEntry?.status || "pending";
@@ -108,9 +130,7 @@ export default function AppliedJobs() {
           </div>
           <div className="header-stats text-gray-700">
             <span className="app-count font-medium">
-              <span className="count-number">
-                {myApplications?.length || 0}
-              </span>{" "}
+              <span className="count-number">{myApplications?.length || 0}</span>{" "}
               applications
             </span>
           </div>
@@ -150,9 +170,8 @@ export default function AppliedJobs() {
       <div className="jobs-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-4">
         {loading ? (
           <p>Loading applications...</p>
-        ) : filteredApplications?.length > 0 ? (
-          filteredApplications.map((job) => {
-            const myStatus = getMyStatus(job);
+        ) : paginatedApplications?.length > 0 ? (
+          paginatedApplications.map((job) => {
             const badgeStyle = getStatusBadge(job.myStatus);
 
             return (
@@ -202,7 +221,6 @@ export default function AppliedJobs() {
                     </span>
                   </div>
 
-                  {/* Applied Date + Description */}
                   <div className="applied-date text-xs text-gray-500 mb-2">
                     <i className="bi bi-calendar-check"></i> Applied on:{" "}
                     {new Date(job.createdAt).toLocaleDateString()}
@@ -267,6 +285,93 @@ export default function AppliedJobs() {
           <p>No applications found.</p>
         )}
       </div>
+
+      {/* Pagination */}
+<div className="d-flex flex-column flex-sm-row justify-content-between align-items-center px-3 py-3 border-t gap-2 mt-6">
+  <div className="text-muted small text-center text-sm-start">
+    Showing{" "}
+    <span className="fw-semibold">
+      {paginatedApplications.length > 0
+        ? (currentPage - 1) * rowsPerPage + 1
+        : 0}
+    </span>{" "}
+    to{" "}
+    <span className="fw-semibold">
+      {Math.min(currentPage * rowsPerPage, filteredApplications.length)}
+    </span>{" "}
+    of{" "}
+    <span className="fw-semibold">{filteredApplications.length}</span>{" "}
+    Applications
+  </div>
+
+  <div className="d-flex align-items-center gap-2">
+    <button
+      className="btn btn-sm btn-outline-primary"
+      onClick={() => setCurrentPage(1)}
+      disabled={currentPage === 1}
+      style={{
+        width: "30px",
+        height: "30px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 0,
+      }}
+    >
+      <FaAngleDoubleLeft size={12} />
+    </button>
+    <button
+      className="btn btn-sm btn-outline-primary"
+      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+      disabled={currentPage === 1}
+      style={{
+        width: "30px",
+        height: "30px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 0,
+      }}
+    >
+      <FaAngleLeft size={12} />
+    </button>
+    <span className="mx-2 fw-semibold small">
+      Page {currentPage} of {totalPages || 1}
+    </span>
+    <button
+      className="btn btn-sm btn-outline-primary"
+      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+      disabled={currentPage === totalPages || totalPages === 0}
+      style={{
+        width: "30px",
+        height: "30px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 0,
+      }}
+    >
+      <FaAngleRight size={12} />
+    </button>
+    <button
+      className="btn btn-sm btn-outline-primary"
+      onClick={() => setCurrentPage(totalPages)}
+      disabled={currentPage === totalPages || totalPages === 0}
+      style={{
+        width: "30px",
+        height: "30px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 0,
+      }}
+    >
+      <FaAngleDoubleRight size={12} />
+    </button>
+  </div>
+</div>
+
+
     </Layout>
   );
 }

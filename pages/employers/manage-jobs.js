@@ -19,6 +19,20 @@ const ManageJobs = () => {
     dispatch(getJobs());
   }, [dispatch]);
 
+
+  // Apply filter from query parameter
+useEffect(() => {
+  if (router.query.filter) {
+    const param = router.query.filter.toLowerCase();
+
+    if (param === "open") setActiveFilter("Open");
+    else if (param === "closed") setActiveFilter("Closed");
+    else if (param === "draft") setActiveFilter("Drafts");
+    else setActiveFilter("All Jobs");
+  }
+}, [router.query.filter]);
+
+
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
     setCurrentPage(1);

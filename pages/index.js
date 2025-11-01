@@ -3,8 +3,39 @@ import Layout from "@/components/layout/Layout";
 import BrandSlider from "@/components/slider/BrandSlider";
 import { Menu } from "@headlessui/react";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { requestForToken } from "@/utils/firebase";
+import { saveFcmToken } from "@/api/notification";
+import { toast } from "react-toastify";
 
 export default function Home() {
+
+     const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+
+
+  
+  useEffect(() => {
+    const registerFcmToken = async () => {
+      const token = await requestForToken();
+      if (token && user?._id) {
+        await dispatch(
+          saveFcmToken(
+            { fcmToken: token, userId: user._id },
+            {
+              showSuccess: (msg) => toast.success(msg),
+              showError: (msg) => toast.error(msg),
+            }
+          )
+        );
+      }
+    };
+
+    registerFcmToken();
+  }, [user?._id, dispatch]);
+
+  
   return (
     <>
       <Layout breadcrumbTitle="Dashboard" breadcrumbActive="Dashboard">

@@ -9,6 +9,10 @@ import { getJobCategories, getJobTypes } from "@/api/job";
 import { updateUserProfileWithResume } from "@/api/auth";
 import Swal from "sweetalert2";
 import moment from "moment";
+import locationData from "../../utils/countriesStatesCities.json";
+import degreeList from "../../utils/degree.json";
+import instituteList from "../../utils/institute.json";
+import positionList from "../../utils/position.json";
 
 const salaryOptions = [
   { value: "10-20 lac", label: "10-20 lac" },
@@ -57,6 +61,7 @@ const validationSchema = Yup.object().shape({
   ),
 });
 
+
 export default function UserProfileUpdate() {
   const user = useSelector((state) => state.auth.user);
   console.log("🚀user --->", user);
@@ -66,13 +71,21 @@ export default function UserProfileUpdate() {
   const [resumeFile, setResumeFile] = useState(null);
   const [resumeFileName, setResumeFileName] = useState("");
   const [skills, setSkills] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
   const resumeFileInputRef = useRef(null);
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [preferredLocations, setPreferredLocations] = useState([]);
+  const [locationSearch, setLocationSearch] = useState("");
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [allCities, setAllCities] = useState([]);
 
   const { jobCategories, jobTypes, loading } = useSelector(
     (state) => state.job
   );
+
+  console.log("Location Data Sample:", locationData?.[0]);
 
   useEffect(() => {
     dispatch(getJobCategories());
@@ -87,6 +100,10 @@ export default function UserProfileUpdate() {
       setResumeFileName(user.resumeUrl.split("/").pop());
     }
   }, [user]);
+
+  useEffect(() => {
+    setCountries(locationData.map((country) => country.name));
+  }, []);
 
   const defaultInitialValues = {
     name: "",
@@ -127,101 +144,106 @@ export default function UserProfileUpdate() {
     ],
   };
 
+
+  function useScrollToError(errors, touched) {
+  useEffect(() => {
+    const errorKeys = Object.keys(errors);
+    if (errorKeys.length > 0) {
+      // Find the first touched + errored field
+      const firstErrorKey = errorKeys.find((key) => touched[key] || true);
+      if (firstErrorKey) {
+        const errorElement = document.querySelector(
+          `[name="${firstErrorKey}"]`
+        );
+
+        if (errorElement && typeof errorElement.scrollIntoView === "function") {
+          errorElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          errorElement.focus();
+        }
+      }
+    }
+  }, [errors, touched]);
+}
+
+
+
   const formik = useFormik({
     initialValues: defaultInitialValues,
     validationSchema,
-    validateOnBlur: true,
-    validateOnChange: false,
-    onSubmit: async (values, { setSubmitting, validateForm }) => {
-      try {
-        setIsSubmitting(true);
+    onSubmit: async (values) => {
+      const formData = new FormData();
 
-        // Validate the form before submission
-        const errors = await validateForm();
-
-        // If there are validation errors, don't submit
-        if (Object.keys(errors).length > 0) {
-          // Mark all fields as touched to show errors
-          const touched = {};
-          Object.keys(values).forEach((key) => {
-            touched[key] = true;
-          });
-          formik.setTouched(touched);
-
-          Swal.fire({
-            icon: "error",
-            title: "Validation Error",
-            text: "Please fix all the errors before submitting the form",
-            timer: 3000,
-          });
-          return;
-        }
-
-        const formData = new FormData();
-
-        // Append all form fields
-        Object.keys(values).forEach((key) => {
-          if (values[key] !== null && values[key] !== undefined) {
-            if (
-              ["skills", "education", "experience", "preferences"].includes(key)
-            ) {
-              formData.append(key, JSON.stringify(values[key]));
-            } else {
-              formData.append(key, values[key]);
-            }
+      // Append all form fields
+      Object.keys(values).forEach((key) => {
+        if (values[key] !== null && values[key] !== undefined) {
+          if (
+            ["skills", "education", "experience", "preferences"].includes(key)
+          ) {
+            formData.append(key, JSON.stringify(values[key]));
+          } else {
+            formData.append(key, values[key]);
           }
-        });
-
-        // Append photo file if exists
-        if (photoFile) {
-          formData.append("photo", photoFile);
         }
+      });
 
-        // Append resume file if exists
-        if (resumeFile) {
-          formData.append("resume", resumeFile);
-        }
+      // Append photo file if exists
+      if (photoFile) {
+        formData.append("photo", photoFile);
+      }
 
-        // Append skills
-        formData.append("skills", JSON.stringify(skills));
+      // Append resume file if exists
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      }
 
-        const data = await dispatch(
-          updateUserProfileWithResume(formData, {
-            showSuccess: (msg) =>
-              Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: msg,
-                timer: 1500,
-                showConfirmButton: false,
-              }),
-            showError: (msg) =>
-              Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: msg,
-              }),
-          })
-        );
+      // Append skills
+      formData.append("skills", JSON.stringify(skills));
 
-        if (data?.success) {
-          setPhotoFile(null);
-          setResumeFile(null);
-        }
-      } catch (error) {
-        console.error("Submission error:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Submission Failed",
-          text: "Something went wrong. Please try again.",
-        });
-      } finally {
-        setIsSubmitting(false);
-        setSubmitting(false);
+      // Create preferences object with preferred locations
+      const preferences = {
+        jobTypes: values.jobType ? [values.jobType] : [],
+        department: values.department ? [values.department] : [],
+        category: values.category ? [values.category] : [],
+        salary_range: values.salaryRange || "",
+        preffered_locations: preferredLocations, // Add preferred locations from state
+      };
+
+      // Append preferences
+      formData.append("preferences", JSON.stringify(preferences));
+
+      const data = await dispatch(
+        updateUserProfileWithResume(formData, {
+          showSuccess: (msg) =>
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: msg,
+              timer: 1500,
+              showConfirmButton: false,
+            }),
+          showError: (msg) =>
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: msg,
+            }),
+        })
+      );
+
+      if (data?.success) {
+        setPhotoFile(null);
+        setResumeFile(null);
       }
     },
     enableReinitialize: true,
   });
+
+
+   useScrollToError(formik.errors, formik.touched);
+
 
   useEffect(() => {
     if (user) {
@@ -253,13 +275,72 @@ export default function UserProfileUpdate() {
         department: user.preferences?.department?.[0] || "",
         category: user.preferences?.category?.[0] || "",
         salaryRange: user.preferences?.salary_range || "",
-        preferredLocations:
-          user.preferences?.preffered_locations?.join(", ") || "",
       });
 
       setSkills(user.skills || []);
+
+      // Add this line to set preferred locations state
+      setPreferredLocations(user.preferences?.preffered_locations || []);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (formik.values.country) {
+      handleCountryChange({ target: { value: formik.values.country } }, true);
+    }
+  }, [formik.values.country]);
+
+  useEffect(() => {
+    if (formik.values.state && formik.values.country) {
+      handleStateChange({ target: { value: formik.values.state } }, true);
+    }
+  }, [formik.values.state]);
+
+  useEffect(() => {
+    // Flatten all cities from locationData for the dropdown
+    const cities = [];
+    locationData.forEach((country) => {
+      country.states.forEach((state) => {
+        state.cities.forEach((city) => {
+          cities.push({
+            name: city.name,
+            state: state.name,
+            country: country.name,
+          });
+        });
+      });
+    });
+    setAllCities(cities);
+  }, []);
+
+  const addPreferredLocation = (location) => {
+    if (location && !preferredLocations.includes(location)) {
+      setPreferredLocations([...preferredLocations, location]);
+    }
+    setLocationSearch("");
+    setShowLocationDropdown(false);
+  };
+
+  const removePreferredLocation = (index) => {
+    const newLocations = [...preferredLocations];
+    newLocations.splice(index, 1);
+    setPreferredLocations(newLocations);
+  };
+
+  // Filter cities based on search (with performance optimization)
+  const getFilteredCities = () => {
+    if (!locationSearch) return allCities.slice(0, 50); // Show only first 50 when no search
+
+    const searchLower = locationSearch.toLowerCase();
+    return allCities
+      .filter(
+        (city) =>
+          city.name.toLowerCase().includes(searchLower) ||
+          city.state.toLowerCase().includes(searchLower) ||
+          city.country.toLowerCase().includes(searchLower)
+      )
+      .slice(0, 50); // Limit to 50 results for performance
+  };
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
@@ -303,44 +384,79 @@ export default function UserProfileUpdate() {
     passwordInput.setAttribute("type", type);
   };
 
-  const handleCancel = () => {
-    // Reset form to initial values
-    if (user) {
-      formik.setValues({
-        ...defaultInitialValues,
-        name: user.name || "",
-        email: user.email || "",
-        mobile: user.mobile || "",
-        dateOfBirth: user.dateOfBirth
-          ? moment(user.dateOfBirth).format("YYYY-MM-DD")
-          : "",
-        gender: user.gender || "",
-        employeeDescription: user.employeeDescription || "",
-        workStatus: user.workStatus || "unemployed",
-        address: user.address || "",
-        city: user.city || "",
-        state: user.state || "",
-        country: user.country || "",
-        pincode: user.pincode || "",
-        education:
-          user.education?.length > 0
-            ? user.education
-            : defaultInitialValues.education,
-        experience:
-          user.experience?.length > 0
-            ? user.experience
-            : defaultInitialValues.experience,
-        jobType: user.preferences?.jobTypes?.[0] || "",
-        department: user.preferences?.department?.[0] || "",
-        category: user.preferences?.category?.[0] || "",
-        salaryRange: user.preferences?.salary_range || "",
-        preferredLocations:
-          user.preferences?.preffered_locations?.join(", ") || "",
-      });
-      setSkills(user.skills || []);
+  const handleCountryChange = (e, preserveExisting = false) => {
+    const selectedCountry = e.target.value;
+
+    formik.setFieldValue("country", selectedCountry);
+
+    if (!preserveExisting) {
+      formik.setFieldValue("state", "");
+      formik.setFieldValue("city", "");
     }
-    formik.setTouched({});
+
+    const countryObj = locationData.find((c) => c.name === selectedCountry);
+    if (countryObj) {
+      setStates(countryObj.states.map((s) => s.name));
+      if (!preserveExisting) setCities([]); // reset cities only if not preserving
+    }
   };
+
+  const handleStateChange = (e, preserveCity = false) => {
+    const selectedState = e.target.value;
+    formik.setFieldValue("state", selectedState);
+
+    if (!preserveCity) formik.setFieldValue("city", "");
+
+    const countryObj = locationData.find((country) =>
+      country.states.some((s) => s.name === selectedState)
+    );
+
+    if (countryObj) {
+      formik.setFieldValue("country", countryObj.name);
+
+      const stateObj = countryObj.states.find((s) => s.name === selectedState);
+      if (stateObj) {
+        setCities(stateObj.cities.map((city) => city.name));
+      }
+    }
+  };
+
+  const handleCityChange = (e) => {
+    const selectedCity = e.target.value;
+    formik.setFieldValue("city", selectedCity);
+
+    // find state and country for the selected city
+    for (const country of locationData) {
+      for (const state of country.states) {
+        const cityFound = state.cities.find((c) => c.name === selectedCity);
+        if (cityFound) {
+          formik.setFieldValue("state", state.name);
+          formik.setFieldValue("country", country.name);
+          return;
+        }
+      }
+    }
+  };
+
+  // Add this useEffect
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showLocationDropdown &&
+        !event.target.closest(".user-upt-profile-skill-input-container")
+      ) {
+        setShowLocationDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showLocationDropdown]);
+
+
+  
 
   return (
     <>
@@ -400,11 +516,7 @@ export default function UserProfileUpdate() {
                           </label>
                           <input
                             type="text"
-                            className={`form-control user-upt-profile-form-control ${
-                              formik.touched.name && formik.errors.name
-                                ? "is-invalid"
-                                : ""
-                            }`}
+                            className="form-control user-upt-profile-form-control"
                             name="name"
                             placeholder="Enter your full name"
                             value={formik.values.name}
@@ -412,7 +524,7 @@ export default function UserProfileUpdate() {
                             onBlur={formik.handleBlur}
                           />
                           {formik.touched.name && formik.errors.name && (
-                            <div className="text-danger small mt-1">
+                            <div className="text-danger">
                               {formik.errors.name}
                             </div>
                           )}
@@ -423,11 +535,7 @@ export default function UserProfileUpdate() {
                           </label>
                           <input
                             type="email"
-                            className={`form-control user-upt-profile-form-control ${
-                              formik.touched.email && formik.errors.email
-                                ? "is-invalid"
-                                : ""
-                            }`}
+                            className="form-control user-upt-profile-form-control"
                             name="email"
                             value={formik.values.email}
                             onChange={formik.handleChange}
@@ -435,7 +543,7 @@ export default function UserProfileUpdate() {
                             disabled
                           />
                           {formik.touched.email && formik.errors.email && (
-                            <div className="text-danger small mt-1">
+                            <div className="text-danger">
                               {formik.errors.email}
                             </div>
                           )}
@@ -446,11 +554,7 @@ export default function UserProfileUpdate() {
                           </label>
                           <input
                             type="tel"
-                            className={`form-control user-upt-profile-form-control ${
-                              formik.touched.mobile && formik.errors.mobile
-                                ? "is-invalid"
-                                : ""
-                            }`}
+                            className="form-control user-upt-profile-form-control"
                             name="mobile"
                             placeholder="Enter your mobile number"
                             value={formik.values.mobile}
@@ -458,7 +562,7 @@ export default function UserProfileUpdate() {
                             onBlur={formik.handleBlur}
                           />
                           {formik.touched.mobile && formik.errors.mobile && (
-                            <div className="text-danger small mt-1">
+                            <div className="text-danger">
                               {formik.errors.mobile}
                             </div>
                           )}
@@ -469,24 +573,12 @@ export default function UserProfileUpdate() {
                           </label>
                           <input
                             type="date"
-                            className={`form-control user-upt-profile-form-control ${
-                              formik.touched.dateOfBirth &&
-                              formik.errors.dateOfBirth
-                                ? "is-invalid"
-                                : ""
-                            }`}
+                            className="form-control user-upt-profile-form-control"
                             placeholder="YYYY-MM-DD"
                             name="dateOfBirth"
                             value={formik.values.dateOfBirth || ""}
                             onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
                           />
-                          {formik.touched.dateOfBirth &&
-                            formik.errors.dateOfBirth && (
-                              <div className="text-danger small mt-1">
-                                {formik.errors.dateOfBirth}
-                              </div>
-                            )}
                         </div>
                         <div className="col-md-6 user-upt-profile-form-group">
                           <label className="user-upt-profile-form-label">
@@ -512,12 +604,7 @@ export default function UserProfileUpdate() {
                             Work Status *
                           </label>
                           <select
-                            className={`form-select user-upt-profile-form-control ${
-                              formik.touched.workStatus &&
-                              formik.errors.workStatus
-                                ? "is-invalid"
-                                : ""
-                            }`}
+                            className="form-select user-upt-profile-form-control"
                             name="workStatus"
                             value={formik.values.workStatus}
                             onChange={formik.handleChange}
@@ -531,7 +618,7 @@ export default function UserProfileUpdate() {
                           </select>
                           {formik.touched.workStatus &&
                             formik.errors.workStatus && (
-                              <div className="text-danger small mt-1">
+                              <div className="text-danger">
                                 {formik.errors.workStatus}
                               </div>
                             )}
@@ -540,15 +627,10 @@ export default function UserProfileUpdate() {
 
                       <div className="col-md-12 user-upt-profile-form-group">
                         <label className="user-upt-profile-form-label">
-                          Description *
+                          Description
                         </label>
                         <textarea
-                          className={`form-control user-upt-profile-form-control ${
-                            formik.touched.employeeDescription &&
-                            formik.errors.employeeDescription
-                              ? "is-invalid"
-                              : ""
-                          }`}
+                          className="form-control user-upt-profile-form-control"
                           name="employeeDescription"
                           placeholder="Write a short description about yourself"
                           rows="4"
@@ -558,7 +640,7 @@ export default function UserProfileUpdate() {
                         />
                         {formik.touched.employeeDescription &&
                           formik.errors.employeeDescription && (
-                            <div className="text-danger small mt-1">
+                            <div className="text-danger">
                               {formik.errors.employeeDescription}
                             </div>
                           )}
@@ -575,17 +657,13 @@ export default function UserProfileUpdate() {
                 </div>
                 <div className="user-upt-profile-card-body">
                   <div className="row">
+                    {/* Address */}
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
                         Address *
                       </label>
                       <input
                         type="text"
-                        className={`form-control user-upt-profile-form-control ${
-                          formik.touched.address && formik.errors.address
-                            ? "is-invalid"
-                            : ""
-                        }`}
                         name="address"
                         placeholder="Enter your address"
                         value={formik.values.address}
@@ -593,89 +671,101 @@ export default function UserProfileUpdate() {
                         onBlur={formik.handleBlur}
                       />
                       {formik.touched.address && formik.errors.address && (
-                        <div className="text-danger small mt-1">
+                        <div className="text-danger">
                           {formik.errors.address}
                         </div>
                       )}
                     </div>
+
+                    {/* Country */}
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
-                        City *
+                        Country *
                       </label>
-                      <input
-                        type="text"
-                        className={`form-control user-upt-profile-form-control ${
-                          formik.touched.city && formik.errors.city
-                            ? "is-invalid"
-                            : ""
-                        }`}
-                        placeholder="Enter your city"
-                        name="city"
-                        value={formik.values.city}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                      {formik.touched.city && formik.errors.city && (
-                        <div className="text-danger small mt-1">
-                          {formik.errors.city}
+                      <select
+                        name="country"
+                        className="form-control user-upt-profile-form-control"
+                        value={formik.values.country}
+                        onChange={handleCountryChange}
+                      >
+                        <option value="">Select Country</option>
+                        {countries.map((country) => (
+                          <option key={country} value={country}>
+                            {country}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.country && formik.errors.country && (
+                        <div className="text-danger">
+                          {formik.errors.country}
                         </div>
                       )}
                     </div>
+
+                    {/* State */}
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
                         State *
                       </label>
-                      <input
-                        type="text"
-                        className={`form-control user-upt-profile-form-control ${
-                          formik.touched.state && formik.errors.state
-                            ? "is-invalid"
-                            : ""
-                        }`}
+                      <select
                         name="state"
-                        placeholder="Enter your state"
+                        className="form-control user-upt-profile-form-control"
                         value={formik.values.state}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
+                        onChange={handleStateChange}
+                        disabled={!formik.values.country}
+                      >
+                        <option value="">Select State</option>
+                        {states.map((state) => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
+                        ))}
+                      </select>
                       {formik.touched.state && formik.errors.state && (
-                        <div className="text-danger small mt-1">
-                          {formik.errors.state}
-                        </div>
+                        <div className="text-danger">{formik.errors.state}</div>
                       )}
                     </div>
+
+                    {/* City */}
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
-                        Country
+                        City *
                       </label>
-                      <input
-                        type="text"
-                        placeholder="Enter your country"
+                      <select
+                        name="city"
                         className="form-control user-upt-profile-form-control"
-                        name="country"
-                        value={formik.values.country}
-                        onChange={formik.handleChange}
-                      />
+                        value={formik.values.city}
+                        onChange={handleCityChange}
+                        disabled={!formik.values.state}
+                      >
+                        <option value="">Select City</option>
+                        {cities.map((city) => (
+                          <option key={city} value={city}>
+                            {city}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.city && formik.errors.city && (
+                        <div className="text-danger">{formik.errors.city}</div>
+                      )}
                     </div>
+
+                    {/* Pincode */}
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
                         Pincode *
                       </label>
                       <input
                         type="text"
-                        className={`form-control user-upt-profile-form-control ${
-                          formik.touched.pincode && formik.errors.pincode
-                            ? "is-invalid"
-                            : ""
-                        }`}
                         placeholder="Enter your pincode"
+                        className="form-control user-upt-profile-form-control"
                         name="pincode"
                         value={formik.values.pincode}
                         onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
+                        required
                       />
                       {formik.touched.pincode && formik.errors.pincode && (
-                        <div className="text-danger small mt-1">
+                        <div className="text-danger">
                           {formik.errors.pincode}
                         </div>
                       )}
@@ -755,54 +845,71 @@ export default function UserProfileUpdate() {
                                 <label className="user-upt-profile-form-label">
                                   Degree *
                                 </label>
-                                <input
-                                  type="text"
-                                  className={`form-control user-upt-profile-form-control ${
-                                    formik.touched.education?.[index]?.degree &&
-                                    formik.errors.education?.[index]?.degree
-                                      ? "is-invalid"
-                                      : ""
-                                  }`}
+                                <select
                                   name={`education[${index}].degree`}
-                                  placeholder="e.g. Bachelor of Science in Computer Science"
+                                  className="form-control user-upt-profile-form-control"
                                   value={formik.values.education[index].degree}
                                   onChange={formik.handleChange}
                                   onBlur={formik.handleBlur}
-                                />
+                                >
+                                  <option value="">Select Degree</option>
+                                  {degreeList.degrees.map((degree, i) => (
+                                    <option key={i} value={degree}>
+                                      {degree}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                {formik.values.education[index].degree ===
+                                  "Other" && (
+                                  <input
+                                    type="text"
+                                    name={`education[${index}].degree`}
+                                    placeholder="Enter your degree"
+                                    className="form-control mt-2"
+                                    onChange={formik.handleChange}
+                                  />
+                                )}
+
                                 {formik.touched.education?.[index]?.degree &&
                                   formik.errors.education?.[index]?.degree && (
-                                    <div className="text-danger small mt-1">
+                                    <div className="text-danger">
                                       {formik.errors.education[index].degree}
                                     </div>
                                   )}
                               </div>
+
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
                                   Institution *
                                 </label>
-                                <input
-                                  type="text"
-                                  className={`form-control user-upt-profile-form-control ${
-                                    formik.touched.education?.[index]
-                                      ?.institution &&
-                                    formik.errors.education?.[index]
-                                      ?.institution
-                                      ? "is-invalid"
-                                      : ""
-                                  }`}
-                                  placeholder="e.g. University of Example"
+
+                                <select
                                   name={`education[${index}].institution`}
+                                  className="form-control user-upt-profile-form-control"
                                   value={
                                     formik.values.education[index].institution
                                   }
                                   onChange={formik.handleChange}
                                   onBlur={formik.handleBlur}
-                                />
+                                >
+                                  <option value="">Select Institution</option>
+
+                                  {/* Map through institution list */}
+                                  {instituteList.institutions.map(
+                                    (institute, i) => (
+                                      <option key={i} value={institute}>
+                                        {institute}
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+
                                 {formik.touched.education?.[index]
                                   ?.institution &&
                                   formik.errors.education?.[index]
                                     ?.institution && (
-                                    <div className="text-danger small mt-1">
+                                    <div className="text-danger">
                                       {
                                         formik.errors.education[index]
                                           .institution
@@ -810,20 +917,14 @@ export default function UserProfileUpdate() {
                                     </div>
                                   )}
                               </div>
+
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
                                   Graduation Year *
                                 </label>
                                 <input
                                   type="number"
-                                  className={`form-control user-upt-profile-form-control ${
-                                    formik.touched.education?.[index]
-                                      ?.graduationYear &&
-                                    formik.errors.education?.[index]
-                                      ?.graduationYear
-                                      ? "is-invalid"
-                                      : ""
-                                  }`}
+                                  className="form-control user-upt-profile-form-control"
                                   placeholder="e.g. 2020"
                                   min="1950"
                                   max="2030"
@@ -833,13 +934,12 @@ export default function UserProfileUpdate() {
                                       .graduationYear
                                   }
                                   onChange={formik.handleChange}
-                                  onBlur={formik.handleBlur}
                                 />
                                 {formik.touched.education?.[index]
                                   ?.graduationYear &&
                                   formik.errors.education?.[index]
                                     ?.graduationYear && (
-                                    <div className="text-danger small mt-1">
+                                    <div className="text-danger">
                                       {
                                         formik.errors.education[index]
                                           .graduationYear
@@ -896,14 +996,6 @@ export default function UserProfileUpdate() {
                                 </label>
                                 <input
                                   type="text"
-                                  className={`form-control user-upt-profile-form-control ${
-                                    formik.touched.experience?.[index]
-                                      ?.companyName &&
-                                    formik.errors.experience?.[index]
-                                      ?.companyName
-                                      ? "is-invalid"
-                                      : ""
-                                  }`}
                                   name={`experience[${index}].companyName`}
                                   value={
                                     formik.values.experience[index].companyName
@@ -916,7 +1008,7 @@ export default function UserProfileUpdate() {
                                   ?.companyName &&
                                   formik.errors.experience?.[index]
                                     ?.companyName && (
-                                    <div className="text-danger small mt-1">
+                                    <div className="text-danger">
                                       {
                                         formik.errors.experience[index]
                                           .companyName
@@ -924,60 +1016,60 @@ export default function UserProfileUpdate() {
                                     </div>
                                   )}
                               </div>
+
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
                                   Position *
                                 </label>
-                                <input
-                                  type="text"
-                                  className={`form-control user-upt-profile-form-control ${
-                                    formik.touched.experience?.[index]
-                                      ?.position &&
-                                    formik.errors.experience?.[index]?.position
-                                      ? "is-invalid"
-                                      : ""
-                                  }`}
-                                  placeholder="e.g. Software Developer"
+
+                                <select
                                   name={`experience[${index}].position`}
-                                  onChange={formik.handleChange}
+                                  className="form-control user-upt-profile-form-control"
                                   value={
                                     formik.values.experience[index].position
                                   }
+                                  onChange={formik.handleChange}
                                   onBlur={formik.handleBlur}
-                                />
+                                  required
+                                >
+                                  <option value="">Select Position</option>
+
+                                  {/* Map through position list */}
+                                  {positionList.positions.map((pos, i) => (
+                                    <option key={i} value={pos}>
+                                      {pos}
+                                    </option>
+                                  ))}
+                                </select>
+
                                 {formik.touched.experience?.[index]?.position &&
                                   formik.errors.experience?.[index]
                                     ?.position && (
-                                    <div className="text-danger small mt-1">
+                                    <div className="text-danger">
                                       {formik.errors.experience[index].position}
                                     </div>
                                   )}
                               </div>
+
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
                                   Start Date *
                                 </label>
                                 <input
                                   type="date"
-                                  className={`form-control user-upt-profile-form-control ${
-                                    formik.touched.experience?.[index]
-                                      ?.startDate &&
-                                    formik.errors.experience?.[index]?.startDate
-                                      ? "is-invalid"
-                                      : ""
-                                  }`}
+                                  className="form-control user-upt-profile-form-control"
                                   name={`experience[${index}].startDate`}
                                   onChange={formik.handleChange}
                                   value={moment(
                                     formik.values.experience[index].startDate
                                   ).format("YYYY-MM-DD")}
-                                  onBlur={formik.handleBlur}
+                                  required
                                 />
                                 {formik.touched.experience?.[index]
                                   ?.startDate &&
                                   formik.errors.experience?.[index]
                                     ?.startDate && (
-                                    <div className="text-danger small mt-1">
+                                    <div className="text-danger">
                                       {
                                         formik.errors.experience[index]
                                           .startDate
@@ -1057,56 +1149,141 @@ export default function UserProfileUpdate() {
               </div>
 
               {/* Preferences Card */}
-              <div className="user-upt-profile-card">
-                <div className="user-upt-profile-card-header">
-                  <i className="bi bi-heart me-2"></i> Job Preferences
-                </div>
-                <div className="user-upt-profile-card-body">
-                  <div className="row">
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <DynamicSelect
-                        label="Job Type"
-                        name="jobType"
-                        formik={formik}
-                        options={jobTypes}
-                        valueKey="_id"
-                        labelKey="name"
-                        placeholder="Select Type"
-                        className="user-upt-profile-form-label"
-                        required={false}
-                        selectClassName="form-control user-upt-profile-form-control"
-                      />
+            <div className="user-upt-profile-card" style={{ overflow: "visible" }}>
+  <div className="user-upt-profile-card-header">
+    <i className="bi bi-heart me-2"></i> Job Preferences
+  </div>
+  <div className="user-upt-profile-card-body" style={{ overflow: "visible" }}>
+    <div className="row">
+      <div className="col-md-6 user-upt-profile-form-group">
+        <DynamicSelect
+          label="Job Type"
+          name="jobType"
+          formik={formik}
+          options={jobTypes}
+          valueKey="_id"
+          labelKey="name"
+          placeholder="Select Type"
+          className="user-upt-profile-form-label"
+          required={false}
+          selectClassName="form-control user-upt-profile-form-control"
+        />
+      </div>
+      <div className="col-md-6 user-upt-profile-form-group">
+        <DynamicSelect
+          label="Salary"
+          name="salaryRange"
+          required={false}
+          formik={formik}
+          options={salaryOptions}
+          valueKey="value"
+          labelKey="label"
+          placeholder="Select Salary"
+          className="user-upt-profile-form-label"
+          selectClassName="form-control user-upt-profile-form-control"
+        />
+      </div>
+
+      <div className="col-md-12 user-upt-profile-form-group">
+        <label className="user-upt-profile-form-label">
+          Preferred Locations
+        </label>
+        <div
+          className="user-upt-profile-skill-input-container"
+          style={{ position: "relative" }}
+        >
+          <input
+            type="text"
+            className="form-control user-upt-profile-form-control"
+            placeholder="Search for a city..."
+            value={locationSearch}
+            onChange={(e) => setLocationSearch(e.target.value)}
+            onFocus={() => setShowLocationDropdown(true)}
+            style={{ width: "100%" }}
+          />
+
+          {showLocationDropdown && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                right: 0,
+                maxHeight: "400px",
+                overflowY: "auto",
+                backgroundColor: "white",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                marginTop: "4px",
+                zIndex: 9999,
+                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              }}
+              className="custom-scrollbar"
+            >
+              {getFilteredCities().length > 0 ? (
+                getFilteredCities().map((city, index) => (
+                  <div
+                    key={index}
+                    onClick={() =>
+                      addPreferredLocation(city.name)
+                    }
+                    style={{
+                      padding: "10px 15px",
+                      cursor: "pointer",
+                      borderBottom: "1px solid #f0f0f0",
+                      transition: "background-color 0.2s",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#f8f9fa")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "white")
+                    }
+                  >
+                    <div style={{ fontWeight: "500" }}>
+                      {city.name}
                     </div>
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <DynamicSelect
-                        label="Salary"
-                        name="salaryRange"
-                        required={false}
-                        formik={formik}
-                        options={salaryOptions}
-                        valueKey="value"
-                        labelKey="label"
-                        placeholder="Select Salary"
-                        className="user-upt-profile-form-label"
-                        selectClassName="form-control user-upt-profile-form-control"
-                      />
-                    </div>
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Preferred Locations
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control user-upt-profile-form-control"
-                        placeholder="Enter preferred locations separated by commas"
-                        name="preferredLocations"
-                        value={formik.values.preferredLocations}
-                        onChange={formik.handleChange}
-                      />
-                    </div>
+                    <small style={{ color: "#6c757d" }}>
+                      {city.state}, {city.country}
+                    </small>
                   </div>
+                ))
+              ) : (
+                <div
+                  style={{
+                    padding: "15px",
+                    textAlign: "center",
+                    color: "#6c757d",
+                  }}
+                >
+                  No cities found
                 </div>
-              </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Display selected locations like skills */}
+        <div id="preferredLocationsContainer" className="mt-2">
+          {preferredLocations.map((location, index) => (
+            <div
+              key={index}
+              className="user-upt-profile-skill-badge"
+            >
+              {location}
+              <span
+                className="user-upt-profile-skill-remove"
+                onClick={() => removePreferredLocation(index)}
+              >
+                ×
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
               {/* Resume Card */}
               <div className="user-upt-profile-card">
@@ -1172,23 +1349,82 @@ export default function UserProfileUpdate() {
                 </div>
               </div>
 
+              {/* Security Card */}
+              {/* <div className="user-upt-profile-card">
+                <div className="user-upt-profile-card-header">
+                  <i className="bi bi-shield-lock me-2"></i> Security
+                </div>
+                <div className="user-upt-profile-card-body">
+                  <div className="row">
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <label className="user-upt-profile-form-label">
+                        Current Password
+                      </label>
+                      <div className="user-upt-profile-input-group">
+                        <input
+                          type="password"
+                          className="form-control user-upt-profile-form-control"
+                          placeholder="Enter current password"
+                          name="currentPassword"
+                          id="currentPassword"
+                          value={formik.values.currentPassword}
+                          onChange={formik.handleChange}
+                        />
+                        <span
+                          className="user-upt-profile-password-toggle"
+                          onClick={() =>
+                            togglePasswordVisibility("currentPassword")
+                          }
+                        >
+                          <i className="bi bi-eye"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <label className="user-upt-profile-form-label">
+                        New Password
+                      </label>
+                      <div className="user-upt-profile-input-group">
+                        <input
+                          type="password"
+                          className="form-control user-upt-profile-form-control"
+                          placeholder="Enter new password"
+                          name="newPassword"
+                          id="newPassword"
+                          value={formik.values.newPassword}
+                          onChange={formik.handleChange}
+                        />
+                        <span
+                          className="user-upt-profile-password-toggle"
+                          onClick={() =>
+                            togglePasswordVisibility("newPassword")
+                          }
+                        >
+                          <i className="bi bi-eye"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="form-text">
+                    Leave password fields blank if you don't want to change your
+                    password
+                  </div>
+                </div>
+              </div> */}
+
               {/* Action Buttons */}
               <div className="d-flex justify-content-between mt-4">
                 <button
                   type="button"
                   className="btn btn-light user-upt-profile-btn-outline"
-                  onClick={handleCancel}
-                  disabled={isSubmitting}
                 >
                   <i className="bi bi-x-circle me-2"></i> Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn user-upt-profile-btn-primary"
-                  disabled={isSubmitting}
                 >
-                  <i className="bi bi-check-circle me-2"></i>
-                  {isSubmitting ? "Saving..." : "Save Changes"}
+                  <i className="bi bi-check-circle me-2"></i> Save Changes
                 </button>
               </div>
             </form>

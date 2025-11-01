@@ -5,24 +5,29 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMySavedJobs, unsaveJob } from "@/api/job";
 import Swal from "sweetalert2";
+import {
+  FaAngleDoubleLeft,
+  FaAngleLeft,
+  FaAngleRight,
+  FaAngleDoubleRight,
+} from "react-icons/fa";
 
 export default function SavedJobs() {
-  const [activeFilter, setActiveFilter] = useState("All Applications");
   const dispatch = useDispatch();
   const { mySavedJobs, loading } = useSelector((state) => state.job);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
 
   useEffect(() => {
     dispatch(getMySavedJobs());
   }, [dispatch]);
 
-  const filters = [
-    "All Applications",
-    "Applied",
-    "In Review",
-    "Interviewing",
-    "Accepted",
-    "Rejected",
-  ];
+  // Pagination logic
+  const totalPages = Math.ceil((mySavedJobs?.length || 0) / rowsPerPage);
+  const paginatedJobs = mySavedJobs?.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   const handleUnsave = (jobId) => {
     Swal.fire({
@@ -39,7 +44,7 @@ export default function SavedJobs() {
           unsaveJob(jobId, {
             showSuccess: (msg) => {
               Swal.fire("Success", msg, "success");
-              dispatch(getMySavedJobs()); 
+              dispatch(getMySavedJobs());
             },
             showError: (msg) => Swal.fire("Error", msg, "error"),
           })
@@ -52,126 +57,187 @@ export default function SavedJobs() {
     <Layout>
       {/* Page Header */}
       <div className="page-header">
-        <div className="header-content">
+        <div className="header-content flex justify-between items-center">
           <div>
-            <h1 className="page-title">Saved Jobs</h1>
-            <p className="page-subtitle">
-              Track the status of all your saved jobs in one place
+            <h1 className="page-title text-2xl font-bold">Saved Jobs</h1>
+            <p className="page-subtitle text-gray-600">
+              Track all your saved jobs conveniently in one place
             </p>
           </div>
-          <div className="header-stats">
-            <span className="app-count">
-              <span className="count-number">{mySavedJobs.length}</span> saved
-              jobs
+          <div className="header-stats text-gray-700">
+            <span className="app-count font-medium">
+              <span className="count-number">{mySavedJobs?.length || 0}</span>{" "}
+              saved jobs
             </span>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      {/* <div className="filter-section">
-        <h5 className="filter-title">Filter by Status</h5>
-        <div className="filter-options">
-          {filters.map((filter) => (
-            <button
-              key={filter}
-              className={`filter-btn ${activeFilter === filter ? "active" : ""}`}
-              onClick={() => setActiveFilter(filter)}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
-      </div> */}
-
       {/* Saved Jobs List */}
-      <div className="jobs-grid">
+      <div className="jobs-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-4">
         {loading ? (
-          <div className="d-flex justify-content-center align-items-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        ) : mySavedJobs.length === 0 ? (
-          <p>No saved jobs found.</p>
-        ) : (
-          mySavedJobs.map((job) => (
-            <div key={job._id} className="job-card">
-              <div className="job-card-header">
-                <h3 className="job-title">{job.jobTitle}</h3>
-                <p className="company-name">{job?.postedBy?.companyName}</p>
-                <span className="status-badge status-review">
-                  <i className="bi bi-bookmark-heart me-1"></i>
-                  <span>Saved</span>
-                </span>
+          <p>Loading saved jobs...</p>
+        ) : paginatedJobs?.length > 0 ? (
+          paginatedJobs.map((job) => (
+            <div
+              key={job._id}
+              className="job-card flex flex-col h-full border rounded-2xl shadow-md p-4 bg-white"
+            >
+              <div className="flex-grow">
+                <div className="job-card-header mb-3">
+                  <h3
+                    className="job-title font-semibold text-lg truncate"
+                    style={{ textTransform: "uppercase" }}
+                  >
+                    {job.jobTitle}
+                  </h3>
+                  <p className="company-name text-sm text-gray-600 truncate">
+                    {job?.postedBy?.companyName}
+                  </p>
+                  <span
+                    className="status-badge inline-flex items-center text-sm font-medium px-2 py-1 rounded-md mt-2"
+                    style={{
+                      backgroundColor: "#FEF3C7",
+                      color: "#92400E",
+                      border: "1px solid #FDE68A",
+                    }}
+                  >
+                    <i className="bi bi-bookmark-heart me-1"></i> Saved
+                  </span>
+                </div>
 
                 {/* Meta Info */}
-                <div
-                  className="job-meta rmborder d-flex gap-3"
-                  style={{ overflow: "hidden" }}
-                >
-                  <span
-                    className="job-meta-item d-flex align-items-center text-truncate"
-                    style={{
-                      maxWidth: "200px",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    <i className="bi bi-geo-alt me-1"></i> {job.city}, {job.state}
+                <div className="job-meta flex flex-wrap gap-3 text-sm text-gray-500 mb-3">
+                  <span className="job-meta-item flex items-center gap-1 truncate max-w-[150px]">
+                    <i className="bi bi-geo-alt"></i> {job.city}, {job.state}
                   </span>
-                  <span
-                    className="job-meta-item d-flex align-items-center text-truncate"
-                    style={{
-                      maxWidth: "150px",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    <i className="bi bi-briefcase me-1"></i> {job?.jobType?.name}
+                  <span className="job-meta-item flex items-center gap-1 truncate max-w-[120px]">
+                    <i className="bi bi-briefcase"></i> {job?.jobType?.name}
                   </span>
-                  <span
-                    className="job-meta-item d-flex align-items-center text-truncate"
-                    style={{
-                      maxWidth: "100px",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    <i className="bi bi-cash me-1"></i> {job.salary}
+                  <span className="job-meta-item flex items-center gap-1 truncate max-w-[100px]">
+                    <i className="bi bi-cash"></i> {job.salary}
                   </span>
                 </div>
+
+                <p
+                  className="job-description text-sm text-gray-700"
+                  style={{
+                    flexGrow: "1",
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical",
+                    textOverflow: "ellipsis",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: job.jobDescription || "",
+                  }}
+                ></p>
               </div>
 
-              {/* Card Body */}
-              <div className="job-card-body">
-                <p className="job-description">
-                  {job.jobDescription?.slice(0, 120)}...
-                </p>
+              {/* Actions */}
+              <div className="job-actions flex justify-between pt-3 border-t mt-auto">
+                <Link
+                  className="btn-details text-blue-600 hover:underline flex items-center"
+                  href={`/employee/job-details/${job._id}`}
+                >
+                  <i className="bi bi-eye me-1"></i> View Details
+                </Link>
 
-                <div className="job-actions d-flex gap-2">
-                  <Link
-                    className="btn-details"
-                    href={`/employee/job-details/${job._id}`}
-                  >
-                    <i className="bi bi-eye me-1"></i> View Details
-                  </Link>
-
-                  {/* Unsave Button */}
-                  <button
-                    className="btn btn-danger d-flex align-items-center gap-1"
-                    onClick={() => handleUnsave(job._id)}
-                  >
-                    <i className="bi bi-bookmark-x"></i> Unsave
-                  </button>
-                </div>
+                <button
+                  className="btn-unapply text-red-600 hover:text-red-800 flex items-center"
+                  onClick={() => handleUnsave(job._id)}
+                >
+                  <i className="bi bi-bookmark-x me-1"></i> Unsave
+                </button>
               </div>
             </div>
           ))
+        ) : (
+          <p>No saved jobs found.</p>
         )}
+      </div>
+
+      {/* Pagination */}
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center px-3 py-3 border-t gap-2 mt-6">
+        <div className="text-muted small text-center text-sm-start">
+          Showing{" "}
+          <span className="fw-semibold">
+            {paginatedJobs.length > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0}
+          </span>{" "}
+          to{" "}
+          <span className="fw-semibold">
+            {Math.min(currentPage * rowsPerPage, mySavedJobs.length)}
+          </span>{" "}
+          of{" "}
+          <span className="fw-semibold">{mySavedJobs.length}</span> Saved Jobs
+        </div>
+
+        <div className="d-flex align-items-center gap-2">
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            style={{
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+          >
+            <FaAngleDoubleLeft size={12} />
+          </button>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+            style={{
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+          >
+            <FaAngleLeft size={12} />
+          </button>
+          <span className="mx-2 fw-semibold small">
+            Page {currentPage} of {totalPages || 1}
+          </span>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages || totalPages === 0}
+            style={{
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+          >
+            <FaAngleRight size={12} />
+          </button>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages || totalPages === 0}
+            style={{
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+          >
+            <FaAngleDoubleRight size={12} />
+          </button>
+        </div>
       </div>
     </Layout>
   );

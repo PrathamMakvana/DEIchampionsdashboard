@@ -6,6 +6,7 @@ import storage from "redux-persist/lib/storage";
 import authReducer from "./slice/authSlice";
 import jobReducer from "./slice/jobSlice";
 import gallery from "./slice/imageGallerySlice";
+import notificationReducer from "./slice/notificationSlice";
 
 const authPersistConfig = {
   key: "auth",
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer), // persist only auth with blacklist
   job: jobReducer,
   gallery: gallery,
+  notification: notificationReducer,
 });
 
 const persistConfig = {
