@@ -187,12 +187,24 @@ export const getuserbyid = (id) => async (dispatch) => {
   }
 };
 
-export const getAuthUser = async () => {
+export const getAuthUser = () => async (dispatch) => {
   try {
     const res = await fetcher("/users/auth/me");
+    console.log("🚀 res.data --->", res.data);
     return res.data;
   } catch (error) {
-    console.error("Error fetching about hero:", error);
+    console.log("Error fetching auth user:", error);
+
+    const errorData = error.response?.data;
+
+    if (
+      errorData?.code === "TOKEN_EXPIRED" ||
+      errorData?.code === "INVALID_TOKEN"
+    ) {
+      console.log("Authentication error, logging out user...");
+      await dispatch(logoutUser());
+    }
+
     return null;
   }
 };

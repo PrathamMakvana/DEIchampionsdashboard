@@ -28,6 +28,7 @@ export default function Home() {
   useEffect(() => {
     dispatch(getMyApplications());
     dispatch(getMySavedJobs());
+    dispatch(getAuthUser());
   }, [dispatch]);
 
   // FCM Token Registration
@@ -55,28 +56,24 @@ export default function Home() {
 
   const statusCounts = {
     Pending:
-      myApplications?.filter(
-        (j) => j.myStatus?.toLowerCase() === "pending"
-      ).length || 0,
+      myApplications?.filter((j) => j.myStatus?.toLowerCase() === "pending")
+        .length || 0,
     Accepted:
-      myApplications?.filter(
-        (j) => j.myStatus?.toLowerCase() === "accepted"
-      ).length || 0,
+      myApplications?.filter((j) => j.myStatus?.toLowerCase() === "accepted")
+        .length || 0,
     Interviewing:
       myApplications?.filter(
         (j) => j.myStatus?.toLowerCase() === "interviewing"
       ).length || 0,
     Negotiation:
-      myApplications?.filter(
-        (j) => j.myStatus?.toLowerCase() === "negotiation"
-      ).length || 0,
+      myApplications?.filter((j) => j.myStatus?.toLowerCase() === "negotiation")
+        .length || 0,
     Hired:
       myApplications?.filter((j) => j.myStatus?.toLowerCase() === "hired")
         .length || 0,
     Rejected:
-      myApplications?.filter(
-        (j) => j.myStatus?.toLowerCase() === "rejected"
-      ).length || 0,
+      myApplications?.filter((j) => j.myStatus?.toLowerCase() === "rejected")
+        .length || 0,
   };
 
   // Cards with Font Awesome icons
@@ -91,7 +88,7 @@ export default function Home() {
       )}`,
     },
 
-      {
+    {
       title: "All Saved Jobs",
       count: savedTotal,
       icon: <FaBookmark size={40} color={iconColor} />,
@@ -138,7 +135,6 @@ export default function Home() {
       icon: <FaTimesCircle size={40} color={iconColor} />,
       link: `/employee/applied-jobs?filter=${encodeURIComponent("Rejected")}`,
     },
-  
   ];
 
   return (
@@ -176,26 +172,6 @@ export default function Home() {
   );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // import { getAuthUser } from "@/api/auth";
 // import VacancyChart from "@/components/elements/VacancyChart";
 // import Layout from "@/components/layout/Layout";
@@ -214,8 +190,6 @@ export default function Home() {
 //    const dispatch = useDispatch();
 //   const user = useSelector((state) => state.auth.user);
 
-
-  
 //   useEffect(() => {
 //     const registerFcmToken = async () => {
 //       const token = await requestForToken();
@@ -234,7 +208,6 @@ export default function Home() {
 
 //     registerFcmToken();
 //   }, [user?._id, dispatch]);
-
 
 //   return (
 //     <>

@@ -14,6 +14,7 @@ import {
   FaTimesCircle,
   FaUserTie,
 } from "react-icons/fa";
+import { getAuthUser } from "@/api/auth";
 
 export default function EmployerDashboard() {
   const dispatch = useDispatch();
@@ -23,6 +24,7 @@ export default function EmployerDashboard() {
   // Fetch jobs
   useEffect(() => {
     dispatch(getJobs());
+    dispatch(getAuthUser());
   }, [dispatch]);
 
   // Register FCM token
@@ -63,8 +65,6 @@ export default function EmployerDashboard() {
       (sum, j) => sum + (j.applicants?.length || 0),
       0
     );
-
-
 
     return {
       totalJobs: jobs.length,
@@ -156,24 +156,6 @@ export default function EmployerDashboard() {
   );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // import { getAuthUser } from "@/api/auth";
 // import VacancyChart from "@/components/elements/VacancyChart";
 // import Layout from "@/components/layout/Layout";
@@ -192,8 +174,6 @@ export default function EmployerDashboard() {
 //      const dispatch = useDispatch();
 //   const user = useSelector((state) => state.auth.user);
 
-
-  
 //   useEffect(() => {
 //     const registerFcmToken = async () => {
 //       const token = await requestForToken();
@@ -213,7 +193,6 @@ export default function EmployerDashboard() {
 //     registerFcmToken();
 //   }, [user?._id, dispatch]);
 
-  
 //   return (
 //     <>
 //       <Layout breadcrumbTitle="Dashboard" breadcrumbActive="Dashboard">
