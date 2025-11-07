@@ -18,8 +18,8 @@ export default function AppliedJobs() {
   const searchParams = useSearchParams();
   const { myApplications, loading } = useSelector((state) => state.job);
 
- const initialFilter = searchParams.get("filter") || "All Applications";
- const [activeFilter, setActiveFilter] = useState(initialFilter);
+  const initialFilter = searchParams.get("filter") || "All Applications";
+  const [activeFilter, setActiveFilter] = useState(initialFilter);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
 
@@ -46,7 +46,9 @@ export default function AppliedJobs() {
         });
 
   // Pagination calculations
-  const totalPages = Math.ceil((filteredApplications?.length || 0) / rowsPerPage);
+  const totalPages = Math.ceil(
+    (filteredApplications?.length || 0) / rowsPerPage
+  );
   const paginatedApplications = filteredApplications?.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
@@ -130,7 +132,9 @@ export default function AppliedJobs() {
           </div>
           <div className="header-stats text-gray-700">
             <span className="app-count font-medium">
-              <span className="count-number">{myApplications?.length || 0}</span>{" "}
+              <span className="count-number">
+                {myApplications?.length || 0}
+              </span>{" "}
               applications
             </span>
           </div>
@@ -217,7 +221,8 @@ export default function AppliedJobs() {
                       <i className="bi bi-briefcase"></i> {job.jobType?.name}
                     </span>
                     <span className="job-meta-item flex items-center gap-1 truncate max-w-[100px]">
-                      <i className="bi bi-cash"></i> {job.salary}
+                      <i className="bi bi-cash"></i>{" "}
+                      {job?.salary || job?.salary?.range || "Not specified"}
                     </span>
                   </div>
 
@@ -287,91 +292,88 @@ export default function AppliedJobs() {
       </div>
 
       {/* Pagination */}
-<div className="d-flex flex-column flex-sm-row justify-content-between align-items-center px-3 py-3 border-t gap-2 mt-6">
-  <div className="text-muted small text-center text-sm-start">
-    Showing{" "}
-    <span className="fw-semibold">
-      {paginatedApplications.length > 0
-        ? (currentPage - 1) * rowsPerPage + 1
-        : 0}
-    </span>{" "}
-    to{" "}
-    <span className="fw-semibold">
-      {Math.min(currentPage * rowsPerPage, filteredApplications.length)}
-    </span>{" "}
-    of{" "}
-    <span className="fw-semibold">{filteredApplications.length}</span>{" "}
-    Applications
-  </div>
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center px-3 py-3 border-t gap-2 mt-6">
+        <div className="text-muted small text-center text-sm-start">
+          Showing{" "}
+          <span className="fw-semibold">
+            {paginatedApplications.length > 0
+              ? (currentPage - 1) * rowsPerPage + 1
+              : 0}
+          </span>{" "}
+          to{" "}
+          <span className="fw-semibold">
+            {Math.min(currentPage * rowsPerPage, filteredApplications.length)}
+          </span>{" "}
+          of <span className="fw-semibold">{filteredApplications.length}</span>{" "}
+          Applications
+        </div>
 
-  <div className="d-flex align-items-center gap-2">
-    <button
-      className="btn btn-sm btn-outline-primary"
-      onClick={() => setCurrentPage(1)}
-      disabled={currentPage === 1}
-      style={{
-        width: "30px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 0,
-      }}
-    >
-      <FaAngleDoubleLeft size={12} />
-    </button>
-    <button
-      className="btn btn-sm btn-outline-primary"
-      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-      disabled={currentPage === 1}
-      style={{
-        width: "30px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 0,
-      }}
-    >
-      <FaAngleLeft size={12} />
-    </button>
-    <span className="mx-2 fw-semibold small">
-      Page {currentPage} of {totalPages || 1}
-    </span>
-    <button
-      className="btn btn-sm btn-outline-primary"
-      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-      disabled={currentPage === totalPages || totalPages === 0}
-      style={{
-        width: "30px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 0,
-      }}
-    >
-      <FaAngleRight size={12} />
-    </button>
-    <button
-      className="btn btn-sm btn-outline-primary"
-      onClick={() => setCurrentPage(totalPages)}
-      disabled={currentPage === totalPages || totalPages === 0}
-      style={{
-        width: "30px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 0,
-      }}
-    >
-      <FaAngleDoubleRight size={12} />
-    </button>
-  </div>
-</div>
-
-
+        <div className="d-flex align-items-center gap-2">
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            style={{
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+          >
+            <FaAngleDoubleLeft size={12} />
+          </button>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+            style={{
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+          >
+            <FaAngleLeft size={12} />
+          </button>
+          <span className="mx-2 fw-semibold small">
+            Page {currentPage} of {totalPages || 1}
+          </span>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages || totalPages === 0}
+            style={{
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+          >
+            <FaAngleRight size={12} />
+          </button>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages || totalPages === 0}
+            style={{
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
+          >
+            <FaAngleDoubleRight size={12} />
+          </button>
+        </div>
+      </div>
     </Layout>
   );
 }

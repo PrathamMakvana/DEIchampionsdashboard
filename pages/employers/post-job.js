@@ -106,7 +106,7 @@ export default function Home() {
         state: currentJob.state || "",
         country: currentJob.country || "",
         status: currentJob.status || "open",
-        salary: currentJob.salary || "",
+        salary: currentJob.salary._id || "",
         category: currentJob.category?._id || "",
         tags: Array.isArray(currentJob.tags) ? currentJob.tags.join(", ") : "",
         jobType: currentJob.jobType?._id || "",
@@ -128,7 +128,7 @@ export default function Home() {
 
   const salaryOptions = useMemo(() => {
     return salaryRanges.map((range) => ({
-      value: range.range,
+      value: range._id,
       label: range.range,
     }));
   }, [salaryRanges]);
@@ -295,9 +295,9 @@ export default function Home() {
                                 label="Salary"
                                 name="salary"
                                 formik={formik}
-                                options={salaryOptions}
-                                valueKey="value"
-                                labelKey="label"
+                                options={salaryRanges}
+                                valueKey="_id"
+                                labelKey="range"
                                 placeholder="Select Salary"
                               />
                             </div>

@@ -374,10 +374,15 @@ const CompanyProfile = () => {
                               {job.city}, {job.state}
                             </span>
                           </div>
-                          <div className="job-meta-item">
+                          {/* <div className="job-meta-item">
                             <i className="bi bi-cash"></i>
-                            <span>{job.salary}</span>
-                          </div>
+                            <span>
+                              {" "}
+                              {job?.salary ||
+                                job?.salary?.range ||
+                                "Not specified"}
+                            </span>
+                          </div> */}
                         </div>
 
                         <p

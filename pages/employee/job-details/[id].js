@@ -492,7 +492,7 @@ const JobDetailsPage = () => {
                       </p>
                       <div className="salary-badge">
                         <i className="bi bi-currency-dollar"></i>{" "}
-                        {salary || "Competitive"}
+                        {salary?.range || "Competitive"}
                       </div>
                       <div className="job-meta">
                         <div className="meta-item">

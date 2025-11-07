@@ -115,7 +115,8 @@ export default function SavedJobs() {
                     <i className="bi bi-briefcase"></i> {job?.jobType?.name}
                   </span>
                   <span className="job-meta-item flex items-center gap-1 truncate max-w-[100px]">
-                    <i className="bi bi-cash"></i> {job.salary}
+                    <i className="bi bi-cash"></i>{" "}
+                    {job?.salary || job?.salary?.range || "Not specified"}
                   </span>
                 </div>
 
@@ -169,8 +170,8 @@ export default function SavedJobs() {
           <span className="fw-semibold">
             {Math.min(currentPage * rowsPerPage, mySavedJobs.length)}
           </span>{" "}
-          of{" "}
-          <span className="fw-semibold">{mySavedJobs.length}</span> Saved Jobs
+          of <span className="fw-semibold">{mySavedJobs.length}</span> Saved
+          Jobs
         </div>
 
         <div className="d-flex align-items-center gap-2">

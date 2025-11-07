@@ -322,7 +322,7 @@ const JobDetailsPage = () => {
                       </div>
                       <div className="meta-content">
                         <h5>Salary</h5>
-                        <p>{currentJob.salary || "Not specified"}</p>
+                        <p>{currentJob.salary?.range || "Not specified"}</p>
                       </div>
                     </div>
 

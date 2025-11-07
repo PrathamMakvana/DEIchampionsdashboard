@@ -52,7 +52,9 @@ export default function GridView({ job }) {
           <div className="card-2-bottom mt-30">
             <div className="row">
               <div className="col-lg-7 col-7">
-                <span className="card-text-price">${job.salary}</span>
+                <span className="card-text-price">
+                  ${job?.salary || job?.salary?.range || "Not specified"}
+                </span>
                 <span className="text-muted">/Hour</span>
               </div>
               {/* <div className="col-lg-5 col-5 text-end">
