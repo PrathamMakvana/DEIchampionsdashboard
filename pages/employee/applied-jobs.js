@@ -222,7 +222,7 @@ export default function AppliedJobs() {
                     </span>
                     <span className="job-meta-item flex items-center gap-1 truncate max-w-[100px]">
                       <i className="bi bi-cash"></i>{" "}
-                      {job?.salary || job?.salary?.range || "Not specified"}
+                      {job?.salary?.range || "Not specified"}
                     </span>
                   </div>
 
