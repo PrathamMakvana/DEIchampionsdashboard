@@ -106,7 +106,7 @@ export default function Home() {
         state: currentJob.state || "",
         country: currentJob.country || "",
         status: currentJob.status || "open",
-        salary: currentJob.salary._id || "",
+        salary: currentJob?.salary?._id || "",
         category: currentJob.category?._id || "",
         tags: Array.isArray(currentJob.tags) ? currentJob.tags.join(", ") : "",
         jobType: currentJob.jobType?._id || "",
