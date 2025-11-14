@@ -1,4 +1,8 @@
-import { setLoading, setUser } from "@/store/slice/authSlice";
+import {
+  setLoading,
+  setProfileCompletion,
+  setUser,
+} from "@/store/slice/authSlice";
 import { persistor } from "@/store/store";
 import { fetcher, fetcherPost } from "@/utils/axios";
 
@@ -21,25 +25,26 @@ export const registerUser =
     }
   };
 
-export const loginUser =
+export const loginEmployer =
   (formData, { showSuccess, showError }) =>
   async (dispatch) => {
     try {
       dispatch(setLoading(true));
 
       const data = await fetcherPost(["/users/employee/login", formData]);
+      console.log("🚀 Employer Login API response --->", data);
 
-      if (data?.serviceToken) {
-        localStorage.setItem("jobportaltoken", data.serviceToken);
+      if (data?.data?.serviceToken) {
+        localStorage.setItem("jobportaltoken", data.data.serviceToken);
       }
 
-      if (data?.user) {
-        dispatch(setUser(data.user));
-        localStorage.setItem("userRole", data.user.roleId);
+      if (data?.data?.user) {
+        dispatch(setUser(data.data.user));
+        localStorage.setItem("userRole", data.data.user.roleId);
       }
 
       dispatch(setLoading(false));
-      showSuccess();
+      showSuccess(data?.message || "Login successful!");
       return data;
     } catch (error) {
       dispatch(setLoading(false));
@@ -205,6 +210,31 @@ export const getAuthUser = () => async (dispatch) => {
       await dispatch(logoutUser());
     }
 
+    return null;
+  }
+};
+
+export const getVerifyEmail = async (token) => {
+  try {
+    const res = await fetcher(`/users/verify-email/${token}`);
+    return res;
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return null;
+  }
+};
+
+export const getuserProfileCompletionData = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcher(`/users/profile/percentage`);
+    console.log("🚀res --->", res);
+    dispatch(setProfileCompletion(res?.data || null));
+    dispatch(setLoading(false));
+    return res;
+  } catch (error) {
+    console.error("Error fetching job:", error);
+    dispatch(setLoading(false));
     return null;
   }
 };

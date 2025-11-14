@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { loginUser } from "@/api/auth";
+import { loginEmployer } from "@/api/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -30,12 +30,12 @@ const LoginPage = () => {
   const handleLoginSubmit = async (values) => {
     try {
       const data = await dispatch(
-        loginUser(values, {
+        loginEmployer(values, {
           showSuccess: () =>
             Swal.fire({
-              icon: "info",
-              title: "Please check your mail",
-              text: "We’ve sent you an OTP.",
+              icon: "success",
+              title: "Login Successful!",
+              text: "Welcome back 👋",
               timer: 2000,
               showConfirmButton: false,
             }),
@@ -47,13 +47,11 @@ const LoginPage = () => {
             }),
         })
       );
+
       console.log("🚀data 222--->", data);
 
       if (data?.success) {
-        navigate.push({
-          pathname: "/verify-otp",
-          query: { email: values.email },
-        });
+        navigate.push("/employers");
       }
     } catch (error) {
       console.error("Login error:", error);

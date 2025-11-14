@@ -1,7 +1,7 @@
 "use client";
-import { getAuthUser } from "@/api/auth";
+import { getAuthUser, getuser } from "@/api/auth";
 import Layout from "@/components/layout/Layout";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMyApplications, getMySavedJobs } from "@/api/job";
 import { requestForToken } from "@/utils/firebase";
@@ -17,11 +17,15 @@ import {
   FaUserTie,
   FaTimesCircle,
   FaBookmark,
+  FaEnvelope,
+  FaExclamationTriangle,
+  FaPaperPlane,
 } from "react-icons/fa";
 
 export default function Home() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  console.log("🚀user --->", user);
   const { myApplications, mySavedJobs } = useSelector((state) => state.job);
 
   // Fetch applications & saved jobs
@@ -29,6 +33,7 @@ export default function Home() {
     dispatch(getMyApplications());
     dispatch(getMySavedJobs());
     dispatch(getAuthUser());
+    dispatch(getuser());
   }, [dispatch]);
 
   // FCM Token Registration
@@ -137,8 +142,46 @@ export default function Home() {
     },
   ];
 
+  // Check if email is not verified
+
+  const isEmailNotVerified = useMemo(() => {
+    return user && !user.emailVerified;
+  }, [user]);
+
   return (
     <Layout breadcrumbTitle="Dashboard" breadcrumbActive="Dashboard">
+      {/* Email Verification Banner - Only show if email is not verified */}
+      {isEmailNotVerified && (
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="dash-email-verify-alert alert alert-warning border-0 shadow-lg rounded-3">
+              <div className="d-flex align-items-center justify-content-between flex-column flex-md-row">
+                <div className="d-flex align-items-center text-center text-md-start mb-3 mb-md-0">
+                  <div className="dash-email-verify-icon me-3">
+                    <FaExclamationTriangle size={32} className="text-warning" />
+                  </div>
+                  <div className="dash-email-verify-content">
+                    <h4 className="dash-email-verify-title mb-1 fw-bold text-dark">
+                      Verify Your Email Address
+                    </h4>
+                    <p className="dash-email-verify-text mb-0 text-dark">
+                      Your email address <strong>{user.email}</strong> is not
+                      verified. Please verify your email to access all features
+                      and receive important notifications.
+                    </p>
+                  </div>
+                </div>
+                <button className="dash-email-verify-btn btn btn-warning btn-lg px-4 py-2 fw-semibold">
+                  <FaPaperPlane className="me-2" />
+                  Verify Email
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dashboard Cards Grid */}
       <div className="col-xxl-12 col-xl-12 col-lg-12">
         <div className="section-box">
           <div className="row">
@@ -168,1104 +211,58 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Custom CSS for Email Verification Components */}
+      <style jsx>{`
+        .dash-email-verify-alert {
+          background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+          border-left: 4px solid #ffc107;
+          padding: 1.5rem;
+        }
+
+        .dash-email-verify-btn {
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        .dash-email-verify-content {
+          flex: 1;
+        }
+
+        @media (max-width: 768px) {
+          .dash-email-verify-alert {
+            padding: 1.25rem;
+          }
+
+          .dash-email-verify-alert .d-flex {
+            flex-direction: column;
+            text-align: center;
+          }
+
+          .dash-email-verify-icon {
+            margin-bottom: 1rem;
+          }
+
+          .dash-email-verify-btn {
+            margin-top: 1rem;
+            width: 100%;
+          }
+
+          .dash-email-verify-content {
+            margin-bottom: 1rem;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .dash-email-verify-alert .d-flex {
+            align-items: flex-start;
+          }
+
+          .dash-email-verify-content {
+            max-width: 600px;
+          }
+        }
+      `}</style>
     </Layout>
   );
 }
-
-// import { getAuthUser } from "@/api/auth";
-// import VacancyChart from "@/components/elements/VacancyChart";
-// import Layout from "@/components/layout/Layout";
-// import BrandSlider from "@/components/slider/BrandSlider";
-// import { Menu } from "@headlessui/react";
-// import Link from "next/link";
-// import { useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { requestForToken } from "@/utils/firebase";
-// import { saveFcmToken } from "@/api/notification";
-// import { toast } from "react-toastify";
-
-// export default function Home() {
-//   const data = getAuthUser();
-//   console.log("🚀data --->", data);
-//    const dispatch = useDispatch();
-//   const user = useSelector((state) => state.auth.user);
-
-//   useEffect(() => {
-//     const registerFcmToken = async () => {
-//       const token = await requestForToken();
-//       if (token && user?._id) {
-//         await dispatch(
-//           saveFcmToken(
-//             { fcmToken: token, userId: user._id },
-//             {
-//               showSuccess: (msg) => toast.success(msg),
-//               showError: (msg) => toast.error(msg),
-//             }
-//           )
-//         );
-//       }
-//     };
-
-//     registerFcmToken();
-//   }, [user?._id, dispatch]);
-
-//   return (
-//     <>
-//       <Layout breadcrumbTitle="Dashboard" breadcrumbActive="Dashboard">
-//         <div className="col-xxl-12 col-xl-12 col-lg-12">
-//           <div className="section-box">
-//             <div className="row">
-//               <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-4 col-sm-6">
-//                 <div className="card-style-1 hover-up">
-//                   <div className="card-image">
-//                     {" "}
-//                     <img
-//                       src="../../assets/imgs/page/dashboard/computer.svg"
-//                       alt="jobBox"
-//                     />
-//                   </div>
-//                   <div className="card-info">
-//                     <div className="card-title">
-//                       <h3>
-//                         1568
-//                         <span className="font-sm status up">
-//                           25<span>%</span>
-//                         </span>
-//                       </h3>
-//                     </div>
-//                     <p className="color-text-paragraph-2">
-//                       Interview Schedules
-//                     </p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-4 col-sm-6">
-//                 <div className="card-style-1 hover-up">
-//                   <div className="card-image">
-//                     {" "}
-//                     <img
-//                       src="../assets/imgs/page/dashboard/bank.svg"
-//                       alt="jobBox"
-//                     />
-//                   </div>
-//                   <div className="card-info">
-//                     <div className="card-title">
-//                       <h3>
-//                         284
-//                         <span className="font-sm status up">
-//                           5<span>%</span>
-//                         </span>
-//                       </h3>
-//                     </div>
-//                     <p className="color-text-paragraph-2">Applied Jobs</p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-4 col-sm-6">
-//                 <div className="card-style-1 hover-up">
-//                   <div className="card-image">
-//                     {" "}
-//                     <img
-//                       src="../assets/imgs/page/dashboard/lamp.svg"
-//                       alt="jobBox"
-//                     />
-//                   </div>
-//                   <div className="card-info">
-//                     <div className="card-title">
-//                       <h3>
-//                         136
-//                         <span className="font-sm status up">
-//                           12<span>%</span>
-//                         </span>
-//                       </h3>
-//                     </div>
-//                     <p className="color-text-paragraph-2">Task Bids Won</p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-4 col-sm-6">
-//                 <div className="card-style-1 hover-up">
-//                   <div className="card-image">
-//                     {" "}
-//                     <img
-//                       src="../assets/imgs/page/dashboard/headphone.svg"
-//                       alt="jobBox"
-//                     />
-//                   </div>
-//                   <div className="card-info">
-//                     <div className="card-title">
-//                       <h3>
-//                         985
-//                         <span className="font-sm status up">
-//                           5<span>%</span>
-//                         </span>
-//                       </h3>
-//                     </div>
-//                     <p className="color-text-paragraph-2">Application Sent</p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-4 col-sm-6">
-//                 <div className="card-style-1 hover-up">
-//                   <div className="card-image">
-//                     {" "}
-//                     <img
-//                       src="../assets/imgs/page/dashboard/look.svg"
-//                       alt="jobBox"
-//                     />
-//                   </div>
-//                   <div className="card-info">
-//                     <div className="card-title">
-//                       <h3>
-//                         165
-//                         <span className="font-sm status up">
-//                           15<span>%</span>
-//                         </span>
-//                       </h3>
-//                     </div>
-//                     <p className="color-text-paragraph-2">Profile Viewed</p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-4 col-sm-6">
-//                 <div className="card-style-1 hover-up">
-//                   <div className="card-image">
-//                     {" "}
-//                     <img
-//                       src="../assets/imgs/page/dashboard/open-file.svg"
-//                       alt="jobBox"
-//                     />
-//                   </div>
-//                   <div className="card-info">
-//                     <div className="card-title">
-//                       <h3>
-//                         2356<span className="font-sm status down">- 2%</span>
-//                       </h3>
-//                     </div>
-//                     <p className="color-text-paragraph-2">New Messages</p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-4 col-sm-6">
-//                 <div className="card-style-1 hover-up">
-//                   <div className="card-image">
-//                     {" "}
-//                     <img
-//                       src="../assets/imgs/page/dashboard/doc.svg"
-//                       alt="jobBox"
-//                     />
-//                   </div>
-//                   <div className="card-info">
-//                     <div className="card-title">
-//                       <h3>
-//                         254
-//                         <span className="font-sm status up">
-//                           2<span>%</span>
-//                         </span>
-//                       </h3>
-//                     </div>
-//                     <p className="color-text-paragraph-2">Articles Added</p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="col-xxl-3 col-xl-6 col-lg-6 col-md-4 col-sm-6">
-//                 <div className="card-style-1 hover-up">
-//                   <div className="card-image">
-//                     {" "}
-//                     <img
-//                       src="../assets/imgs/page/dashboard/man.svg"
-//                       alt="jobBox"
-//                     />
-//                   </div>
-//                   <div className="card-info">
-//                     <div className="card-title">
-//                       <h3>
-//                         548
-//                         <span className="font-sm status up">
-//                           48<span>%</span>
-//                         </span>
-//                       </h3>
-//                     </div>
-//                     <p className="color-text-paragraph-2">CV Added</p>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//           {/* <div className="section-box">
-//             <div className="container">
-//               <div className="panel-white">
-//                 <div className="panel-head">
-//                   <h5>Vacancy Stats</h5>
-//                   <Menu as="div">
-//                     <Menu.Button as="a" className="menudrop" />
-//                     <Menu.Items
-//                       as="ul"
-//                       className="dropdown-menu dropdown-menu-light dropdown-menu-end show"
-//                       style={{ right: "0", left: "auto" }}
-//                     >
-//                       <li>
-//                         <Link className="dropdown-item active" href="#">
-//                           Add new
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Settings
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Actions
-//                         </Link>
-//                       </li>
-//                     </Menu.Items>
-//                   </Menu>
-//                 </div>
-//                 <div className="panel-body">
-//                   <VacancyChart />
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//           <div className="section-box">
-//             <div className="container">
-//               <div className="panel-white">
-//                 <div className="panel-head">
-//                   <h5>Latest Jobs</h5>
-//                   <Menu as="div">
-//                     <Menu.Button as="a" className="menudrop" />
-//                     <Menu.Items
-//                       as="ul"
-//                       className="dropdown-menu dropdown-menu-light dropdown-menu-end show"
-//                       style={{ right: "0", left: "auto" }}
-//                     >
-//                       <li>
-//                         <Link className="dropdown-item active" href="#">
-//                           Add new
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Settings
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Actions
-//                         </Link>
-//                       </li>
-//                     </Menu.Items>
-//                   </Menu>
-//                 </div>
-//                 <div className="panel-body">
-//                   <div className="card-style-2 hover-up">
-//                     <div className="card-head">
-//                       <div className="card-image">
-//                         {" "}
-//                         <img
-//                           src="../assets/imgs/page/dashboard/img1.png"
-//                           alt="jobBox"
-//                         />
-//                       </div>
-//                       <div className="card-title">
-//                         <h6>Senior Full Stack Engineer, Creator Success</h6>
-//                         <span className="job-type">Full time</span>
-//                         <span className="time-post">3mins ago</span>
-//                         <span className="location">New York, US</span>
-//                       </div>
-//                     </div>
-//                     <div className="card-tags">
-//                       {" "}
-//                       <a className="btn btn-tag">Figma</a>
-//                       <a className="btn btn-tag">Adobe XD</a>
-//                     </div>
-//                     <div className="card-price">
-//                       <strong>$300</strong>
-//                       <span className="hour">/Hour</span>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-2 hover-up">
-//                     <div className="card-head">
-//                       <div className="card-image">
-//                         {" "}
-//                         <img
-//                           src="../assets/imgs/page/dashboard/img2.png"
-//                           alt="jobBox"
-//                         />
-//                       </div>
-//                       <div className="card-title">
-//                         <h6>Senior Full Stack Engineer, Creator Success</h6>
-//                         <span className="job-type">Full time</span>
-//                         <span className="time-post">3mins ago</span>
-//                         <span className="location">Chicago, US</span>
-//                       </div>
-//                     </div>
-//                     <div className="card-tags">
-//                       {" "}
-//                       <a className="btn btn-tag">Figma</a>
-//                       <a className="btn btn-tag">Adobe XD</a>
-//                       <a className="btn btn-tag">PSD</a>
-//                     </div>
-//                     <div className="card-price">
-//                       <strong>$650</strong>
-//                       <span className="hour">/Hour</span>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-2 hover-up">
-//                     <div className="card-head">
-//                       <div className="card-image">
-//                         {" "}
-//                         <img
-//                           src="../assets/imgs/page/dashboard/img3.png"
-//                           alt="jobBox"
-//                         />
-//                       </div>
-//                       <div className="card-title">
-//                         <h6>Lead Product/UX/UI Designer Role</h6>
-//                         <span className="job-type">Full time</span>
-//                         <span className="time-post">3mins ago</span>
-//                         <span className="location">Paris, France</span>
-//                       </div>
-//                     </div>
-//                     <div className="card-tags">
-//                       {" "}
-//                       <a className="btn btn-tag">Figma</a>
-//                       <a className="btn btn-tag">Adobe XD</a>
-//                       <a className="btn btn-tag">PSD</a>
-//                     </div>
-//                     <div className="card-price">
-//                       <strong>$1200</strong>
-//                       <span className="hour">/Hour</span>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-2 hover-up">
-//                     <div className="card-head">
-//                       <div className="card-image">
-//                         {" "}
-//                         <img
-//                           src="../assets/imgs/page/dashboard/img4.png"
-//                           alt="jobBox"
-//                         />
-//                       </div>
-//                       <div className="card-title">
-//                         <h6>Marketing Graphic Designer</h6>
-//                         <span className="job-type">Full time</span>
-//                         <span className="time-post">3mins ago</span>
-//                         <span className="location">Tokyto, Japan</span>
-//                       </div>
-//                     </div>
-//                     <div className="card-tags">
-//                       {" "}
-//                       <a className="btn btn-tag">Figma</a>
-//                       <a className="btn btn-tag">Adobe XD</a>
-//                       <a className="btn btn-tag">PSD</a>
-//                     </div>
-//                     <div className="card-price">
-//                       <strong>$580</strong>
-//                       <span className="hour">/Hour</span>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-2 hover-up">
-//                     <div className="card-head">
-//                       <div className="card-image">
-//                         {" "}
-//                         <img
-//                           src="../assets/imgs/page/dashboard/img5.png"
-//                           alt="jobBox"
-//                         />
-//                       </div>
-//                       <div className="card-title">
-//                         <h6>Director, Product Design - Creator</h6>
-//                         <span className="job-type">Full time</span>
-//                         <span className="time-post">3mins ago</span>
-//                         <span className="location">Ha Noi, Vietnam</span>
-//                       </div>
-//                     </div>
-//                     <div className="card-tags">
-//                       {" "}
-//                       <a className="btn btn-tag">Figma</a>
-//                       <a className="btn btn-tag">Adobe XD</a>
-//                       <a className="btn btn-tag">PSD</a>
-//                     </div>
-//                     <div className="card-price">
-//                       <strong>$1500</strong>
-//                       <span className="hour">/Hour</span>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div> */}
-//         </div>
-//         {/* <div className="col-xxl-4 col-xl-5 col-lg-5">
-//           <div className="section-box">
-//             <div className="container">
-//               <div className="panel-white">
-//                 <div className="panel-head">
-//                   <h5>Top Candidates</h5>
-//                   <Menu as="div">
-//                     <Menu.Button as="a" className="menudrop" />
-//                     <Menu.Items
-//                       as="ul"
-//                       className="dropdown-menu dropdown-menu-light dropdown-menu-end show"
-//                       style={{ right: "0", left: "auto" }}
-//                     >
-//                       <li>
-//                         <Link className="dropdown-item active" href="#">
-//                           Add new
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Settings
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Actions
-//                         </Link>
-//                       </li>
-//                     </Menu.Items>
-//                   </Menu>
-//                 </div>
-//                 <div className="panel-body">
-//                   <div className="card-style-3 hover-up">
-//                     <div className="card-image online">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/avata1.png"
-//                         alt="jobBox"
-//                       />
-//                     </div>
-//                     <div className="card-title">
-//                       <h6>Robert Fox</h6>
-//                       <span className="job-position">UI/UX Designer</span>
-//                     </div>
-//                     <div className="card-location">
-//                       {" "}
-//                       <span className="location">Chicago, US</span>
-//                     </div>
-//                     <div className="card-rating">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <span className="font-xs color-text-mutted">(65)</span>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-3 hover-up">
-//                     <div className="card-image online">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/avata2.png"
-//                         alt="jobBox"
-//                       />
-//                     </div>
-//                     <div className="card-title">
-//                       <h6>Cody Fisher</h6>
-//                       <span className="job-position">Network Engineer</span>
-//                     </div>
-//                     <div className="card-location">
-//                       {" "}
-//                       <span className="location">New York, US</span>
-//                     </div>
-//                     <div className="card-rating">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <span className="font-xs color-text-mutted">(65)</span>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-3 hover-up">
-//                     <div className="card-image online">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/avata3.png"
-//                         alt="jobBox"
-//                       />
-//                     </div>
-//                     <div className="card-title">
-//                       <h6>Jane Cooper</h6>
-//                       <span className="job-position">Content Manager</span>
-//                     </div>
-//                     <div className="card-location">
-//                       {" "}
-//                       <span className="location">Chicago, US</span>
-//                     </div>
-//                     <div className="card-rating">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <span className="font-xs color-text-mutted">(65)</span>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-3 hover-up">
-//                     <div className="card-image online">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/avata4.png"
-//                         alt="jobBox"
-//                       />
-//                     </div>
-//                     <div className="card-title">
-//                       <h6>Jerome Bell</h6>
-//                       <span className="job-position">Frontend Developer</span>
-//                     </div>
-//                     <div className="card-location">
-//                       {" "}
-//                       <span className="location">Chicago, US</span>
-//                     </div>
-//                     <div className="card-rating">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <span className="font-xs color-text-mutted">(65)</span>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-3 hover-up">
-//                     <div className="card-image online">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/avata5.png"
-//                         alt="jobBox"
-//                       />
-//                     </div>
-//                     <div className="card-title">
-//                       <h6>Floyd Miles</h6>
-//                       <span className="job-position">NodeJS Dev</span>
-//                     </div>
-//                     <div className="card-location">
-//                       {" "}
-//                       <span className="location">Chicago, US</span>
-//                     </div>
-//                     <div className="card-rating">
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <img
-//                         src="../assets/imgs/page/dashboard/star.svg"
-//                         alt="jobBox"
-//                       />{" "}
-//                       <span className="font-xs color-text-mutted">(65)</span>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//           <div className="section-box">
-//             <div className="container">
-//               <div className="panel-white">
-//                 <div className="panel-head">
-//                   <h5>Top Recruiters</h5>
-//                   <Menu as="div">
-//                     <Menu.Button as="a" className="menudrop" />
-//                     <Menu.Items
-//                       as="ul"
-//                       className="dropdown-menu dropdown-menu-light dropdown-menu-end show"
-//                       style={{ right: "0", left: "auto" }}
-//                     >
-//                       <li>
-//                         <Link className="dropdown-item active" href="#">
-//                           Add new
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Settings
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Actions
-//                         </Link>
-//                       </li>
-//                     </Menu.Items>
-//                   </Menu>
-//                 </div>
-//                 <div className="panel-body">
-//                   <div className="row">
-//                     <div className="col-lg-6 col-md-6 pr-5 pl-5">
-//                       <div className="card-style-4 hover-up">
-//                         <div className="d-flex">
-//                           <div className="card-image">
-//                             <img
-//                               src="../assets/imgs/page/dashboard/avata1.png"
-//                               alt="jobBox"
-//                             />
-//                           </div>
-//                           <div className="card-title">
-//                             <h6>Robert Fox</h6>
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <span className="font-xs color-text-mutted">
-//                               (65)
-//                             </span>
-//                           </div>
-//                         </div>
-//                         <div className="card-location d-flex">
-//                           <span className="location">Red, CA</span>
-//                           <span className="jobs-number">25 Open Jobs</span>
-//                         </div>
-//                       </div>
-//                     </div>
-//                     <div className="col-lg-6 col-md-6 pr-5 pl-5">
-//                       <div className="card-style-4 hover-up">
-//                         <div className="d-flex">
-//                           <div className="card-image">
-//                             <img
-//                               src="../assets/imgs/page/dashboard/avata2.png"
-//                               alt="jobBox"
-//                             />
-//                           </div>
-//                           <div className="card-title">
-//                             <h6>Cody Fisher</h6>
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <span className="font-xs color-text-mutted">
-//                               (65)
-//                             </span>
-//                           </div>
-//                         </div>
-//                         <div className="card-location d-flex">
-//                           <span className="location">Chicago, US</span>
-//                           <span className="jobs-number">25 Open Jobs</span>
-//                         </div>
-//                       </div>
-//                     </div>
-//                     <div className="col-lg-6 col-md-6 pr-5 pl-5">
-//                       <div className="card-style-4 hover-up">
-//                         <div className="d-flex">
-//                           <div className="card-image">
-//                             <img
-//                               src="../assets/imgs/page/dashboard/avata3.png"
-//                               alt="jobBox"
-//                             />
-//                           </div>
-//                           <div className="card-title">
-//                             <h6>Jane Cooper</h6>
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <span className="font-xs color-text-mutted">
-//                               (65)
-//                             </span>
-//                           </div>
-//                         </div>
-//                         <div className="card-location d-flex">
-//                           <span className="location">Austin, TX</span>
-//                           <span className="jobs-number">25 Open Jobs</span>
-//                         </div>
-//                       </div>
-//                     </div>
-//                     <div className="col-lg-6 col-md-6 pr-5 pl-5">
-//                       <div className="card-style-4 hover-up">
-//                         <div className="d-flex">
-//                           <div className="card-image">
-//                             <img
-//                               src="../assets/imgs/page/dashboard/avata4.png"
-//                               alt="jobBox"
-//                             />
-//                           </div>
-//                           <div className="card-title">
-//                             <h6>Jerome Bell</h6>
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <span className="font-xs color-text-mutted">
-//                               (65)
-//                             </span>
-//                           </div>
-//                         </div>
-//                         <div className="card-location d-flex">
-//                           <span className="location">Remote</span>
-//                           <span className="jobs-number">25 Open Jobs</span>
-//                         </div>
-//                       </div>
-//                     </div>
-//                     <div className="col-lg-6 col-md-6 pr-5 pl-5">
-//                       <div className="card-style-4 hover-up">
-//                         <div className="d-flex">
-//                           <div className="card-image">
-//                             <img
-//                               src="../assets/imgs/page/dashboard/avata5.png"
-//                               alt="jobBox"
-//                             />
-//                           </div>
-//                           <div className="card-title">
-//                             <h6>Floyd Miles</h6>
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <span className="font-xs color-text-mutted">
-//                               (65)
-//                             </span>
-//                           </div>
-//                         </div>
-//                         <div className="card-location d-flex">
-//                           <span className="location">Boston, US</span>
-//                           <span className="jobs-number">25 Open Jobs</span>
-//                         </div>
-//                       </div>
-//                     </div>
-//                     <div className="col-lg-6 col-md-6 pr-5 pl-5">
-//                       <div className="card-style-4 hover-up">
-//                         <div className="d-flex">
-//                           <div className="card-image">
-//                             <img
-//                               src="../assets/imgs/page/dashboard/avata1.png"
-//                               alt="jobBox"
-//                             />
-//                           </div>
-//                           <div className="card-title">
-//                             <h6>Devon Lane</h6>
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />
-//                             <img
-//                               src="../assets/imgs/page/dashboard/star-none.svg"
-//                               alt="jobBox"
-//                             />{" "}
-//                             <span className="font-xs color-text-mutted">
-//                               (65)
-//                             </span>
-//                           </div>
-//                         </div>
-//                         <div className="card-location d-flex">
-//                           <span className="location">Chicago, US</span>
-//                           <span className="jobs-number">25 Open Jobs</span>
-//                         </div>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//           <div className="section-box">
-//             <div className="container">
-//               <div className="panel-white">
-//                 <div className="panel-head">
-//                   <h5>Queries by search</h5>
-//                   <Menu as="div">
-//                     <Menu.Button as="a" className="menudrop" />
-//                     <Menu.Items
-//                       as="ul"
-//                       className="dropdown-menu dropdown-menu-light dropdown-menu-end show"
-//                       style={{ right: "0", left: "auto" }}
-//                     >
-//                       <li>
-//                         <Link className="dropdown-item active" href="#">
-//                           Add new
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Settings
-//                         </Link>
-//                       </li>
-//                       <li>
-//                         <Link className="dropdown-item" href="#">
-//                           Actions
-//                         </Link>
-//                       </li>
-//                     </Menu.Items>
-//                   </Menu>
-//                 </div>
-//                 <div className="panel-body">
-//                   <div className="card-style-5 hover-up">
-//                     <div className="card-title">
-//                       <h6 className="font-sm">Developer</h6>
-//                     </div>
-//                     <div className="card-progress">
-//                       <div className="number font-sm">2635</div>
-//                       <div className="progress">
-//                         <div
-//                           className="progress-bar"
-//                           style={{ width: "100%" }}
-//                         />
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-5 hover-up">
-//                     <div className="card-title">
-//                       <h6 className="font-sm">UI/Ux Designer</h6>
-//                     </div>
-//                     <div className="card-progress">
-//                       <div className="number font-sm">1658</div>
-//                       <div className="progress">
-//                         <div
-//                           className="progress-bar"
-//                           style={{ width: "90%" }}
-//                         />
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-5 hover-up">
-//                     <div className="card-title">
-//                       <h6 className="font-sm">Marketing</h6>
-//                     </div>
-//                     <div className="card-progress">
-//                       <div className="number font-sm">1452</div>
-//                       <div className="progress">
-//                         <div
-//                           className="progress-bar"
-//                           style={{ width: "80%" }}
-//                         />
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-5 hover-up">
-//                     <div className="card-title">
-//                       <h6 className="font-sm">Content manager</h6>
-//                     </div>
-//                     <div className="card-progress">
-//                       <div className="number font-sm">1325</div>
-//                       <div className="progress">
-//                         <div
-//                           className="progress-bar"
-//                           style={{ width: "70%" }}
-//                         />
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-5 hover-up">
-//                     <div className="card-title">
-//                       <h6 className="font-sm">Ruby on rain</h6>
-//                     </div>
-//                     <div className="card-progress">
-//                       <div className="number font-sm">985</div>
-//                       <div className="progress">
-//                         <div
-//                           className="progress-bar"
-//                           style={{ width: "60%" }}
-//                         />
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-5 hover-up">
-//                     <div className="card-title">
-//                       <h6 className="font-sm">Human hunter</h6>
-//                     </div>
-//                     <div className="card-progress">
-//                       <div className="number font-sm">920</div>
-//                       <div className="progress">
-//                         <div
-//                           className="progress-bar"
-//                           style={{ width: "50%" }}
-//                         />
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <div className="card-style-5 hover-up">
-//                     <div className="card-title">
-//                       <h6 className="font-sm">Finance</h6>
-//                     </div>
-//                     <div className="card-progress">
-//                       <div className="number font-sm">853</div>
-//                       <div className="progress">
-//                         <div
-//                           className="progress-bar"
-//                           style={{ width: "40%" }}
-//                         />
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//         <div className="mt-10">
-//           <div className="section-box">
-//             <div className="container">
-//               <div className="panel-white pt-30 pb-30 pl-15 pr-15">
-//                 <div className="box-swiper">
-//                   <div className="swiper-container swiper-group-10">
-//                     <BrandSlider />
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div> */}
-//       </Layout>
-//     </>
-//   );
-// }

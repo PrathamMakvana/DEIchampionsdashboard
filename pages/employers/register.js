@@ -105,12 +105,12 @@ export default function JobPosterRegistration() {
 
     const data = await dispatch(
       registerJobPoster(values, {
-        showSuccess: (msg) =>
+        showSuccess: () =>
           Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: msg,
-            timer: 1500,
+            icon: "info",
+            title: "Please check your mail",
+            text: "We’ve sent you an OTP.",
+            timer: 2000,
             showConfirmButton: false,
           }),
         showError: (msg) =>
@@ -123,7 +123,13 @@ export default function JobPosterRegistration() {
     );
 
     if (!data) return;
-    navigate.push("/employers/login");
+
+    if (data?.success) {
+      navigate.push({
+        pathname: "/employers/otp-verify",
+        query: { userId: data.data.userId, roleId: data.data.roleId },
+      });
+    }
   };
 
   const companySizes = [

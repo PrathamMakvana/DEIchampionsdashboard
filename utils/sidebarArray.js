@@ -186,6 +186,11 @@ export const employeeLinks = [
     icon: "bi-list-task", // Jobs
   },
   {
+    path: "/employee/recommended-jobs",
+    label: "Recommended Job",
+    icon: "bi-people", // Recruiters
+  },
+  {
     path: "/employee/Profile-details",
     label: "Profile Details",
     icon: "bi-file-earmark-person", // CV Manager
@@ -239,6 +244,11 @@ export const mobileLinks = [
     path: "/employee/Profile-details",
     label: "Profile Details",
     icon: "recruiters.svg",
+  },
+  {
+    path: "/employee/recommended-jobs",
+    label: "Recommended Job",
+    icon: "settings.svg", // Recruiters
   },
   // { path: "/employee/settings", label: "Settings", icon: "tasks.svg" },
   // { path: "/profile", label: "My Profiles", icon: "profiles.svg" },

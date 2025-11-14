@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { loginUser } from "@/api/auth";
+import { loginEmployer } from "@/api/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -29,16 +29,14 @@ export default function Login() {
   });
 
   const handleLoginSubmit = async (values) => {
-    console.log("Login Data", values);
-
     try {
       const data = await dispatch(
-        loginUser(values, {
-          showSuccess: (msg) =>
+        loginEmployer(values, {
+          showSuccess: () =>
             Swal.fire({
-              icon: "info",
-              title: "Please check your mail",
-              text: "We’ve sent you an OTP.",
+              icon: "success",
+              title: "Login Successful!",
+              text: "Welcome back 👋",
               timer: 2000,
               showConfirmButton: false,
             }),
@@ -50,13 +48,11 @@ export default function Login() {
             }),
         })
       );
-      console.log("🚀data --->", data);
+
+      console.log("🚀data 222--->", data);
 
       if (data?.success) {
-        navigate.push({
-          pathname: "/verify-otp",
-          query: { email: values.email },
-        });
+        navigate.push("/employee");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -67,7 +63,6 @@ export default function Login() {
       });
     }
   };
-
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
       <div className="row justify-content-center w-100">

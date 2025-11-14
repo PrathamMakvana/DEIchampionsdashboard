@@ -61,7 +61,6 @@ const validationSchema = Yup.object().shape({
   ),
 });
 
-
 export default function UserProfileUpdate() {
   const user = useSelector((state) => state.auth.user);
   console.log("🚀user --->", user);
@@ -144,31 +143,31 @@ export default function UserProfileUpdate() {
     ],
   };
 
-
   function useScrollToError(errors, touched) {
-  useEffect(() => {
-    const errorKeys = Object.keys(errors);
-    if (errorKeys.length > 0) {
-      // Find the first touched + errored field
-      const firstErrorKey = errorKeys.find((key) => touched[key] || true);
-      if (firstErrorKey) {
-        const errorElement = document.querySelector(
-          `[name="${firstErrorKey}"]`
-        );
+    useEffect(() => {
+      const errorKeys = Object.keys(errors);
+      if (errorKeys.length > 0) {
+        // Find the first touched + errored field
+        const firstErrorKey = errorKeys.find((key) => touched[key] || true);
+        if (firstErrorKey) {
+          const errorElement = document.querySelector(
+            `[name="${firstErrorKey}"]`
+          );
 
-        if (errorElement && typeof errorElement.scrollIntoView === "function") {
-          errorElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-          errorElement.focus();
+          if (
+            errorElement &&
+            typeof errorElement.scrollIntoView === "function"
+          ) {
+            errorElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+            errorElement.focus();
+          }
         }
       }
-    }
-  }, [errors, touched]);
-}
-
-
+    }, [errors]);
+  }
 
   const formik = useFormik({
     initialValues: defaultInitialValues,
@@ -241,9 +240,7 @@ export default function UserProfileUpdate() {
     enableReinitialize: true,
   });
 
-
-   useScrollToError(formik.errors, formik.touched);
-
+  useScrollToError(formik.errors, formik.touched);
 
   useEffect(() => {
     if (user) {
@@ -455,9 +452,6 @@ export default function UserProfileUpdate() {
     };
   }, [showLocationDropdown]);
 
-
-  
-
   return (
     <>
       <Layout>
@@ -558,6 +552,7 @@ export default function UserProfileUpdate() {
                             name="mobile"
                             placeholder="Enter your mobile number"
                             value={formik.values.mobile}
+                            disabled
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                           />
@@ -1149,141 +1144,149 @@ export default function UserProfileUpdate() {
               </div>
 
               {/* Preferences Card */}
-            <div className="user-upt-profile-card" style={{ overflow: "visible" }}>
-  <div className="user-upt-profile-card-header">
-    <i className="bi bi-heart me-2"></i> Job Preferences
-  </div>
-  <div className="user-upt-profile-card-body" style={{ overflow: "visible" }}>
-    <div className="row">
-      <div className="col-md-6 user-upt-profile-form-group">
-        <DynamicSelect
-          label="Job Type"
-          name="jobType"
-          formik={formik}
-          options={jobTypes}
-          valueKey="_id"
-          labelKey="name"
-          placeholder="Select Type"
-          className="user-upt-profile-form-label"
-          required={false}
-          selectClassName="form-control user-upt-profile-form-control"
-        />
-      </div>
-      <div className="col-md-6 user-upt-profile-form-group">
-        <DynamicSelect
-          label="Salary"
-          name="salaryRange"
-          required={false}
-          formik={formik}
-          options={salaryOptions}
-          valueKey="value"
-          labelKey="label"
-          placeholder="Select Salary"
-          className="user-upt-profile-form-label"
-          selectClassName="form-control user-upt-profile-form-control"
-        />
-      </div>
-
-      <div className="col-md-12 user-upt-profile-form-group">
-        <label className="user-upt-profile-form-label">
-          Preferred Locations
-        </label>
-        <div
-          className="user-upt-profile-skill-input-container"
-          style={{ position: "relative" }}
-        >
-          <input
-            type="text"
-            className="form-control user-upt-profile-form-control"
-            placeholder="Search for a city..."
-            value={locationSearch}
-            onChange={(e) => setLocationSearch(e.target.value)}
-            onFocus={() => setShowLocationDropdown(true)}
-            style={{ width: "100%" }}
-          />
-
-          {showLocationDropdown && (
-            <div
-              style={{
-                position: "absolute",
-                top: "100%",
-                left: 0,
-                right: 0,
-                maxHeight: "400px",
-                overflowY: "auto",
-                backgroundColor: "white",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                marginTop: "4px",
-                zIndex: 9999,
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-              }}
-              className="custom-scrollbar"
-            >
-              {getFilteredCities().length > 0 ? (
-                getFilteredCities().map((city, index) => (
-                  <div
-                    key={index}
-                    onClick={() =>
-                      addPreferredLocation(city.name)
-                    }
-                    style={{
-                      padding: "10px 15px",
-                      cursor: "pointer",
-                      borderBottom: "1px solid #f0f0f0",
-                      transition: "background-color 0.2s",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.backgroundColor = "#f8f9fa")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor = "white")
-                    }
-                  >
-                    <div style={{ fontWeight: "500" }}>
-                      {city.name}
-                    </div>
-                    <small style={{ color: "#6c757d" }}>
-                      {city.state}, {city.country}
-                    </small>
-                  </div>
-                ))
-              ) : (
-                <div
-                  style={{
-                    padding: "15px",
-                    textAlign: "center",
-                    color: "#6c757d",
-                  }}
-                >
-                  No cities found
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Display selected locations like skills */}
-        <div id="preferredLocationsContainer" className="mt-2">
-          {preferredLocations.map((location, index) => (
-            <div
-              key={index}
-              className="user-upt-profile-skill-badge"
-            >
-              {location}
-              <span
-                className="user-upt-profile-skill-remove"
-                onClick={() => removePreferredLocation(index)}
+              <div
+                className="user-upt-profile-card"
+                style={{ overflow: "visible" }}
               >
-                ×
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                <div className="user-upt-profile-card-header">
+                  <i className="bi bi-heart me-2"></i> Job Preferences
+                </div>
+                <div
+                  className="user-upt-profile-card-body"
+                  style={{ overflow: "visible" }}
+                >
+                  <div className="row">
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <DynamicSelect
+                        label="Job Type"
+                        name="jobType"
+                        formik={formik}
+                        options={jobTypes}
+                        valueKey="_id"
+                        labelKey="name"
+                        placeholder="Select Type"
+                        className="user-upt-profile-form-label"
+                        required={false}
+                        selectClassName="form-control user-upt-profile-form-control"
+                      />
+                    </div>
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <DynamicSelect
+                        label="Salary"
+                        name="salaryRange"
+                        required={false}
+                        formik={formik}
+                        options={salaryOptions}
+                        valueKey="value"
+                        labelKey="label"
+                        placeholder="Select Salary"
+                        className="user-upt-profile-form-label"
+                        selectClassName="form-control user-upt-profile-form-control"
+                      />
+                    </div>
+
+                    <div className="col-md-12 user-upt-profile-form-group">
+                      <label className="user-upt-profile-form-label">
+                        Preferred Locations
+                      </label>
+                      <div
+                        className="user-upt-profile-skill-input-container"
+                        style={{ position: "relative" }}
+                      >
+                        <input
+                          type="text"
+                          className="form-control user-upt-profile-form-control"
+                          placeholder="Search for a city..."
+                          value={locationSearch}
+                          onChange={(e) => setLocationSearch(e.target.value)}
+                          onFocus={() => setShowLocationDropdown(true)}
+                          style={{ width: "100%" }}
+                        />
+
+                        {showLocationDropdown && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "100%",
+                              left: 0,
+                              right: 0,
+                              maxHeight: "400px",
+                              overflowY: "auto",
+                              backgroundColor: "white",
+                              border: "1px solid #ddd",
+                              borderRadius: "4px",
+                              marginTop: "4px",
+                              zIndex: 9999,
+                              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            }}
+                            className="custom-scrollbar"
+                          >
+                            {getFilteredCities().length > 0 ? (
+                              getFilteredCities().map((city, index) => (
+                                <div
+                                  key={index}
+                                  onClick={() =>
+                                    addPreferredLocation(city.name)
+                                  }
+                                  style={{
+                                    padding: "10px 15px",
+                                    cursor: "pointer",
+                                    borderBottom: "1px solid #f0f0f0",
+                                    transition: "background-color 0.2s",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "#f8f9fa")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "white")
+                                  }
+                                >
+                                  <div style={{ fontWeight: "500" }}>
+                                    {city.name}
+                                  </div>
+                                  <small style={{ color: "#6c757d" }}>
+                                    {city.state}, {city.country}
+                                  </small>
+                                </div>
+                              ))
+                            ) : (
+                              <div
+                                style={{
+                                  padding: "15px",
+                                  textAlign: "center",
+                                  color: "#6c757d",
+                                }}
+                              >
+                                No cities found
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Display selected locations like skills */}
+                      <div id="preferredLocationsContainer" className="mt-2">
+                        {preferredLocations.map((location, index) => (
+                          <div
+                            key={index}
+                            className="user-upt-profile-skill-badge"
+                          >
+                            {location}
+                            <span
+                              className="user-upt-profile-skill-remove"
+                              onClick={() => removePreferredLocation(index)}
+                            >
+                              ×
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* Resume Card */}
               <div className="user-upt-profile-card">

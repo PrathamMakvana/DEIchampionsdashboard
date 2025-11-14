@@ -45,12 +45,12 @@ export default function Home() {
       registerUser(
         { ...values, roleId: 3 },
         {
-          showSuccess: (msg) =>
+          showSuccess: () =>
             Swal.fire({
-              icon: "success",
-              title: "Success",
-              text: msg,
-              timer: 1500,
+              icon: "info",
+              title: "Please check your mail",
+              text: "We’ve sent you an OTP.",
+              timer: 2000,
               showConfirmButton: false,
             }),
           showError: (msg) =>
@@ -63,7 +63,13 @@ export default function Home() {
       )
     );
     if (!data) return;
-    navigate.push("/employee/login");
+    console.log("🚀data --->", data);
+    if (data?.success) {
+      navigate.push({
+        pathname: "/employee/otp-verify",
+        query: { userId: data.data.userId, roleId: data.data.roleId },
+      });
+    }
   };
 
   return (

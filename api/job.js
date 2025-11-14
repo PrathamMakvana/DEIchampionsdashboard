@@ -8,6 +8,7 @@ import {
   setDepartments,
   setMySavedJobs,
   setSalaryRanges,
+  setRecommendedJobs,
 } from "@/store/slice/jobSlice";
 import {
   fetcher,
@@ -279,6 +280,20 @@ export const getSalaryData = () => async (dispatch) => {
     return res;
   } catch (error) {
     console.error("Error fetching departments:", error);
+    dispatch(setLoading(false));
+    return null;
+  }
+};
+
+export const getRecommendedJobs = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const res = await fetcher("/job/recommended-jobs");
+    dispatch(setRecommendedJobs(res?.data || []));
+    dispatch(setLoading(false));
+    return res;
+  } catch (error) {
+    console.error("Error fetching recommended jobs:", error);
     dispatch(setLoading(false));
     return null;
   }

@@ -4,6 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   user: null,
   loading: false,
+  profileCompletion: {},
 };
 
 const authSlice = createSlice({
@@ -16,6 +17,9 @@ const authSlice = createSlice({
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
+    setProfileCompletion: (state, action) => {
+      state.profileCompletion = action.payload;
+    },
     logout: (state) => {
       state.user = null;
       localStorage.removeItem("jobportaltoken");
@@ -23,5 +27,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setLoading, logout } = authSlice.actions;
+export const { setUser, setLoading, setProfileCompletion, logout } =
+  authSlice.actions;
 export default authSlice.reducer;

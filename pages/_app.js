@@ -30,9 +30,12 @@ function MyApp({ Component, pageProps }) {
     const publicPaths = [
       "/employee/login",
       "/employee/register",
+      "/employee/verify-email",
       "/forgot-password",
       "/employers/login",
       "/employers/register",
+      "/employers/otp-verify",
+      "/employee/otp-verify",
       "/verify-otp",
     ];
 
@@ -40,15 +43,21 @@ function MyApp({ Component, pageProps }) {
     const isEmployeeRoute = router.pathname.startsWith("/employee");
     const isEmployerRoute = router.pathname.startsWith("/employers");
 
-    if (!pathIsPublic && !isEmployeeRoute && !isEmployerRoute) {
-      router.push("/employee/login");
-    }
-    if (!token && !pathIsPublic) {
+    // ✅ Allow public routes for everyone (logged in or not)
+    if (pathIsPublic) return;
+
+    // 🧩 If route is not public, apply auth checks
+    if (!isEmployeeRoute && !isEmployerRoute) {
       router.push("/employee/login");
       return;
     }
 
-    if ((role === 0 || isNaN(role)) && !pathIsPublic) {
+    if (!token) {
+      router.push("/employee/login");
+      return;
+    }
+
+    if (role === 0 || isNaN(role)) {
       router.push("/employee/login");
       return;
     }
@@ -60,12 +69,6 @@ function MyApp({ Component, pageProps }) {
 
     if (role === ROLE.JOB_POSTER && isEmployeeRoute) {
       router.push("/employers");
-      return;
-    }
-
-    if (token && pathIsPublic) {
-      if (role === ROLE.JOB_SEEKER) router.push("/employee");
-      else if (role === ROLE.JOB_POSTER) router.push("/employers");
       return;
     }
   }, [router.pathname]);
