@@ -147,6 +147,12 @@ export const employersLinks = [
     label: "My Profile",
     icon: "bi-person", // Profile
   },
+
+   {
+    path: "/employers/inquiry",
+    label: "My Inquiries",
+    icon: "bi-envelope-paper", 
+  },
   // {
   //   path: "/employers/update-profile",
   //   label: "update Profile",
