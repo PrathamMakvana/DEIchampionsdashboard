@@ -195,7 +195,8 @@ export const getuserbyid = (id) => async (dispatch) => {
 export const getAuthUser = () => async (dispatch) => {
   try {
     const res = await fetcher("/users/auth/me");
-    console.log("🚀 res.data --->", res.data);
+    console.log("🚀 res.data --->", res.user);
+    dispatch(setUser(res?.user || null));
     return res.data;
   } catch (error) {
     console.log("Error fetching auth user:", error);
@@ -235,6 +236,16 @@ export const getuserProfileCompletionData = () => async (dispatch) => {
   } catch (error) {
     console.error("Error fetching job:", error);
     dispatch(setLoading(false));
+    return null;
+  }
+};
+
+export const getResendVerifyEmail = async () => {
+  try {
+    const res = await fetcher(`/users/resend-email`);
+    return res;
+  } catch (error) {
+    console.error("Error fetching departments:", error);
     return null;
   }
 };

@@ -1,5 +1,5 @@
 "use client";
-import { getAuthUser, getuser } from "@/api/auth";
+import { getAuthUser, getResendVerifyEmail, getuser } from "@/api/auth";
 import Layout from "@/components/layout/Layout";
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +21,7 @@ import {
   FaExclamationTriangle,
   FaPaperPlane,
 } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -148,6 +149,36 @@ export default function Home() {
     return user && !user.emailVerified;
   }, [user]);
 
+  const handleResendVerification = async () => {
+    try {
+      const res = await getResendVerifyEmail();
+      if (res && res.success) {
+        dispatch(getuser());
+        Swal.fire({
+          icon: "success",
+          title: "Email Sent!",
+          text: "Verification email resent! Please check your inbox.",
+          confirmButtonColor: "#007bff",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: "Failed to resend verification email. Please try again.",
+          confirmButtonColor: "#dc3545",
+        });
+      }
+    } catch (error) {
+      console.error("Error resending verification email:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred. Please try again later.",
+        confirmButtonColor: "#dc3545",
+      });
+    }
+  };
+
   return (
     <Layout breadcrumbTitle="Dashboard" breadcrumbActive="Dashboard">
       {/* Email Verification Banner - Only show if email is not verified */}
@@ -171,7 +202,10 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-                <button className="dash-email-verify-btn btn btn-warning btn-lg px-4 py-2 fw-semibold">
+                <button
+                  className="dash-email-verify-btn btn btn-warning btn-lg px-4 py-2 fw-semibold"
+                  onClick={handleResendVerification}
+                >
                   <FaPaperPlane className="me-2" />
                   Verify Email
                 </button>

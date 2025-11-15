@@ -3,7 +3,7 @@ import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import { getuser } from "@/api/auth";
+import { getuser, getuserProfileCompletionData } from "@/api/auth";
 import { getJobs } from "@/api/job";
 
 const CompanyProfile = () => {
@@ -12,10 +12,14 @@ const CompanyProfile = () => {
   const user = useSelector((state) => state.auth.user);
   const { jobs, loading } = useSelector((state) => state.job);
   console.log("🚀jobs --->", jobs);
+  const profileCompletionData = useSelector(
+    (state) => state.auth.profileCompletion
+  );
 
   useEffect(() => {
     dispatch(getuser());
     dispatch(getJobs());
+    dispatch(getuserProfileCompletionData());
   }, []);
 
   return (
@@ -232,6 +236,250 @@ const CompanyProfile = () => {
           }
         `}</style>
 
+        <style jsx>{`
+          /* Company Profile Completion Progress Styles */
+          .com-profile-comp-progress-container {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            color: #495057;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          }
+
+          .com-profile-comp-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+          }
+
+          .com-profile-comp-progress-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            color: #495057;
+          }
+
+          .com-profile-comp-progress-percentage {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: #e9ecef;
+            color: #495057;
+            padding: 5px 12px;
+            border-radius: 20px;
+          }
+
+          .com-profile-comp-progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+          }
+
+          .com-profile-comp-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #3a8dde);
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+            position: relative;
+            overflow: hidden;
+          }
+
+          .com-profile-comp-progress-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(255, 255, 255, 0.4),
+              transparent
+            );
+            animation: com-profile-comp-shimmer 2s infinite;
+          }
+
+          @keyframes com-profile-comp-shimmer {
+            0% {
+              left: -100%;
+            }
+            100% {
+              left: 100%;
+            }
+          }
+
+          .com-profile-comp-progress-text {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0;
+          }
+
+          /* Missing Fields Styles */
+          .com-profile-comp-missing-fields {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+          }
+
+          .com-profile-comp-missing-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+          }
+
+          .com-profile-comp-missing-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #856404;
+            margin: 0;
+          }
+
+          .com-profile-comp-missing-text {
+            color: #856404;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+          }
+
+          .com-profile-comp-missing-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+
+          .com-profile-comp-missing-item {
+            background: #fff;
+            border: 1px solid #ffeaa7;
+            border-radius: 16px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            color: #856404;
+            font-weight: 500;
+          }
+
+          /* Verification Section Styles */
+          .com-profile-comp-verification-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+          }
+
+          .com-profile-comp-verification-header {
+            margin-bottom: 15px;
+          }
+
+          .com-profile-comp-verification-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #495057;
+            margin: 0;
+          }
+
+          .com-profile-comp-verification-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+          }
+
+          .com-profile-comp-verification-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+          }
+
+          .com-profile-comp-verification-icon {
+            width: 40px;
+            height: 40px;
+            background: #e9f2fe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3a8dde;
+            font-size: 1.1rem;
+          }
+
+          .com-profile-comp-verification-content {
+            flex: 1;
+          }
+
+          .com-profile-comp-verification-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 4px;
+          }
+
+          .com-profile-comp-verification-status {
+            font-size: 0.9rem;
+            font-weight: 500;
+          }
+
+          .com-profile-comp-verified {
+            color: #28a745;
+          }
+
+          .com-profile-comp-not-verified {
+            color: #dc3545;
+          }
+
+          /* Responsive Design */
+          @media (max-width: 768px) {
+            .com-profile-comp-progress-header {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 10px;
+            }
+
+            .com-profile-comp-progress-percentage {
+              align-self: flex-end;
+            }
+
+            .com-profile-comp-missing-list {
+              gap: 6px;
+            }
+
+            .com-profile-comp-missing-item {
+              font-size: 0.75rem;
+              padding: 3px 10px;
+            }
+
+            .com-profile-comp-verification-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .com-profile-comp-verification-item {
+              padding: 10px;
+            }
+          }
+
+          @media (max-width: 576px) {
+            .com-profile-comp-progress-container,
+            .com-profile-comp-missing-fields,
+            .com-profile-comp-verification-section {
+              padding: 15px;
+            }
+
+            .com-profile-comp-progress-title {
+              font-size: 1.1rem;
+            }
+
+            .com-profile-comp-progress-percentage {
+              font-size: 1.3rem;
+            }
+          }
+        `}</style>
+
         <div className="d-flex justify-content-end align-items-center mb-4">
           <button
             className="btn btn-sm btn-outline-secondary"
@@ -240,6 +488,57 @@ const CompanyProfile = () => {
           >
             <i className="bi bi-pencil"></i>
           </button>
+        </div>
+
+        <div className="container">
+          {profileCompletionData && (
+            <div className="com-profile-comp-progress-container mb-4">
+              <div className="com-profile-comp-progress-header">
+                <h4 className="com-profile-comp-progress-title">
+                  <i className="bi bi-graph-up me-2"></i>
+                  Profile Completion
+                </h4>
+                <span className="com-profile-comp-progress-percentage">
+                  {profileCompletionData.profileCompletion}%
+                </span>
+              </div>
+              <div className="com-profile-comp-progress-bar">
+                <div
+                  className="com-profile-comp-progress-fill"
+                  style={{
+                    width: `${profileCompletionData.profileCompletion}%`,
+                  }}
+                ></div>
+              </div>
+              <p className="com-profile-comp-progress-text">
+                Complete your company profile to attract better candidates and
+                build trust
+              </p>
+            </div>
+          )}
+
+          {/* Missing Fields Alert */}
+          {profileCompletionData?.missingFields &&
+            profileCompletionData.missingFields.length > 0 && (
+              <div className="com-profile-comp-missing-fields">
+                <div className="com-profile-comp-missing-header">
+                  <i className="bi bi-exclamation-triangle me-2"></i>
+                  <h5 className="com-profile-comp-missing-title">
+                    Complete Your Company Profile
+                  </h5>
+                </div>
+                <p className="com-profile-comp-missing-text">
+                  Add the following information to enhance your company profile:
+                </p>
+                <div className="com-profile-comp-missing-list">
+                  {profileCompletionData.missingFields.map((field, index) => (
+                    <span key={index} className="com-profile-comp-missing-item">
+                      {field.displayName}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
         </div>
 
         <div className="container">

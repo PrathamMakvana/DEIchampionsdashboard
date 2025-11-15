@@ -17,7 +17,7 @@ export default function Header() {
       isRead: false,
       type: "application",
       icon: "📄",
-      color: "#3b82f6"
+      color: "#3b82f6",
     },
     {
       id: 2,
@@ -27,7 +27,7 @@ export default function Header() {
       isRead: false,
       type: "interview",
       icon: "📅",
-      color: "#f59e0b"
+      color: "#f59e0b",
     },
     {
       id: 3,
@@ -37,7 +37,7 @@ export default function Header() {
       isRead: true,
       type: "message",
       icon: "💬",
-      color: "#8b5cf6"
+      color: "#8b5cf6",
     },
     {
       id: 4,
@@ -47,7 +47,7 @@ export default function Header() {
       isRead: true,
       type: "success",
       icon: "✅",
-      color: "#10b981"
+      color: "#10b981",
     },
     {
       id: 5,
@@ -57,7 +57,7 @@ export default function Header() {
       isRead: true,
       type: "info",
       icon: "👁️",
-      color: "#6366f1"
+      color: "#6366f1",
     },
   ]);
 
@@ -87,7 +87,9 @@ export default function Header() {
   };
 
   const markAllAsRead = () => {
-    setNotifications(notifications.map((notif) => ({ ...notif, isRead: true })));
+    setNotifications(
+      notifications.map((notif) => ({ ...notif, isRead: true }))
+    );
   };
 
   const handleLogout = () => {
@@ -153,7 +155,7 @@ export default function Header() {
                 {!employee && (
                   <Link
                     className="btn btn-default icon-edit hover-up"
-                    href="/post-job"
+                    href="employers/post-job"
                   >
                     Post Job
                   </Link>
@@ -244,14 +246,16 @@ export default function Header() {
                               color: "#6b7280",
                             }}
                           >
-                            You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+                            You have {unreadCount} unread notification
+                            {unreadCount !== 1 ? "s" : ""}
                           </p>
                         </div>
                         {unreadCount > 0 && (
                           <button
                             onClick={markAllAsRead}
                             style={{
-                              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                              background:
+                                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                               border: "none",
                               color: "white",
                               fontSize: "12px",
@@ -263,12 +267,15 @@ export default function Header() {
                               boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.transform = "translateY(-1px)";
-                              e.currentTarget.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+                              e.currentTarget.style.transform =
+                                "translateY(-1px)";
+                              e.currentTarget.style.boxShadow =
+                                "0 4px 12px rgba(102, 126, 234, 0.4)";
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.transform = "translateY(0)";
-                              e.currentTarget.style.boxShadow = "0 2px 8px rgba(102, 126, 234, 0.3)";
+                              e.currentTarget.style.boxShadow =
+                                "0 2px 8px rgba(102, 126, 234, 0.3)";
                             }}
                           >
                             Mark all read
@@ -318,19 +325,22 @@ export default function Header() {
                                 : "#f0f9ff",
                               transition: "all 0.2s ease",
                               position: "relative",
-                              borderLeft: notification.isRead ? "none" : `3px solid ${notification.color}`,
-                              borderBottom: index !== notifications.length - 1 ? "1px solid #f3f4f6" : "none",
+                              borderLeft: notification.isRead
+                                ? "none"
+                                : `3px solid ${notification.color}`,
+                              borderBottom:
+                                index !== notifications.length - 1
+                                  ? "1px solid #f3f4f6"
+                                  : "none",
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = notification.isRead
-                                ? "#f9fafb"
-                                : "#e0f2fe";
+                              e.currentTarget.style.backgroundColor =
+                                notification.isRead ? "#f9fafb" : "#e0f2fe";
                               e.currentTarget.style.paddingLeft = "28px";
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = notification.isRead
-                                ? "transparent"
-                                : "#f0f9ff";
+                              e.currentTarget.style.backgroundColor =
+                                notification.isRead ? "transparent" : "#f0f9ff";
                               e.currentTarget.style.paddingLeft = "24px";
                             }}
                           >
@@ -560,7 +570,8 @@ export default function Header() {
       {/* Add pulse animation for badge */}
       <style jsx>{`
         @keyframes pulse {
-          0%, 100% {
+          0%,
+          100% {
             transform: scale(1);
             opacity: 1;
           }

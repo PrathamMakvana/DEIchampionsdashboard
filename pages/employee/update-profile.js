@@ -79,6 +79,8 @@ export default function UserProfileUpdate() {
   const [locationSearch, setLocationSearch] = useState("");
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [allCities, setAllCities] = useState([]);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { jobCategories, jobTypes, loading } = useSelector(
     (state) => state.job
@@ -173,6 +175,7 @@ export default function UserProfileUpdate() {
     initialValues: defaultInitialValues,
     validationSchema,
     onSubmit: async (values) => {
+      setIsSubmitting(true);
       const formData = new FormData();
 
       // Append all form fields
@@ -236,6 +239,8 @@ export default function UserProfileUpdate() {
         setPhotoFile(null);
         setResumeFile(null);
       }
+
+      setIsSubmitting(false);
     },
     enableReinitialize: true,
   });
@@ -356,6 +361,61 @@ export default function UserProfileUpdate() {
     if (file) {
       setResumeFile(file);
       setResumeFileName(file.name);
+    }
+  };
+
+  // Drag and drop handlers for resume
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragActive(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      // Check if file is a valid resume type
+      const validTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ];
+      if (validTypes.includes(file.type)) {
+        setResumeFile(file);
+        setResumeFileName(file.name);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid File",
+          text: "Please upload only PDF, DOC, or DOCX files.",
+        });
+      }
+    }
+  };
+
+  // Download resume function
+  const downloadResume = () => {
+    if (user?.resume) {
+      const resumeUrl = `${
+        process.env.NEXT_PUBLIC_BACKEND_URL
+      }/${user.resume.replace(/^src[\\/]/, "")}`;
+
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement("a");
+      link.href = resumeUrl;
+      link.download =
+        resumeFileName || user.resume.split("/").pop().replace(/^\d+-/, "");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -1298,16 +1358,38 @@ export default function UserProfileUpdate() {
                     <label className="user-upt-profile-form-label">
                       Upload Your Resume
                     </label>
+
+                    {/* Drag and Drop Area */}
+                    <div
+                      className={`update-profile-drag ${
+                        isDragActive ? "update-profile-drag-active" : ""
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => resumeFileInputRef.current?.click()}
+                    >
+                      <div className="update-profile-drag-content">
+                        <i className="bi bi-cloud-arrow-up update-profile-drag-icon"></i>
+                        <p className="update-profile-drag-text">
+                          {isDragActive
+                            ? "Drop your resume here"
+                            : "Drag & drop your resume here or click to browse"}
+                        </p>
+                        <p className="update-profile-drag-subtext">
+                          Accepted formats: PDF, DOC, DOCX (Max size: 5MB)
+                        </p>
+                      </div>
+                    </div>
+
                     <input
                       type="file"
-                      className="form-control user-upt-profile-form-control"
+                      className="form-control user-upt-profile-form-control mt-3"
                       accept=".pdf,.doc,.docx"
                       ref={resumeFileInputRef}
                       onChange={handleResumeUpload}
+                      style={{ display: "none" }}
                     />
-                    <div className="form-text mt-1">
-                      Accepted formats: PDF, DOC, DOCX (Max size: 5MB)
-                    </div>
 
                     {/* Show existing file info */}
                     {(user?.resume || resumeFileName) && (
@@ -1335,85 +1417,20 @@ export default function UserProfileUpdate() {
                         </span>
 
                         {user?.resume && (
-                          <a
-                            href={`${
-                              process.env.NEXT_PUBLIC_BACKEND_URL
-                            }/${user.resume.replace(/^src[\\/]/, "")}`}
+                          <button
+                            type="button"
                             className="btn btn-sm btn-outline-primary"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            onClick={downloadResume}
                           >
-                            <i className="bi bi-eye me-1"></i> View Resume
-                          </a>
+                            <i className="bi bi-download me-1"></i> Download
+                            Resume
+                          </button>
                         )}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-
-              {/* Security Card */}
-              {/* <div className="user-upt-profile-card">
-                <div className="user-upt-profile-card-header">
-                  <i className="bi bi-shield-lock me-2"></i> Security
-                </div>
-                <div className="user-upt-profile-card-body">
-                  <div className="row">
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Current Password
-                      </label>
-                      <div className="user-upt-profile-input-group">
-                        <input
-                          type="password"
-                          className="form-control user-upt-profile-form-control"
-                          placeholder="Enter current password"
-                          name="currentPassword"
-                          id="currentPassword"
-                          value={formik.values.currentPassword}
-                          onChange={formik.handleChange}
-                        />
-                        <span
-                          className="user-upt-profile-password-toggle"
-                          onClick={() =>
-                            togglePasswordVisibility("currentPassword")
-                          }
-                        >
-                          <i className="bi bi-eye"></i>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        New Password
-                      </label>
-                      <div className="user-upt-profile-input-group">
-                        <input
-                          type="password"
-                          className="form-control user-upt-profile-form-control"
-                          placeholder="Enter new password"
-                          name="newPassword"
-                          id="newPassword"
-                          value={formik.values.newPassword}
-                          onChange={formik.handleChange}
-                        />
-                        <span
-                          className="user-upt-profile-password-toggle"
-                          onClick={() =>
-                            togglePasswordVisibility("newPassword")
-                          }
-                        >
-                          <i className="bi bi-eye"></i>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="form-text">
-                    Leave password fields blank if you don't want to change your
-                    password
-                  </div>
-                </div>
-              </div> */}
 
               {/* Action Buttons */}
               <div className="d-flex justify-content-between mt-4">
@@ -1426,8 +1443,22 @@ export default function UserProfileUpdate() {
                 <button
                   type="submit"
                   className="btn user-upt-profile-btn-primary"
+                  disabled={isSubmitting}
                 >
-                  <i className="bi bi-check-circle me-2"></i> Save Changes
+                  {isSubmitting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle me-2"></i> Save Changes
+                    </>
+                  )}
                 </button>
               </div>
             </form>
