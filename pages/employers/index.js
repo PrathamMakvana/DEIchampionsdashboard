@@ -146,7 +146,7 @@ export default function EmployerDashboard() {
                       <div className="dash-services-grid">
                         {user.services.map((service, index) => (
                           <div
-                            key={service._id}
+                            key={service?._id}
                             className="dash-service-card"
                             style={{
                               animationDelay: `${index * 0.1}s`,
@@ -158,18 +158,18 @@ export default function EmployerDashboard() {
                               </div>
                               <div className="dash-service-content">
                                 <h4 className="dash-service-name">
-                                  {service.name}
+                                  {service?.name}
                                 </h4>
                                 <div className="dash-service-meta">
                                   <span
-                                    className={`dash-service-status dash-service-status-${service.status.toLowerCase()}`}
+                                    className={`dash-service-status dash-service-status-${service?.status?.toLowerCase()}`}
                                   >
-                                    {service.status}
+                                    {service?.status}
                                   </span>
                                   <span className="dash-service-date">
                                     Added:{" "}
                                     {new Date(
-                                      service.createdAt
+                                      service?.createdAt
                                     ).toLocaleDateString()}
                                   </span>
                                 </div>
