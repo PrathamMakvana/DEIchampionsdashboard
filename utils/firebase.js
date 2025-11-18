@@ -4,13 +4,13 @@ import { getMessaging, getToken, isSupported, onMessage } from "firebase/messagi
 
 // ✅ Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBJMd7_nWRZQTNb0j4fcD6APntFHM9UDvY",
-  authDomain: "dei-champions-5a7c2.firebaseapp.com",
-  projectId: "dei-champions-5a7c2",
-  storageBucket: "dei-champions-5a7c2.firebasestorage.app",
-  messagingSenderId: "190245592165",
-  appId: "1:190245592165:web:b2bfa087f8623778c5fa8c",
-  measurementId: "G-XC72W4XT63",
+  apiKey: "AIzaSyBBQWkUg45kBrLPOAvc4ntODTUmhnbT0uo",
+  authDomain: "dei-champions.firebaseapp.com",
+  projectId: "dei-champions",
+  storageBucket: "dei-champions.appspot.com",
+  messagingSenderId: "325714813742",
+  appId: "1:325714813742:web:c3a57e4f17ba6ec7be90bf",
+  measurementId: "G-RE9GG4MKJK"
 };
 
 // ✅ Initialize app safely (prevent multiple in Next.js hot reloads)
@@ -51,7 +51,7 @@ export const requestForToken = async () => {
 
       const token = await getToken(messaging, {
         vapidKey:
-          "BAYwZhReJNaFOMfYF-q7RfNS304iUfwa6Ol2b-NC6jxg0BeS1ICqmrCMZCE0oLuWxaJMNwjGn5iSDLnqlpWGsMc",
+          "BNP6mjppL6V2lSzMZ7OoEDPPmvYSEQn8Y-UyKYZ2vlnqCNSQH_9VX1Kb-zhsOeFGrFXdFnk2g91xpU26RNIo9D4",
       });
 
       if (token) {

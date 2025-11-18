@@ -16,24 +16,28 @@ export default function Home() {
 
 
   
-  useEffect(() => {
-    const registerFcmToken = async () => {
-      const token = await requestForToken();
-      if (token && user?._id) {
-        await dispatch(
-          saveFcmToken(
-            { fcmToken: token, userId: user._id },
-            {
-              showSuccess: (msg) => toast.success(msg),
-              showError: (msg) => toast.error(msg),
-            }
-          )
-        );
-      }
-    };
+useEffect(() => {
+  const registerFcmToken = async () => {
+    const token = await requestForToken();
+    if (token && user?._id) {
+      await dispatch(
+        saveFcmToken(
+          { 
+            fcmToken: token, 
+            userId: user._id,
+            deviceType: "web"   // <-- Added here
+          },
+          {
+            showSuccess: (msg) => toast.success(msg),
+            showError: (msg) => toast.error(msg),
+          }
+        )
+      );
+    }
+  };
+  registerFcmToken();
+}, [user?._id, dispatch]);
 
-    registerFcmToken();
-  }, [user?._id, dispatch]);
 
   
   return (

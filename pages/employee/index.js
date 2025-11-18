@@ -1,7 +1,7 @@
 "use client";
 import { getAuthUser, getResendVerifyEmail, getuser } from "@/api/auth";
 import Layout from "@/components/layout/Layout";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMyApplications, getMySavedJobs } from "@/api/job";
 import { requestForToken } from "@/utils/firebase";
@@ -37,24 +37,39 @@ export default function Home() {
     dispatch(getuser());
   }, [dispatch]);
 
-  // FCM Token Registration
-  useEffect(() => {
-    const registerFcmToken = async () => {
-      const token = await requestForToken();
-      if (token && user?._id) {
-        await dispatch(
-          saveFcmToken(
-            { fcmToken: token, userId: user._id },
-            {
-              showSuccess: (msg) => toast.success(msg),
-              showError: (msg) => toast.error(msg),
-            }
-          )
-        );
-      }
-    };
-    registerFcmToken();
-  }, [user?._id, dispatch]);
+  
+  
+const hasRegisteredFcm = useRef(false);
+
+useEffect(() => {
+  if (hasRegisteredFcm.current) return;          // ⛔ Already executed, skip
+  if (!user?._id) return;                       // ⛔ User not ready, skip
+
+  const registerFcmToken = async () => {
+    const token = await requestForToken();
+    if (token) {
+      await dispatch(
+        saveFcmToken(
+          { 
+            fcmToken: token, 
+            userId: user._id,
+            deviceType: "web"
+          },
+          {
+            showSuccess: (msg) => toast.success(msg),
+            showError: (msg) => toast.error(msg),
+          }
+        )
+      );
+    }
+  };
+
+  hasRegisteredFcm.current = true;              // ✅ Mark as executed
+  registerFcmToken();
+}, [user?._id]);
+
+
+
 
   // Compute counts
   const total = myApplications?.length || 0;

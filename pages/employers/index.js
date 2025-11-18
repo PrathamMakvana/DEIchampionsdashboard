@@ -30,24 +30,32 @@ export default function EmployerDashboard() {
     dispatch(getAuthUser());
   }, [dispatch]);
 
-  // Register FCM token
-  useEffect(() => {
-    const registerFcmToken = async () => {
-      const token = await requestForToken();
-      if (token && user?._id) {
-        await dispatch(
-          saveFcmToken(
-            { fcmToken: token, userId: user._id },
-            {
-              showSuccess: (msg) => toast.success(msg),
-              showError: (msg) => toast.error(msg),
-            }
-          )
-        );
-      }
-    };
-    registerFcmToken();
-  }, [user?._id, dispatch]);
+ 
+  
+  
+useEffect(() => {
+  const registerFcmToken = async () => {
+    const token = await requestForToken();
+    if (token && user?._id) {
+      await dispatch(
+        saveFcmToken(
+          { 
+            fcmToken: token, 
+            userId: user._id,
+            deviceType: "web"  
+          },
+          {
+            showSuccess: (msg) => toast.success(msg),
+            showError: (msg) => toast.error(msg),
+          }
+        )
+      );
+    }
+  };
+  registerFcmToken();
+}, [user?._id, dispatch]);
+
+
 
   // Compute stats dynamically
   const stats = useMemo(() => {

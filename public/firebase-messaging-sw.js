@@ -3,12 +3,13 @@ importScripts("https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"
 importScripts("https://www.gstatic.com/firebasejs/9.6.11/firebase-messaging-compat.js");
 
 firebase.initializeApp({
-  apiKey: "AIzaSyBJMd7_nWRZQTNb0j4fcD6APntFHM9UDvY",
-  authDomain: "dei-champions-5a7c2.firebaseapp.com",
-  projectId: "dei-champions-5a7c2",
-  storageBucket: "dei-champions-5a7c2.firebasestorage.app",
-  messagingSenderId: "190245592165",
-  appId: "1:190245592165:web:b2bfa087f8623778c5fa8c",
+ apiKey: "AIzaSyBBQWkUg45kBrLPOAvc4ntODTUmhnbT0uo",
+  authDomain: "dei-champions.firebaseapp.com",
+  projectId: "dei-champions",
+  storageBucket: "dei-champions.appspot.com",
+  messagingSenderId: "325714813742",
+  appId: "1:325714813742:web:c3a57e4f17ba6ec7be90bf",
+  measurementId: "G-RE9GG4MKJK"
 });
 
 const messaging = firebase.messaging();
