@@ -9,7 +9,7 @@ import { getuser } from "@/api/auth";
 import Layout from "@/components/layout/Layout";
 import Swal from "sweetalert2";
 
-const Inquiry = () => {
+const Estimate = () => {
   const dispatch = useDispatch();
   const { inquiries, estimates, loading } = useSelector((state) => state.inquiry);
   const { user } = useSelector((state) => state.auth);
@@ -367,4 +367,4 @@ const Inquiry = () => {
   );
 };
 
-export default Inquiry;
+export default Estimate;

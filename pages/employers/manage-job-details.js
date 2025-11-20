@@ -168,6 +168,32 @@ const JobDetailsPage = () => {
     });
   };
 
+  const getTimeAgo = (dateString) => {
+    if (!dateString) return "N/A";
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    const intervals = {
+      year: 31536000,
+      month: 2592000,
+      week: 604800,
+      day: 86400,
+      hour: 3600,
+      minute: 60,
+    };
+
+    for (let key in intervals) {
+      const interval = Math.floor(seconds / intervals[key]);
+      if (interval >= 1) {
+        return `${interval} ${key}${interval > 1 ? "s" : ""} ago`;
+      }
+    }
+
+    return "Just now";
+  };
+
   const getJobStatusBadge = (status) => {
     const statusConfig = {
       open: { class: "status-active", icon: "bi-check-circle", text: "Active" },
@@ -241,369 +267,239 @@ const JobDetailsPage = () => {
       <div className="page-content">
         {/* Main Content */}
         <div className="container">
-          <div className="job-details-container">
-            <div>
-              {/* Job Details Card */}
-              <div className="content-card">
-                <div className="card-header">
-                  <h2 className="card-title">
-                    <i className="bi bi-file-earmark-text me-2"></i> Job Details
-                  </h2>
-                  <div>
-                    <button
-                      className="btn-action btn-edit"
-                      onClick={handleEditJob}
-                    >
-                      <i className="bi bi-pencil"></i> Edit Job
-                    </button>
-                    <button
-                      className="btn-action btn-delete"
-                      onClick={handleDeleteJob}
-                    >
-                      <i className="bi bi-trash"></i> Delete
-                    </button>
-                  </div>
-                </div>
-                <div className="card-body">
-                  <div className="job-header">
-                    <div>
-                      <h3>{currentJob.jobTitle}</h3>
-                      <p className="text-muted">
-                        {currentJob.category?.title || "N/A"} • Posted on{" "}
-                        {formatDate(currentJob.createdAt)}
-                      </p>
-                    </div>
-                    {getJobStatusBadge(currentJob.status)}
-                  </div>
+          {/* Job Details Card - Full Width */}
+          <div className="content-card w-100 mb-4">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h2 className="card-title">
+                <i className="bi bi-file-earmark-text me-2"></i> Job Details
+              </h2>
 
-                  <div className="job-meta d-flex flex-wrap gap-4">
-                    <div className="meta-item">
-                      <div className="meta-icon">
-                        <i className="bi bi-briefcase"></i>
-                      </div>
-                      <div className="meta-content">
-                        <h5>Job Type</h5>
-                        <p>{currentJob.jobType?.name || "N/A"}</p>
-                      </div>
-                    </div>
+              <div>
+                <button className="btn-action btn-edit" onClick={handleEditJob}>
+                  <i className="bi bi-pencil"></i> Edit Job
+                </button>
 
-                    <div className="meta-item">
-                      <div className="meta-icon">
-                        <i className="bi bi-building"></i>
-                      </div>
-                      <div className="meta-content">
-                        <h5>Department</h5>
-                        <p>{currentJob.department?.name || "N/A"}</p>
-                      </div>
-                    </div>
-
-                    <div className="meta-item">
-                      <div className="meta-icon">
-                        <i className="bi bi-geo-alt"></i>
-                      </div>
-                      <div className="meta-content">
-                        <h5>Location</h5>
-                        <p>
-                          {currentJob.locationArea
-                            ? `${currentJob.locationArea}, `
-                            : ""}
-                          {currentJob.city ? `${currentJob.city}, ` : ""}
-                          {currentJob.locationState
-                            ? `${currentJob.locationState}, `
-                            : ""}
-                          {currentJob.locationCountry || ""}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="meta-item">
-                      <div className="meta-icon">
-                        <i className="bi bi-currency-dollar"></i>
-                      </div>
-                      <div className="meta-content">
-                        <h5>Salary</h5>
-                        <p>{currentJob.salary?.range || "Not specified"}</p>
-                      </div>
-                    </div>
-
-                    <div className="meta-item">
-                      <div className="meta-icon">
-                        <i className="bi bi-people"></i>
-                      </div>
-                      <div className="meta-content">
-                        <h5>Applicants</h5>
-                        <p>
-                          {applicants.length} candidate
-                          {applicants.length !== 1 ? "s" : ""}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="job-description">
-                    <h4 className="section-title">
-                      <i className="bi bi-card-text"></i> Job Description
-                    </h4>
-                    <div>
-                      {currentJob.jobDescription ? (
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: currentJob.jobDescription,
-                          }}
-                        ></div>
-                      ) : (
-                        <p>No description provided.</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {currentJob.tags && currentJob.tags.length > 0 && (
-                    <div className="job-description">
-                      <h4 className="section-title">
-                        <i className="bi bi-tags"></i> Tags
-                      </h4>
-                      <div className="tags-container">
-                        {currentJob.tags.map((tag, index) => (
-                          <span key={index} className="tag">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <button
+                  className="btn-action btn-delete"
+                  onClick={handleDeleteJob}
+                >
+                  <i className="bi bi-trash"></i> Delete
+                </button>
               </div>
             </div>
 
-            {/* Right Sidebar */}
-            <div>
-              {/* Job Stats Card */}
-              <div className="job-overview-card mb-4">
-                <h4 className="section-title">
-                  <i className="bi bi-graph-up"></i> Job Statistics
-                </h4>
+            <div className="card-body">
+              {/* Header */}
+              <div className="job-header d-flex justify-content-between align-items-start flex-wrap">
+                <div>
+                  <h3>{currentJob.jobTitle}</h3>
+                  <p className="text-muted">
+                    {currentJob.category?.title || "N/A"} • Posted on{" "}
+                    {formatDate(currentJob.createdAt)}
+                  </p>
+                </div>
 
-                <div
-                  className="job-meta"
-                  style={{ justifyContent: "space-between" }}
-                >
-                  <div
-                    className="meta-item"
-                    style={{ flexDirection: "column" }}
-                  >
+                {getJobStatusBadge(currentJob.status)}
+              </div>
+
+              {/* Meta Fields */}
+              <div className="job-meta d-flex flex-wrap gap-4 mt-4">
+                {/* Category */}
+                {currentJob.category?.title && (
+                  <div className="meta-item">
                     <div className="meta-icon">
-                      <i className="bi bi-eye"></i>
+                      <i className="bi bi-tags"></i>
                     </div>
-                    <div className="meta-content text-center">
-                      <h5>Views</h5>
-                      <p>1,245</p>
+                    <div className="meta-content">
+                      <h5>Category</h5>
+                      <p>
+                        {currentJob.category?.image && (
+                          <img
+                            src={currentJob.category.image}
+                            alt={currentJob.category.title}
+                            style={{
+                              width: "22px",
+                              height: "22px",
+                              objectFit: "cover",
+                              borderRadius: "4px",
+                              marginRight: "8px",
+                            }}
+                          />
+                        )}
+                        {currentJob.category.title}
+                      </p>
                     </div>
                   </div>
+                )}
 
-                  <div
-                    className="meta-item"
-                    style={{ flexDirection: "column" }}
-                  >
+                {/* Department */}
+                <div className="meta-item">
+                  <div className="meta-icon">
+                    <i className="bi bi-building"></i>
+                  </div>
+                  <div className="meta-content">
+                    <h5>Department</h5>
+                    <p>{currentJob.department?.name || "N/A"}</p>
+                  </div>
+                </div>
+
+                {/* Experience */}
+                {currentJob.workExperience && (
+                  <div className="meta-item">
+                    <div className="meta-icon">
+                      <i className="bi bi-award"></i>
+                    </div>
+                    <div className="meta-content">
+                      <h5>Experience Required</h5>
+                      <p>{currentJob.workExperience}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Salary */}
+                <div className="meta-item">
+                  <div className="meta-icon">
+                    <i className="bi bi-currency-dollar"></i>
+                  </div>
+                  <div className="meta-content">
+                    <h5>Salary</h5>
+                    <p>{currentJob.salary?.range || "Not specified"}</p>
+                  </div>
+                </div>
+
+                {/* Job Type */}
+                <div className="meta-item">
+                  <div className="meta-icon">
+                    <i className="bi bi-briefcase"></i>
+                  </div>
+                  <div className="meta-content">
+                    <h5>Job Type</h5>
+                    <p>{currentJob.jobType?.name || "N/A"}</p>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="meta-item">
+                  <div className="meta-icon">
+                    <i className="bi bi-geo-alt"></i>
+                  </div>
+                  <div className="meta-content">
+                    <h5>Location</h5>
+                    <p>
+                      {currentJob.locationArea
+                        ? `${currentJob.locationArea}, `
+                        : ""}
+                      {currentJob.city ? `${currentJob.city}, ` : ""}
+                      {currentJob.locationState
+                        ? `${currentJob.locationState}, `
+                        : ""}
+                      {currentJob.locationCountry || ""}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Qualification */}
+                {currentJob.candidateQualification && (
+                  <div className="meta-item">
+                    <div className="meta-icon">
+                      <i className="bi bi-mortarboard"></i>
+                    </div>
+                    <div className="meta-content">
+                      <h5>Qualification</h5>
+                      <p>{currentJob.candidateQualification}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Gender Preference */}
+                {currentJob.genderPreference && (
+                  <div className="meta-item">
                     <div className="meta-icon">
                       <i className="bi bi-people"></i>
                     </div>
-                    <div className="meta-content text-center">
-                      <h5>Applicants</h5>
-                      <p>{applicants.length}</p>
+                    <div className="meta-content">
+                      <h5>Gender Preference</h5>
+                      <p>{currentJob.genderPreference}</p>
                     </div>
                   </div>
+                )}
 
-                  <div
-                    className="meta-item"
-                    style={{ flexDirection: "column" }}
-                  >
+                {/* Candidate Industry */}
+                {currentJob.candidateIndustry && (
+                  <div className="meta-item">
                     <div className="meta-icon">
-                      <i className="bi bi-share"></i>
+                      <i className="bi bi-building-check"></i>
                     </div>
-                    <div className="meta-content text-center">
-                      <h5>Shares</h5>
-                      <p>87</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <h5>Application Status</h5>
-                  <div className="mt-2">
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>New</span>
-                      <span>
-                        {
-                          applicants.filter(
-                            (app) => getApplicantStatus(app._id) === "pending"
-                          ).length
-                        }
-                      </span>
-                    </div>
-                    <div className="progress" style={{ height: "8px" }}>
-                      <div
-                        className="progress-bar bg-warning"
-                        role="progressbar"
-                        style={{
-                          width: `${
-                            (applicants.filter(
-                              (app) => getApplicantStatus(app._id) === "pending"
-                            ).length /
-                              applicants.length) *
-                            100
-                          }%`,
-                        }}
-                      ></div>
+                    <div className="meta-content">
+                      <h5>Candidate Industry</h5>
+                      <p>{currentJob.candidateIndustry}</p>
                     </div>
                   </div>
+                )}
 
-                  <div className="mt-3">
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Reviewed</span>
-                      <span>
-                        {
-                          applicants.filter(
-                            (app) => getApplicantStatus(app._id) === "accepted"
-                          ).length
-                        }
-                      </span>
+                {/* Languages */}
+                {currentJob.languages && currentJob.languages.length > 0 && (
+                  <div className="meta-item">
+                    <div className="meta-icon">
+                      <i className="bi bi-translate"></i>
                     </div>
-                    <div className="progress" style={{ height: "8px" }}>
-                      <div
-                        className="progress-bar bg-info"
-                        role="progressbar"
-                        style={{
-                          width: `${
-                            (applicants.filter(
-                              (app) =>
-                                getApplicantStatus(app._id) === "accepted"
-                            ).length /
-                              applicants.length) *
-                            100
-                          }%`,
-                        }}
-                      ></div>
+                    <div className="meta-content">
+                      <h5>Languages</h5>
+                      <p>{currentJob.languages.join(", ")}</p>
                     </div>
                   </div>
+                )}
 
-                  <div className="mt-3">
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Interview</span>
-                      <span>
-                        {
-                          applicants.filter(
-                            (app) =>
-                              getApplicantStatus(app._id) === "interviewing"
-                          ).length
-                        }
-                      </span>
-                    </div>
-                    <div className="progress" style={{ height: "8px" }}>
-                      <div
-                        className="progress-bar bg-primary"
-                        role="progressbar"
-                        style={{
-                          width: `${
-                            (applicants.filter(
-                              (app) =>
-                                getApplicantStatus(app._id) === "interviewing"
-                            ).length /
-                              applicants.length) *
-                            100
-                          }%`,
-                        }}
-                      ></div>
-                    </div>
+                {/* Updated */}
+                <div className="meta-item">
+                  <div className="meta-icon">
+                    <i className="bi bi-clock-history"></i>
                   </div>
-
-                  <div className="mt-3">
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Negotiation</span>
-                      <span>
-                        {
-                          applicants.filter(
-                            (app) =>
-                              getApplicantStatus(app._id) === "negotiation"
-                          ).length
-                        }
-                      </span>
-                    </div>
-                    <div className="progress" style={{ height: "8px" }}>
-                      <div
-                        className="progress-bar bg-warning"
-                        role="progressbar"
-                        style={{
-                          width: `${
-                            (applicants.filter(
-                              (app) =>
-                                getApplicantStatus(app._id) === "negotiation"
-                            ).length /
-                              applicants.length) *
-                            100
-                          }%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3">
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Hired</span>
-                      <span>
-                        {
-                          applicants.filter(
-                            (app) => getApplicantStatus(app._id) === "hired"
-                          ).length
-                        }
-                      </span>
-                    </div>
-                    <div className="progress" style={{ height: "8px" }}>
-                      <div
-                        className="progress-bar bg-success"
-                        role="progressbar"
-                        style={{
-                          width: `${
-                            (applicants.filter(
-                              (app) => getApplicantStatus(app._id) === "hired"
-                            ).length /
-                              applicants.length) *
-                            100
-                          }%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3">
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Rejected</span>
-                      <span>
-                        {
-                          applicants.filter(
-                            (app) => getApplicantStatus(app._id) === "rejected"
-                          ).length
-                        }
-                      </span>
-                    </div>
-                    <div className="progress" style={{ height: "8px" }}>
-                      <div
-                        className="progress-bar bg-danger"
-                        role="progressbar"
-                        style={{
-                          width: `${
-                            (applicants.filter(
-                              (app) =>
-                                getApplicantStatus(app._id) === "rejected"
-                            ).length /
-                              applicants.length) *
-                            100
-                          }%`,
-                        }}
-                      ></div>
-                    </div>
+                  <div className="meta-content">
+                    <h5>Last Updated</h5>
+                    <p>{getTimeAgo(currentJob.updatedAt)}</p>
                   </div>
                 </div>
               </div>
+
+              {/* Job Description */}
+              <hr className="my-4" />
+              <h4>Job Description</h4>
+
+              <div
+                dangerouslySetInnerHTML={{
+                  __html:
+                    currentJob.jobDescription?.trim() ||
+                    "<p>No job description provided.</p>",
+                }}
+              />
+
+              {/* Tags */}
+              {currentJob.tags && currentJob.tags.length > 0 && (
+                <>
+                  <h4 className="mt-4 mb-3">Tags</h4>
+                  <div>
+                    {currentJob.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          display: "inline-block",
+                          padding: "3px 10px",
+                          marginRight: "8px",
+                          marginBottom: "8px",
+                          backgroundColor: "#3C65F5",
+                          color: "#fff",
+                          borderRadius: "4px",
+                          fontSize: "11px",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -755,7 +651,7 @@ const JobDetailsPage = () => {
                               <i className="bi bi-chat me-1"></i> Message
                             </button>
 
-                            {/* Dynamic Status Buttons based on current status */}
+                            {/* Dynamic Status Buttons */}
                             {applicantStatus === "pending" && (
                               <>
                                 <button
@@ -817,7 +713,7 @@ const JobDetailsPage = () => {
                               </button>
                             )}
 
-                            {/* Reject button available in all stages except rejected and hired */}
+                            {/* Reject button */}
                             {applicantStatus !== "rejected" &&
                               applicantStatus !== "hired" && (
                                 <button
@@ -833,7 +729,7 @@ const JobDetailsPage = () => {
                                 </button>
                               )}
 
-                            {/* Show message when hired */}
+                            {/* Status messages */}
                             {applicantStatus === "hired" && (
                               <span className="d-flex align-items-center text-success fw-semibold mt-2 mt-md-0">
                                 <i className="bi bi-check-circle me-1"></i>{" "}
@@ -841,7 +737,6 @@ const JobDetailsPage = () => {
                               </span>
                             )}
 
-                            {/* Show message when rejected */}
                             {applicantStatus === "rejected" && (
                               <span className="d-flex align-items-center text-danger fw-semibold mt-2 mt-md-0">
                                 <i className="bi bi-x-circle me-1"></i>{" "}

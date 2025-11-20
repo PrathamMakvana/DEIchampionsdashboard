@@ -149,8 +149,8 @@ export const employersLinks = [
   },
 
    {
-    path: "/employers/inquiry",
-    label: "My Inquiries",
+    path: "/employers/estimate",
+    label: "My Estimates",
     icon: "bi-envelope-paper", 
   },
   // {

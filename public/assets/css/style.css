@@ -997,6 +997,16 @@ h6,
   background-position: 15px 10px;
   padding-left: 45px;
 }
+
+
+.btn.icon-home {
+  background-image: url(../imgs/page/dashboard/home.svg);
+  background-repeat: no-repeat;
+  background-position: 15px 10px;
+  padding-left: 45px;
+   color: white;
+}
+
 .btn.btn-tag {
   background-color: #eaf2ff;
   font-size: 12px;

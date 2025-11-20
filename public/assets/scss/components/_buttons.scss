@@ -38,6 +38,12 @@
         background-position: 15px 10px;
         padding-left: 45px;
     }
+        &.icon-home {
+        background-image: url(../imgs/page/dashboard/home.svg);
+        background-repeat: no-repeat;
+        background-position: 15px 10px;
+        padding-left: 45px;
+    }
     &.btn-tag {
         background-color: $color-gray;
         font-size: 12px;

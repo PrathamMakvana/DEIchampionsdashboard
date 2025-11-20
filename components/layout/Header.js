@@ -116,7 +116,12 @@ export default function Header() {
           <div className="main-header">
             <div className="header-left">
               <div className="header-logo">
-                <Link className="d-flex justify-content-center" href="/">
+                <Link
+                  className="d-flex justify-content-center"
+                  href={process.env.NEXT_PUBLIC_FRONTEND_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <img
                     alt="jobBox"
                     src="/assets/imgs/page/dashboard/logo2.png"
@@ -152,6 +157,16 @@ export default function Header() {
             </div>
             <div className="header-right">
               <div className="block-signin">
+                <Link
+                  className="btn btn-default icon-home hover-up me-2"
+                  href={process.env.NEXT_PUBLIC_FRONTEND_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                   style={{ color: "white" }}
+                >
+                  Home
+                </Link>
+
                 {!employee && (
                   <Link
                     className="btn btn-default icon-edit hover-up"
@@ -516,49 +531,65 @@ export default function Header() {
                       e.target.src = "/assets/imgs/page/dashboard/profile.png";
                     }}
                   />
+
                   <div className="info-member">
                     <strong className="color-brand-1">
                       {user?.name || user?.companyName || "Steven Jobs"}
                     </strong>
-                    <Menu as="div" className="dropdown">
-                      <Menu.Button
-                        as="a"
-                        className="font-xs color-text-paragraph-2 icon-down"
-                      >
-                        {user?.roleId === 2
-                          ? "Employer"
-                          : user?.roleId === 3
-                          ? "Employee"
-                          : "Admin"}
-                      </Menu.Button>
-                      <Menu.Items
-                        as="ul"
-                        className="dropdown-menu dropdown-menu-light dropdown-menu-end show"
-                        style={{ right: "0", left: "auto" }}
-                      >
-                        <li>
-                          <Link
-                            className="dropdown-item"
-                            href={
-                              employee
-                                ? "/employee/Profile-details"
-                                : "/employers/company-details"
-                            }
-                          >
-                            Profile
-                          </Link>
-                        </li>
-                        <li>
-                          <span
-                            className="dropdown-item"
-                            style={{ cursor: "pointer" }}
-                            onClick={handleLogout}
-                          >
-                            Logout
-                          </span>
-                        </li>
-                      </Menu.Items>
-                    </Menu>
+
+                    {/*
+    <Menu as="div" className="dropdown">
+      <Menu.Button
+        as="a"
+        className="font-xs color-text-paragraph-2 icon-down"
+      >
+        {user?.roleId === 2
+          ? "Employer"
+          : user?.roleId === 3
+          ? "Employee"
+          : "Admin"}
+      </Menu.Button>
+
+      <Menu.Items
+        as="ul"
+        className="dropdown-menu dropdown-menu-light dropdown-menu-end show"
+        style={{ right: "0", left: "auto" }}
+      >
+        <li>
+          <Link
+            className="dropdown-item"
+            href={
+              employee
+                ? "/employee/Profile-details"
+                : "/employers/company-details"
+            }
+          >
+            Profile
+          </Link>
+        </li>
+        <li>
+          <span
+            className="dropdown-item"
+            style={{ cursor: "pointer" }}
+            onClick={handleLogout}
+          >
+            Logout
+          </span>
+        </li>
+      </Menu.Items>
+    </Menu>
+    */}
+
+                    <span
+                      className="font-xs color-text-paragraph-2"
+                      style={{ cursor: "default" }}
+                    >
+                      {user?.roleId === 2
+                        ? "Employer"
+                        : user?.roleId === 3
+                        ? "Employee"
+                        : "Admin"}
+                    </span>
                   </div>
                 </div>
               </div>
