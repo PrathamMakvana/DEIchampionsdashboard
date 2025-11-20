@@ -169,7 +169,9 @@ export default function UserProfileUpdate() {
   }, [user]);
 
   useEffect(() => {
-    setCountries(locationData.map((country) => country.name));
+    // Filter to only show India
+    const indiaOnly = locationData.filter(country => country.name === "India");
+    setCountries(indiaOnly.map((country) => country.name));
   }, []);
 
   const defaultInitialValues = {
@@ -183,7 +185,7 @@ export default function UserProfileUpdate() {
     address: "",
     city: "",
     state: "",
-    country: "",
+    country: "India", // Set India as default
     pincode: "",
     currentPassword: "",
     newPassword: "",
@@ -363,7 +365,7 @@ export default function UserProfileUpdate() {
         address: user.address || "",
         city: user.city || "",
         state: user.state || "",
-        country: user.country || "",
+        country: user.country || "India",
         pincode: user.pincode || "",
         totalWorkExperience: user.totalWorkExperience || "",
         noticePeriod: user.noticePeriod || "",
@@ -402,6 +404,14 @@ export default function UserProfileUpdate() {
   }, [user]);
 
   useEffect(() => {
+    // Automatically set India and load its states
+    const indiaData = locationData.find((c) => c.name === "India");
+    if (indiaData) {
+      setStates(indiaData.states.map((s) => s.name));
+    }
+  }, []);
+
+  useEffect(() => {
     if (formik.values.country) {
       handleCountryChange({ target: { value: formik.values.country } }, true);
     }
@@ -414,19 +424,22 @@ export default function UserProfileUpdate() {
   }, [formik.values.state]);
 
   useEffect(() => {
-    // Flatten all cities from locationData for the dropdown
+    // Flatten only Indian cities from locationData for the dropdown
     const cities = [];
-    locationData.forEach((country) => {
-      country.states.forEach((state) => {
+    const indiaData = locationData.find(country => country.name === "India");
+    
+    if (indiaData) {
+      indiaData.states.forEach((state) => {
         state.cities.forEach((city) => {
           cities.push({
             name: city.name,
             state: state.name,
-            country: country.name,
+            country: indiaData.name,
           });
         });
       });
-    });
+    }
+    
     setAllCities(cities);
   }, []);
 
@@ -695,6 +708,7 @@ export default function UserProfileUpdate() {
     };
   }, [showLocationDropdown, showDepartmentDropdown, showIndustryDropdown]);
 
+
   return (
     <>
       <Layout>
@@ -895,130 +909,134 @@ export default function UserProfileUpdate() {
               </div>
 
               {/* Location Information Card */}
-              <div className="user-upt-profile-card">
-                <div className="user-upt-profile-card-header">
-                  <i className="bi bi-geo-alt me-2"></i> Location Information
-                </div>
-                <div className="user-upt-profile-card-body">
-                  <div className="row">
-                    {/* Address */}
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Address *
-                      </label>
-                      <input
-                        type="text"
-                        name="address"
-                        placeholder="Enter your address"
-                        value={formik.values.address}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                      {formik.touched.address && formik.errors.address && (
-                        <div className="text-danger">
-                          {formik.errors.address}
-                        </div>
-                      )}
-                    </div>
+             <div className="user-upt-profile-card">
+  <div className="user-upt-profile-card-header">
+    <i className="bi bi-geo-alt me-2"></i> Location Information
+  </div>
+  <div className="user-upt-profile-card-body">
+    <div className="row">
+      {/* Address */}
+      <div className="col-md-6 user-upt-profile-form-group">
+        <label className="user-upt-profile-form-label">
+          Address *
+        </label>
+        <input
+          type="text"
+          name="address"
+          placeholder="Enter your address"
+          value={formik.values.address}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+        />
+        {formik.touched.address && formik.errors.address && (
+          <div className="text-danger">
+            {formik.errors.address}
+          </div>
+        )}
+      </div>
 
-                    {/* Country */}
-                    <div className="col-md-6 user-upt-profile-form-group">
-  <label className="user-upt-profile-form-label">
-    Country *
-  </label>
-  <select
-    name="country"
-    className="form-control user-upt-profile-form-control"
-    value={formik.values.country}
-    onChange={handleCountryChange}
-    onBlur={formik.handleBlur}
-  >
-    <option value="">Select Country</option>
-    <option value="India">India</option>
-  </select>
+      {/* Country */}
+      <div className="col-md-6 user-upt-profile-form-group">
+        <label className="user-upt-profile-form-label">
+          Country *
+        </label>
+        <select
+          name="country"
+          className="form-control user-upt-profile-form-control"
+          value={formik.values.country}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          disabled
+          style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
+        >
+          <option value="">Select Country</option>
+          {countries.map((country, index) => (
+            <option key={index} value={country}>
+              {country}
+            </option>
+          ))}
+        </select>
+        {formik.touched.country && formik.errors.country && (
+          <div className="text-danger">
+            {formik.errors.country}
+          </div>
+        )}
+      </div>
 
-  {formik.touched.country && formik.errors.country && (
-    <div className="text-danger">
-      {formik.errors.country}
+      {/* State */}
+      <div className="col-md-6 user-upt-profile-form-group">
+        <label className="user-upt-profile-form-label">
+          State *
+        </label>
+        <select
+          name="state"
+          className="form-control user-upt-profile-form-control"
+          value={formik.values.state}
+          onChange={handleStateChange}
+          onBlur={formik.handleBlur}
+          disabled={!formik.values.country}
+        >
+          <option value="">Select State</option>
+          {states.map((state) => (
+            <option key={state} value={state}>
+              {state}
+            </option>
+          ))}
+        </select>
+        {formik.touched.state && formik.errors.state && (
+          <div className="text-danger">{formik.errors.state}</div>
+        )}
+      </div>
+
+      {/* City */}
+      <div className="col-md-6 user-upt-profile-form-group">
+        <label className="user-upt-profile-form-label">
+          City *
+        </label>
+        <select
+          name="city"
+          className="form-control user-upt-profile-form-control"
+          value={formik.values.city}
+          onChange={handleCityChange}
+          onBlur={formik.handleBlur}
+          disabled={!formik.values.state}
+        >
+          <option value="">Select City</option>
+          {cities.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+        {formik.touched.city && formik.errors.city && (
+          <div className="text-danger">{formik.errors.city}</div>
+        )}
+      </div>
+
+      {/* Pincode */}
+      <div className="col-md-6 user-upt-profile-form-group">
+        <label className="user-upt-profile-form-label">
+          Pincode *
+        </label>
+        <input
+          type="text"
+          placeholder="Enter your pincode"
+          className="form-control user-upt-profile-form-control"
+          name="pincode"
+          value={formik.values.pincode}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          required
+        />
+        {formik.touched.pincode && formik.errors.pincode && (
+          <div className="text-danger">
+            {formik.errors.pincode}
+          </div>
+        )}
+      </div>
     </div>
-  )}
+  </div>
 </div>
-
-
-                    {/* State */}
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        State *
-                      </label>
-                      <select
-                        name="state"
-                        className="form-control user-upt-profile-form-control"
-                        value={formik.values.state}
-                        onChange={handleStateChange}
-                        onBlur={formik.handleBlur}
-                        disabled={!formik.values.country}
-                      >
-                        <option value="">Select State</option>
-                        {states.map((state) => (
-                          <option key={state} value={state}>
-                            {state}
-                          </option>
-                        ))}
-                      </select>
-                      {formik.touched.state && formik.errors.state && (
-                        <div className="text-danger">{formik.errors.state}</div>
-                      )}
-                    </div>
-
-                    {/* City */}
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        City *
-                      </label>
-                      <select
-                        name="city"
-                        className="form-control user-upt-profile-form-control"
-                        value={formik.values.city}
-                        onChange={handleCityChange}
-                        onBlur={formik.handleBlur}
-                        disabled={!formik.values.state}
-                      >
-                        <option value="">Select City</option>
-                        {cities.map((city) => (
-                          <option key={city} value={city}>
-                            {city}
-                          </option>
-                        ))}
-                      </select>
-                      {formik.touched.city && formik.errors.city && (
-                        <div className="text-danger">{formik.errors.city}</div>
-                      )}
-                    </div>
-
-                    {/* Pincode */}
-                    <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Pincode *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Enter your pincode"
-                        className="form-control user-upt-profile-form-control"
-                        name="pincode"
-                        value={formik.values.pincode}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        required
-                      />
-                      {formik.touched.pincode && formik.errors.pincode && (
-                        <div className="text-danger">
-                          {formik.errors.pincode}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* Professional Information Card */}
               <div
