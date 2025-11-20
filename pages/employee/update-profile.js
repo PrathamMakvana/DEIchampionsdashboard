@@ -923,29 +923,27 @@ export default function UserProfileUpdate() {
 
                     {/* Country */}
                     <div className="col-md-6 user-upt-profile-form-group">
-                      <label className="user-upt-profile-form-label">
-                        Country *
-                      </label>
-                      <select
-                        name="country"
-                        className="form-control user-upt-profile-form-control"
-                        value={formik.values.country}
-                        onChange={handleCountryChange}
-                        onBlur={formik.handleBlur}
-                      >
-                        <option value="">Select Country</option>
-                        {countries.map((country) => (
-                          <option key={country} value={country}>
-                            {country}
-                          </option>
-                        ))}
-                      </select>
-                      {formik.touched.country && formik.errors.country && (
-                        <div className="text-danger">
-                          {formik.errors.country}
-                        </div>
-                      )}
-                    </div>
+  <label className="user-upt-profile-form-label">
+    Country *
+  </label>
+  <select
+    name="country"
+    className="form-control user-upt-profile-form-control"
+    value={formik.values.country}
+    onChange={handleCountryChange}
+    onBlur={formik.handleBlur}
+  >
+    <option value="">Select Country</option>
+    <option value="India">India</option>
+  </select>
+
+  {formik.touched.country && formik.errors.country && (
+    <div className="text-danger">
+      {formik.errors.country}
+    </div>
+  )}
+</div>
+
 
                     {/* State */}
                     <div className="col-md-6 user-upt-profile-form-group">
