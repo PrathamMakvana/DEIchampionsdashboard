@@ -22,6 +22,12 @@ const CompanyProfile = () => {
     dispatch(getuserProfileCompletionData());
   }, []);
 
+  // Helper function to get year from date
+  const getYear = (dateString) => {
+    if (!dateString) return null;
+    return new Date(dateString).getFullYear();
+  };
+
   return (
     <>
       <Layout>
@@ -572,36 +578,48 @@ const CompanyProfile = () => {
                 <h1 className="jobposter-company-name">
                   {user?.companyName || "Dei Champions"}
                 </h1>
-                <p className="jobposter-company-tagline">
-                  {user?.tagline ||
-                    "Building inclusive workplaces for the future"}
-                </p>
+                {user?.tagline && (
+                  <p className="jobposter-company-tagline">{user.tagline}</p>
+                )}
               </div>
             </div>
 
             {/* Stats */}
             <div className="jobposter-stats-grid">
-              <div className="jobposter-stat-card">
-                <div className="jobposter-stat-value">
-                  {user?.companySize || "150+"}
+              {user?.companySize && (
+                <div className="jobposter-stat-card">
+                  <div className="jobposter-stat-value">{user.companySize}</div>
+                  <div className="jobposter-stat-label">Company Size</div>
                 </div>
-                <div className="jobposter-stat-label">Employees</div>
-              </div>
+              )}
 
-              <div className="jobposter-stat-card">
-                <div className="jobposter-stat-value">12</div>
-                <div className="jobposter-stat-label">Countries</div>
-              </div>
+              {Array.isArray(jobs) && (
+                <div className="jobposter-stat-card">
+                  <div className="jobposter-stat-value">{jobs.length}</div>
+                  <div className="jobposter-stat-label">Active Jobs</div>
+                </div>
+              )}
 
-              <div className="jobposter-stat-card">
-                <div className="jobposter-stat-value">2010</div>
-                <div className="jobposter-stat-label">Founded</div>
-              </div>
+              {user?.memberSince && (
+                <div className="jobposter-stat-card">
+                  <div className="jobposter-stat-value">
+                    {getYear(user.memberSince)}
+                  </div>
+                  <div className="jobposter-stat-label">Member Since</div>
+                </div>
+              )}
 
-              <div className="jobposter-stat-card">
-                <div className="jobposter-stat-value">25+</div>
-                <div className="jobposter-stat-label">Open Positions</div>
-              </div>
+              {user?.companyType && (
+                <div className="jobposter-stat-card">
+                  <div
+                    className="jobposter-stat-value"
+                    style={{ fontSize: "20px" }}
+                  >
+                    {user.companyType}
+                  </div>
+                  <div className="jobposter-stat-label">Company Type</div>
+                </div>
+              )}
             </div>
 
             {/* Main Content Grid */}
@@ -611,7 +629,7 @@ const CompanyProfile = () => {
                 <h2 className="jobposter-section-title">About Us</h2>
                 <p className="company-description">
                   {user?.companyDescription ||
-                    `Dei Champions is a leading tech company dedicated to`}
+                    "No company description available."}
                 </p>
 
                 {user?.people && (
@@ -629,6 +647,23 @@ const CompanyProfile = () => {
                       Recruitment Approach
                     </h4>
                     <p>{user.recruitments}</p>
+                  </>
+                )}
+
+                {/* Department Information */}
+                {user?.department && user.department.length > 0 && (
+                  <>
+                    <h2 className="jobposter-section-title mt-5">
+                      Departments
+                    </h2>
+                    <div className="jobposter-tags">
+                      {user.department.map((dept, index) => (
+                        <span key={index} className="jobposter-tag">
+                          {dept.name}
+                          {dept.focus && ` - ${dept.focus}`}
+                        </span>
+                      ))}
+                    </div>
                   </>
                 )}
 
@@ -663,25 +698,22 @@ const CompanyProfile = () => {
                         <h4 className="job-title">{job.jobTitle}</h4>
 
                         <div className="job-meta">
-                          <div className="job-meta-item">
-                            <i className="bi bi-briefcase"></i>
-                            <span>{job.jobType?.name || "N/A"}</span>
-                          </div>
-                          <div className="job-meta-item">
-                            <i className="bi bi-geo-alt"></i>
-                            <span>
-                              {job.city}, {job.state}
-                            </span>
-                          </div>
-                          {/* <div className="job-meta-item">
-                            <i className="bi bi-cash"></i>
-                            <span>
-                              {" "}
-                              {job?.salary ||
-                                job?.salary?.range ||
-                                "Not specified"}
-                            </span>
-                          </div> */}
+                          {job.jobType?.name && (
+                            <div className="job-meta-item">
+                              <i className="bi bi-briefcase"></i>
+                              <span>{job.jobType.name}</span>
+                            </div>
+                          )}
+                          {(job.city || job.state) && (
+                            <div className="job-meta-item">
+                              <i className="bi bi-geo-alt"></i>
+                              <span>
+                                {job.city}
+                                {job.city && job.state && ", "}
+                                {job.state}
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         <p
@@ -713,7 +745,7 @@ const CompanyProfile = () => {
                         <div className="d-flex justify-content-end">
                           <a
                             href={`/employers/manage-job-details?id=${job._id}`}
-                            class="text-primary text-decoration-none d-flex align-items-center gap-1"
+                            className="text-primary text-decoration-none d-flex align-items-center gap-1"
                             style={{
                               padding: "5px 15px",
                               border: "1px solid ",
@@ -721,7 +753,7 @@ const CompanyProfile = () => {
                               width: "fit-content",
                             }}
                           >
-                            <i class="bi bi-eye"></i> View Job Details
+                            <i className="bi bi-eye"></i> View Job Details
                           </a>
                         </div>
                       </div>
@@ -730,12 +762,14 @@ const CompanyProfile = () => {
                     <p>No job openings available.</p>
                   )}
 
-                  <div className="text-center mt-4">
-                    <button className="btn btn-primary">
-                      <i className="bi bi-search me-2"></i>View All{" "}
-                      {jobs?.length || 0} Positions
-                    </button>
-                  </div>
+                  {Array.isArray(jobs) && jobs.length > 0 && (
+                    <div className="text-center mt-4">
+                      <button className="btn btn-primary">
+                        <i className="bi bi-search me-2"></i>View All{" "}
+                        {jobs.length} Positions
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -743,29 +777,42 @@ const CompanyProfile = () => {
               <div className="jobposter-sidebar">
                 <h2 className="jobposter-section-title">Company Details</h2>
 
-                <div className="jobposter-detail-item">
-                  <div className="jobposter-detail-icon">
-                    <i className="bi bi-geo-alt-fill"></i>
+                {(user?.city || user?.state || user?.address) && (
+                  <div className="jobposter-detail-item">
+                    <div className="jobposter-detail-icon">
+                      <i className="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div className="jobposter-detail-content">
+                      <h4>Location</h4>
+                      <p>
+                        {user?.address && (
+                          <>
+                            {user.address}
+                            <br />
+                          </>
+                        )}
+                        {user?.city && user.city}
+                        {user?.city && user?.state && ", "}
+                        {user?.state && user.state}
+                        {user?.pincode && (
+                          <>
+                            <br />
+                            Pincode: {user.pincode}
+                          </>
+                        )}
+                      </p>
+                    </div>
                   </div>
-                  <div className="jobposter-detail-content">
-                    <h4>Headquarters</h4>
-                    <p>
-                      {user?.city || "San Francisco"},{" "}
-                      {user?.state || "California"}
-                      <br />
-                      {user?.address || "123 Innovation Way, Suite 500"}
-                    </p>
-                  </div>
-                </div>
+                )}
 
-                <div className="jobposter-detail-item">
-                  <div className="jobposter-detail-icon">
-                    <i className="bi bi-globe"></i>
-                  </div>
-                  <div className="jobposter-detail-content">
-                    <h4>Website</h4>
-                    <p>
-                      {user?.companyWebsite ? (
+                {user?.companyWebsite && (
+                  <div className="jobposter-detail-item">
+                    <div className="jobposter-detail-icon">
+                      <i className="bi bi-globe"></i>
+                    </div>
+                    <div className="jobposter-detail-content">
+                      <h4>Website</h4>
+                      <p>
                         <a
                           href={user.companyWebsite}
                           target="_blank"
@@ -773,36 +820,106 @@ const CompanyProfile = () => {
                         >
                           {user.companyWebsite}
                         </a>
-                      ) : (
-                        "Not provided"
-                      )}
-                    </p>
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="jobposter-detail-item">
-                  <div className="jobposter-detail-icon">
-                    <i className="bi bi-building"></i>
+                {user?.email && (
+                  <div className="jobposter-detail-item">
+                    <div className="jobposter-detail-icon">
+                      <i className="bi bi-envelope"></i>
+                    </div>
+                    <div className="jobposter-detail-content">
+                      <h4>Email</h4>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "baseline",
+                          gap: 5,
+                        }}
+                      >
+                        <p>{user.email}</p>
+                        {user.emailVerified && (
+                          <span
+                            className="verified-badge"
+                            title="Email Verified"
+                          >
+                            <i className="bi bi-patch-check-fill text-primary"></i>
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="jobposter-detail-content">
-                    <h4>Company Size</h4>
-                    <p>{user?.companySize || "150+ employees"}</p>
-                  </div>
-                </div>
+                )}
 
-                <div className="jobposter-detail-item">
-                  <div className="jobposter-detail-icon">
-                    <i className="bi bi-calendar-event"></i>
+                {user?.mobile && (
+                  <div className="jobposter-detail-item">
+                    <div className="jobposter-detail-icon">
+                      <i className="bi bi-telephone"></i>
+                    </div>
+                    <div className="jobposter-detail-content">
+                      <h4>Phone</h4>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "baseline",
+                          gap: 5,
+                        }}
+                      >
+                        <p>{user.mobile}</p>
+                        {user.mobileVerified && (
+                          <span
+                            className="verified-badge"
+                            title="Email Verified"
+                          >
+                            <i className="bi bi-patch-check-fill text-primary"></i>
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="jobposter-detail-content">
-                    <h4>Member Since</h4>
-                    <p>
-                      {user?.memberSince
-                        ? new Date(user.memberSince).getFullYear()
-                        : "2010"}
-                    </p>
+                )}
+
+                {user?.companyAccountType && (
+                  <div className="jobposter-detail-item">
+                    <div className="jobposter-detail-icon">
+                      <i className="bi bi-person-circle"></i>
+                    </div>
+                    <div className="jobposter-detail-content">
+                      <h4>Account Type</h4>
+                      <p style={{ textTransform: "capitalize" }}>
+                        {user.companyAccountType}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {user?.gstNumber && (
+                  <div className="jobposter-detail-item">
+                    <div className="jobposter-detail-icon">
+                      <i className="bi bi-file-text"></i>
+                    </div>
+                    <div className="jobposter-detail-content">
+                      <h4>GST Number</h4>
+                      <p>{user.gstNumber}</p>
+                    </div>
+                  </div>
+                )}
+
+                {user?.hiringFor && (
+                  <div className="jobposter-detail-item">
+                    <div className="jobposter-detail-icon">
+                      <i className="bi bi-people"></i>
+                    </div>
+                    <div className="jobposter-detail-content">
+                      <h4>Hiring For</h4>
+                      <p style={{ textTransform: "capitalize" }}>
+                        {user.hiringFor}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Certified Tags */}
                 {user?.certifiedTags && user.certifiedTags.length > 0 && (
@@ -864,9 +981,16 @@ const CompanyProfile = () => {
                       Visit Our Website
                     </a>
                   )}
-                  <button className="btn btn-outline-primary">
-                    <i className="bi bi-envelope me-2"></i>Contact Us
-                  </button>
+                  {user?.email && (
+                    <button
+                      className="btn btn-outline-primary"
+                      onClick={() =>
+                        (window.location.href = `mailto:${user.email}`)
+                      }
+                    >
+                      <i className="bi bi-envelope me-2"></i>Contact Us
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

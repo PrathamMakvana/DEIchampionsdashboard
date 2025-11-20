@@ -18,6 +18,7 @@ import cityStateData from "@/utils/cityState.json";
 import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
+
 const CKEditor = dynamic(
   async () => {
     const { CKEditor } = await import("@ckeditor/ckeditor5-react");
@@ -30,27 +31,28 @@ const CKEditor = dynamic(
   { ssr: false }
 );
 
-// const salaryOptions = [
-//   { value: "10-20 lac", label: "10-20 lac" },
-//   { value: "20-30 lac", label: "20-30 lac" },
-//   { value: "30-40 lac", label: "30-40 lac" },
-//   { value: "40-50 lac", label: "40-50 lac" },
-// ];
-
 // Yup validation schema
 const validationSchema = Yup.object({
   jobTitle: Yup.string().required("Job title is required"),
   jobDescription: Yup.string().required("Job description is required"),
-  area: Yup.string().required("Area is required"),
+  // area: Yup.string().required("Area is required"),
   city: Yup.string().required("City is required"),
   state: Yup.string().required("State is required"),
-  country: Yup.string().required("Country is required"),
+  // country: Yup.string().required("Country is required"),
   status: Yup.string().required("Status is required"),
   salary: Yup.string().required("Salary range is required"),
   category: Yup.string().required("Category is required"),
   tags: Yup.string(),
   jobType: Yup.string().required("Job type is required"),
   department: Yup.string().required("Department is required"),
+  jobLocation: Yup.string().required("Job location is required"),
+  workExperience: Yup.string().required("Work experience is required"),
+  candidateQualification: Yup.string().required(
+    "Candidate qualification is required"
+  ),
+  genderPreference: Yup.string().required("Gender preference is required"),
+  candidateIndustry: Yup.string().required("Candidate industry is required"),
+  languages: Yup.string().required("Languages are required"),
 });
 
 export default function Home() {
@@ -63,16 +65,22 @@ export default function Home() {
   const [initialValues, setInitialValues] = useState({
     jobTitle: "",
     jobDescription: "",
-    area: "",
+    // area: "",
     city: "",
     state: "",
-    country: "",
+    // country: "",
     status: "open",
     salary: "",
     category: "",
     tags: "",
     jobType: "",
     department: "",
+    jobLocation: "",
+    workExperience: "",
+    candidateQualification: "",
+    genderPreference: "",
+    candidateIndustry: "",
+    languages: "",
   });
 
   const {
@@ -101,16 +109,24 @@ export default function Home() {
       const values = {
         jobTitle: currentJob.jobTitle || "",
         jobDescription: currentJob.jobDescription || "",
-        area: currentJob.area || "",
+        // area: currentJob.area || "",
         city: currentJob.city || "",
         state: currentJob.state || "",
-        country: currentJob.country || "",
+        // country: currentJob.country || "",
         status: currentJob.status || "open",
         salary: currentJob?.salary?._id || "",
         category: currentJob.category?._id || "",
         tags: Array.isArray(currentJob.tags) ? currentJob.tags.join(", ") : "",
         jobType: currentJob.jobType?._id || "",
         department: currentJob.department?._id || "",
+        jobLocation: currentJob.jobLocation || "",
+        workExperience: currentJob.workExperience || "",
+        candidateQualification: currentJob.candidateQualification || "",
+        genderPreference: currentJob.genderPreference || "",
+        candidateIndustry: currentJob.candidateIndustry || "",
+        languages: Array.isArray(currentJob.languages)
+          ? currentJob.languages.join(", ")
+          : "",
       };
 
       setInitialValues(values);
@@ -138,11 +154,14 @@ export default function Home() {
     enableReinitialize: true,
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      // Convert tags from string to array
+      // Convert tags and languages from string to array
       const submitData = {
         ...values,
         tags: values.tags
           ? values.tags.split(",").map((tag) => tag.trim())
+          : [],
+        languages: values.languages
+          ? values.languages.split(",").map((lang) => lang.trim())
           : [],
       };
 
@@ -239,7 +258,6 @@ export default function Home() {
                             </div>
 
                             {/* Job Description */}
-                            {/* Job Description */}
                             <div className="col-lg-12">
                               <div className="form-group mb-30">
                                 <label className="font-sm color-text-mutted mb-10">
@@ -292,7 +310,7 @@ export default function Home() {
                             {/* Salary */}
                             <div className="col-lg-6 col-md-6">
                               <DynamicSelect
-                                label="Salary"
+                                label="Salary Per Annual "
                                 name="salary"
                                 formik={formik}
                                 options={salaryRanges}
@@ -319,7 +337,7 @@ export default function Home() {
                             <div className="col-lg-6 col-md-6">
                               <div className="form-group mb-30">
                                 <label className="font-sm color-text-mutted mb-10">
-                                  Tags (optional)
+                                  Tags (Skills)
                                 </label>
                                 <input
                                   type="text"
@@ -333,6 +351,11 @@ export default function Home() {
                                 <small className="text-muted">
                                   Separate tags with commas
                                 </small>
+                                {formik.touched.tags && formik.errors.tags && (
+                                  <p className="text-danger">
+                                    {formik.errors.tags}
+                                  </p>
+                                )}
                               </div>
                             </div>
 
@@ -349,8 +372,180 @@ export default function Home() {
                               />
                             </div>
 
-                            {/* Location - Area */}
+                            {/* Job Location */}
                             <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Job Location *
+                                </label>
+                                <select
+                                  name="jobLocation"
+                                  className="form-control"
+                                  value={formik.values.jobLocation}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                >
+                                  <option value="">Select Job Location</option>
+                                  <option value="On-site">On-site</option>
+                                  <option value="Remote">Remote</option>
+                                  <option value="Hybrid">Hybrid</option>
+                                </select>
+                                {formik.touched.jobLocation &&
+                                  formik.errors.jobLocation && (
+                                    <p className="text-danger">
+                                      {formik.errors.jobLocation}
+                                    </p>
+                                  )}
+                              </div>
+                            </div>
+
+                            {/* Work Experience */}
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Work Experience *
+                                </label>
+                                <select
+                                  name="workExperience"
+                                  className="form-control"
+                                  value={formik.values.workExperience}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                >
+                                  <option value="">Select Experience</option>
+                                  <option value="Fresher">Fresher</option>
+                                  <option value="0-1 years">0-1 years</option>
+                                  <option value="1-3 years">1-3 years</option>
+                                  <option value="3-5 years">3-5 years</option>
+                                  <option value="5-7 years">5-7 years</option>
+                                  <option value="7-10 years">7-10 years</option>
+                                  <option value="10+ years">10+ years</option>
+                                </select>
+                                {formik.touched.workExperience &&
+                                  formik.errors.workExperience && (
+                                    <p className="text-danger">
+                                      {formik.errors.workExperience}
+                                    </p>
+                                  )}
+                              </div>
+                            </div>
+
+                            {/* Candidate Qualification */}
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Candidate Qualification *
+                                </label>
+                                <select
+                                  name="candidateQualification"
+                                  className="form-control"
+                                  value={formik.values.candidateQualification}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                >
+                                  <option value="">Select Qualification</option>
+                                  <option value="High School">
+                                    High School
+                                  </option>
+                                  <option value="Diploma">Diploma</option>
+                                  <option value="Bachelor's Degree">
+                                    Bachelor's Degree
+                                  </option>
+                                  <option value="Master's Degree">
+                                    Master's Degree
+                                  </option>
+                                  <option value="PhD">PhD</option>
+                                  <option value="Any">Any</option>
+                                </select>
+                                {formik.touched.candidateQualification &&
+                                  formik.errors.candidateQualification && (
+                                    <p className="text-danger">
+                                      {formik.errors.candidateQualification}
+                                    </p>
+                                  )}
+                              </div>
+                            </div>
+
+                            {/* Gender Preference */}
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Gender Preference *
+                                </label>
+                                <select
+                                  name="genderPreference"
+                                  className="form-control"
+                                  value={formik.values.genderPreference}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                >
+                                  <option value="">Select Gender</option>
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                                  <option value="Any">Any</option>
+                                </select>
+                                {formik.touched.genderPreference &&
+                                  formik.errors.genderPreference && (
+                                    <p className="text-danger">
+                                      {formik.errors.genderPreference}
+                                    </p>
+                                  )}
+                              </div>
+                            </div>
+
+                            {/* Candidate Industry */}
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Candidate Industry You Want to Hire From *
+                                </label>
+                                <input
+                                  type="text"
+                                  name="candidateIndustry"
+                                  className="form-control"
+                                  placeholder="e.g. IT, Healthcare, Finance"
+                                  value={formik.values.candidateIndustry}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                />
+                                {formik.touched.candidateIndustry &&
+                                  formik.errors.candidateIndustry && (
+                                    <p className="text-danger">
+                                      {formik.errors.candidateIndustry}
+                                    </p>
+                                  )}
+                              </div>
+                            </div>
+
+                            {/* Languages */}
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Language Knows *
+                                </label>
+                                <input
+                                  type="text"
+                                  name="languages"
+                                  className="form-control"
+                                  placeholder="e.g. English, Hindi, Spanish"
+                                  value={formik.values.languages}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                />
+                                <small className="text-muted">
+                                  Separate languages with commas
+                                </small>
+                                {formik.touched.languages &&
+                                  formik.errors.languages && (
+                                    <p className="text-danger">
+                                      {formik.errors.languages}
+                                    </p>
+                                  )}
+                              </div>
+                            </div>
+
+                            {/* Location - Area */}
+                            {/* <div className="col-lg-6 col-md-6">
                               <div className="form-group mb-30">
                                 <label className="font-sm color-text-mutted mb-10">
                                   Area *
@@ -370,7 +565,7 @@ export default function Home() {
                                   </p>
                                 )}
                               </div>
-                            </div>
+                            </div> */}
 
                             {/* Location - State */}
                             <div className="col-lg-6 col-md-6">
@@ -448,7 +643,7 @@ export default function Home() {
                             </div>
 
                             {/* Location - Country */}
-                            <div className="col-lg-6 col-md-6">
+                            {/* <div className="col-lg-6 col-md-6">
                               <div className="form-group mb-30">
                                 <label className="font-sm color-text-mutted mb-10">
                                   Country *
@@ -469,7 +664,7 @@ export default function Home() {
                                     </p>
                                   )}
                               </div>
-                            </div>
+                            </div> */}
 
                             {/* Status */}
                             {isEditMode && (

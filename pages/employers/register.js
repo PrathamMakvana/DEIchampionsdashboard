@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import cityStateData from "@/utils/cityState.json";
+import { getDepartments } from "@/api/job";
 
 export default function JobPosterRegistration() {
   const dispatch = useDispatch();
@@ -19,18 +20,26 @@ export default function JobPosterRegistration() {
   const [currentStep, setCurrentStep] = useState(1);
   const states = cityStateData.data.map((item) => item.state);
   const [selectedState, setSelectedState] = useState("");
+  const { departments } = useSelector((state) => state.job);
+  const [touchedFields, setTouchedFields] = useState({});
+
+  useEffect(() => {
+    dispatch(getDepartments());
+  }, [dispatch]);
 
   const initialValues = {
     mobile: "",
-    companyAccountType: "individual",
+    companyAccountType: "",
     name: "",
     email: "",
     password: "",
     companyName: "",
-    companyEmail: "",
     companySize: "",
-    // industry: "",
     companyWebsite: "",
+    hiringFor: "company",
+    department: "",
+    companyType: "",
+    gstNumber: "",
     address: "",
     city: "",
     state: "",
@@ -49,25 +58,44 @@ export default function JobPosterRegistration() {
 
   const step2ValidationSchema = Yup.object().shape({
     name: Yup.string().required("Full name is required"),
+
     email: Yup.string()
       .email("Invalid email address")
+      .test("is-company-email", "Only company email is allowed", (value) => {
+        if (!value) return false;
+
+        // Block list (public domains)
+        const publicDomains = [
+          "gmail.com",
+          "yahoo.com",
+          "hotmail.com",
+          "outlook.com",
+          "live.com",
+          "icloud.com",
+          "aol.com",
+          "protonmail.com",
+          "zoho.com",
+        ];
+
+        const domain = value.split("@")[1];
+        return domain && !publicDomains.includes(domain.toLowerCase());
+      })
       .required("Email is required"),
+
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
-      // .matches(
-      //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-      //   "Password must contain uppercase, lowercase, number and special character"
-      // )
       .required("Password is required"),
   });
 
   const step3ValidationSchema = Yup.object().shape({
     companyName: Yup.string().required("Company name is required"),
-    companyEmail: Yup.string()
-      .email("Invalid email address")
-      .required("Company email is required"),
     companySize: Yup.string().required("Company size is required"),
-    // industry: Yup.string().required("Industry is required"),
+    hiringFor: Yup.string()
+      .required("Hiring for is required")
+      .oneOf(["company", "consultancy"], "Invalid hiring type"),
+    department: Yup.string().required("Department is required"),
+    companyType: Yup.string().required("Company type is required"),
+    gstNumber: Yup.string().optional(),
   });
 
   const finalValidationSchema = Yup.object().shape({
@@ -97,7 +125,15 @@ export default function JobPosterRegistration() {
     }
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { setTouched }) => {
+    // Mark all fields as touched to show errors
+    const allFields = Object.keys(values);
+    const touchedObj = {};
+    allFields.forEach((field) => {
+      touchedObj[field] = true;
+    });
+    setTouched(touchedObj);
+
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
       return;
@@ -109,7 +145,7 @@ export default function JobPosterRegistration() {
           Swal.fire({
             icon: "info",
             title: "Please check your mail",
-            text: "We’ve sent you an OTP.",
+            text: "We've sent you an OTP.",
             timer: 2000,
             showConfirmButton: false,
           }),
@@ -132,6 +168,10 @@ export default function JobPosterRegistration() {
     }
   };
 
+  const handleFieldBlur = (fieldName, setTouched) => {
+    setTouched({ [fieldName]: true });
+  };
+
   const companySizes = [
     "1-10 employees",
     "11-50 employees",
@@ -141,49 +181,22 @@ export default function JobPosterRegistration() {
     "1000+ employees",
   ];
 
-  const industries = [
-    "Technology",
-    "Healthcare",
-    "Finance",
-    "Education",
-    "Manufacturing",
-    "Retail",
-    "Consulting",
-    "Real Estate",
-    "Media",
+  const companyTypes = [
+    "Private Limited",
+    "Public Limited",
+    "Partnership",
+    "Proprietorship",
+    "LLP (Limited Liability Partnership)",
+    "Non-Profit",
     "Other",
   ];
 
-  // const states = [
-  //   "Andhra Pradesh",
-  //   "Arunachal Pradesh",
-  //   "Assam",
-  //   "Bihar",
-  //   "Chhattisgarh",
-  //   "Goa",
-  //   "Gujarat",
-  //   "Haryana",
-  //   "Himachal Pradesh",
-  //   "Jharkhand",
-  //   "Karnataka",
-  //   "Kerala",
-  //   "Madhya Pradesh",
-  //   "Maharashtra",
-  //   "Manipur",
-  //   "Meghalaya",
-  //   "Mizoram",
-  //   "Nagaland",
-  //   "Odisha",
-  //   "Punjab",
-  //   "Rajasthan",
-  //   "Sikkim",
-  //   "Tamil Nadu",
-  //   "Telangana",
-  //   "Tripura",
-  //   "Uttar Pradesh",
-  //   "Uttarakhand",
-  //   "West Bengal",
-  // ];
+  // Convert departments to department options
+  const departmentOptions =
+    departments?.map((category) => ({
+      value: category._id,
+      label: category.name,
+    })) || [];
 
   const renderStep1 = (values) => (
     <div className="form-section">
@@ -285,7 +298,7 @@ export default function JobPosterRegistration() {
 
       <div className="mb-4">
         <label className="form-label">
-          Full Name (as per PAN)<span className="text-danger">*</span>
+          Full Name<span className="text-danger">*</span>
         </label>
         <div className="input-group">
           <span className="input-group-text bg-light border-end-0">
@@ -295,7 +308,7 @@ export default function JobPosterRegistration() {
             type="text"
             name="name"
             className="form-control form-control-lg border-start-0"
-            placeholder="Enter your full name as per PAN"
+            placeholder="Enter your full name"
           />
         </div>
         <ErrorMessage
@@ -307,7 +320,7 @@ export default function JobPosterRegistration() {
 
       <div className="mb-4">
         <label className="form-label">
-          Official Email ID<span className="text-danger">*</span>
+          Company Email ID<span className="text-danger">*</span>
         </label>
         <div className="input-group">
           <span className="input-group-text bg-light border-end-0">
@@ -317,7 +330,7 @@ export default function JobPosterRegistration() {
             type="email"
             name="email"
             className="form-control form-control-lg border-start-0"
-            placeholder="Enter your official email address"
+            placeholder="Enter your Company email address"
           />
         </div>
         <ErrorMessage
@@ -364,7 +377,7 @@ export default function JobPosterRegistration() {
     </div>
   );
 
-  const renderStep3 = () => (
+  const renderStep3 = ({ errors, touched, setFieldTouched }) => (
     <div className="form-section">
       <h2 className="section-title">
         <i className="bi bi-building me-2"></i>
@@ -386,6 +399,7 @@ export default function JobPosterRegistration() {
               name="companyName"
               className="form-control form-control-lg border-start-0"
               placeholder="Enter company name"
+              onBlur={() => setFieldTouched("companyName", true, true)}
             />
           </div>
           <ErrorMessage
@@ -395,30 +409,6 @@ export default function JobPosterRegistration() {
           />
         </div>
 
-        <div className="col-md-6 mb-4">
-          <label className="form-label">
-            Company Email<span className="text-danger">*</span>
-          </label>
-          <div className="input-group">
-            <span className="input-group-text bg-light border-end-0">
-              <i className="bi bi-envelope text-primary"></i>
-            </span>
-            <Field
-              type="email"
-              name="companyEmail"
-              className="form-control form-control-lg border-start-0"
-              placeholder="company@domain.com"
-            />
-          </div>
-          <ErrorMessage
-            name="companyEmail"
-            component="div"
-            className="text-danger small mt-1"
-          />
-        </div>
-      </div>
-
-      <div className="row">
         <div className="col-md-6 mb-4">
           <label className="form-label">
             Company Size<span className="text-danger">*</span>
@@ -431,6 +421,7 @@ export default function JobPosterRegistration() {
               as="select"
               name="companySize"
               className="form-control form-control-lg border-start-0"
+              onBlur={() => setFieldTouched("companySize", true, true)}
             >
               <option value="">Select company size</option>
               {companySizes.map((size) => (
@@ -446,7 +437,9 @@ export default function JobPosterRegistration() {
             className="text-danger small mt-1"
           />
         </div>
+      </div>
 
+      <div className="row">
         <div className="col-md-6 mb-4">
           <label className="form-label">Website (Optional)</label>
           <div className="input-group">
@@ -461,12 +454,37 @@ export default function JobPosterRegistration() {
             />
           </div>
         </div>
+
+        <div className="col-md-6 mb-4">
+          <label className="form-label">
+            Hiring For<span className="text-danger">*</span>
+          </label>
+          <div className="input-group">
+            <span className="input-group-text bg-light border-end-0">
+              <i className="bi bi-briefcase text-primary"></i>
+            </span>
+            <Field
+              as="select"
+              name="hiringFor"
+              className="form-control form-control-lg border-start-0"
+              onBlur={() => setFieldTouched("hiringFor", true, true)}
+            >
+              <option value="company">Your company</option>
+              <option value="consultancy">A consultancy</option>
+            </Field>
+          </div>
+          <ErrorMessage
+            name="hiringFor"
+            component="div"
+            className="text-danger small mt-1"
+          />
+        </div>
       </div>
 
       <div className="row">
-        {/* <div className="col-md-6 mb-4">
+        <div className="col-md-6 mb-4">
           <label className="form-label">
-            Industry<span className="text-danger">*</span>
+            Department<span className="text-danger">*</span>
           </label>
           <div className="input-group">
             <span className="input-group-text bg-light border-end-0">
@@ -474,28 +492,75 @@ export default function JobPosterRegistration() {
             </span>
             <Field
               as="select"
-              name="industry"
+              name="department"
               className="form-control form-control-lg border-start-0"
+              onBlur={() => setFieldTouched("department", true, true)}
             >
-              <option value="">Select industry</option>
-              {industries.map((industry) => (
-                <option key={industry} value={industry}>
-                  {industry}
+              <option value="">Select department</option>
+              {departmentOptions.map((department) => (
+                <option key={department.value} value={department.value}>
+                  {department.label}
                 </option>
               ))}
             </Field>
           </div>
           <ErrorMessage
-            name="industry"
+            name="department"
             component="div"
             className="text-danger small mt-1"
           />
-        </div> */}
+        </div>
+
+        <div className="col-md-6 mb-4">
+          <label className="form-label">
+            Company Type<span className="text-danger">*</span>
+          </label>
+          <div className="input-group">
+            <span className="input-group-text bg-light border-end-0">
+              <i className="bi bi-building-gear text-primary"></i>
+            </span>
+            <Field
+              as="select"
+              name="companyType"
+              className="form-control form-control-lg border-start-0"
+              onBlur={() => setFieldTouched("companyType", true, true)}
+            >
+              <option value="">Select company type</option>
+              {companyTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </Field>
+          </div>
+          <ErrorMessage
+            name="companyType"
+            component="div"
+            className="text-danger small mt-1"
+          />
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-md-6 mb-4">
+          <label className="form-label">GST Number (Optional)</label>
+          <div className="input-group">
+            <span className="input-group-text bg-light border-end-0">
+              <i className="bi bi-receipt text-primary"></i>
+            </span>
+            <Field
+              type="text"
+              name="gstNumber"
+              className="form-control form-control-lg border-start-0"
+              placeholder="Enter GST number"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
 
-  const renderStep4 = (values, setFieldValue) => (
+  const renderStep4 = (values, setFieldValue, setFieldTouched) => (
     <div className="form-section">
       <h2 className="section-title">
         <i className="bi bi-geo-alt me-2"></i>
@@ -519,6 +584,7 @@ export default function JobPosterRegistration() {
             className="form-control border-start-0"
             rows="3"
             placeholder="Enter complete address"
+            onBlur={() => setFieldTouched("address", true, true)}
           />
         </div>
         <ErrorMessage
@@ -544,7 +610,7 @@ export default function JobPosterRegistration() {
               onChange={(e) => {
                 const stateValue = e.target.value;
                 setSelectedState(stateValue);
-                setFieldValue("state", stateValue);
+                setFieldValue("state", stateValue, true);
 
                 if (stateValue) {
                   const selected = cityStateData.data.find(
@@ -555,6 +621,7 @@ export default function JobPosterRegistration() {
                   setCities([]);
                 }
               }}
+              onBlur={() => setFieldTouched("state", true, true)}
             >
               <option value="">Select State</option>
               {states.map((state) => (
@@ -582,6 +649,7 @@ export default function JobPosterRegistration() {
               as="select"
               name="city"
               className="form-control form-control-lg border-start-0"
+              onBlur={() => setFieldTouched("city", true, true)}
             >
               <option value="">Select City</option>
               {cities.map((city) => (
@@ -612,6 +680,7 @@ export default function JobPosterRegistration() {
               className="form-control form-control-lg border-start-0"
               placeholder="Enter pincode"
               maxLength="6"
+              onBlur={() => setFieldTouched("pincode", true, true)}
             />
           </div>
           <ErrorMessage
@@ -700,13 +769,23 @@ export default function JobPosterRegistration() {
                   validationSchema={getValidationSchema()}
                   onSubmit={handleSubmit}
                   enableReinitialize
+                  validateOnBlur={true}
+                  validateOnChange={false}
                 >
-                  {({ values, setFieldValue }) => (
+                  {({
+                    values,
+                    setFieldValue,
+                    setFieldTouched,
+                    errors,
+                    touched,
+                  }) => (
                     <Form>
                       {currentStep === 1 && renderStep1(values)}
                       {currentStep === 2 && renderStep2()}
-                      {currentStep === 3 && renderStep3()}
-                      {currentStep === 4 && renderStep4(values, setFieldValue)}
+                      {currentStep === 3 &&
+                        renderStep3({ errors, touched, setFieldTouched })}
+                      {currentStep === 4 &&
+                        renderStep4(values, setFieldValue, setFieldTouched)}
 
                       <div className="d-flex justify-content-between">
                         {currentStep > 1 && (

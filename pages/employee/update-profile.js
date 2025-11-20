@@ -5,8 +5,13 @@ import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useDispatch, useSelector } from "react-redux";
 import DynamicSelect from "@/components/elements/DynamicSelect";
-import { getJobCategories, getJobTypes } from "@/api/job";
-import { updateUserProfileWithResume } from "@/api/auth";
+import {
+  getDepartments,
+  getJobCategories,
+  getJobTypes,
+  getSalaryData,
+} from "@/api/job";
+import { getuser, updateUserProfileWithResume } from "@/api/auth";
 import Swal from "sweetalert2";
 import moment from "moment";
 import locationData from "../../utils/countriesStatesCities.json";
@@ -14,11 +19,23 @@ import degreeList from "../../utils/degree.json";
 import instituteList from "../../utils/institute.json";
 import positionList from "../../utils/position.json";
 
-const salaryOptions = [
-  { value: "10-20 lac", label: "10-20 lac" },
-  { value: "20-30 lac", label: "20-30 lac" },
-  { value: "30-40 lac", label: "30-40 lac" },
-  { value: "40-50 lac", label: "40-50 lac" },
+const noticePeriodOptions = [
+  { value: "immediate", label: "Immediate" },
+  { value: "15-days", label: "15 Days" },
+  { value: "30-days", label: "30 Days" },
+  { value: "60-days", label: "60 Days" },
+  { value: "90-days", label: "90 Days" },
+  { value: "more-than-90-days", label: "More than 90 Days" },
+];
+
+const totalExperienceOptions = [
+  { value: "0-1", label: "0-1 years" },
+  { value: "1-3", label: "1-3 years" },
+  { value: "3-5", label: "3-5 years" },
+  { value: "5-8", label: "5-8 years" },
+  { value: "8-10", label: "8-10 years" },
+  { value: "10-15", label: "10-15 years" },
+  { value: "15+", label: "15+ years" },
 ];
 
 const validationSchema = Yup.object().shape({
@@ -31,6 +48,7 @@ const validationSchema = Yup.object().shape({
   address: Yup.string().required("Address is required"),
   city: Yup.string().required("City is required"),
   state: Yup.string().required("State is required"),
+  country: Yup.string().required("Country is required"),
   dateOfBirth: Yup.date()
     .nullable()
     .max(new Date(), "Date of birth cannot be in the future"),
@@ -38,6 +56,14 @@ const validationSchema = Yup.object().shape({
     .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
     .required("Pincode is required"),
   employeeDescription: Yup.string().required("Description is required"),
+  gender: Yup.string().required("Gender is required"),
+  totalWorkExperience: Yup.string().required(
+    "Total work experience is required"
+  ),
+  noticePeriod: Yup.string().required("Notice period is required"),
+  currentSalary: Yup.string().nullable().optional(),
+  department: Yup.array().of(Yup.string().required("Department is required")),
+  industry: Yup.array().of(Yup.string().required("Industry is required")),
   education: Yup.array().of(
     Yup.object().shape({
       degree: Yup.string().required("Degree is required"),
@@ -70,6 +96,8 @@ export default function UserProfileUpdate() {
   const [resumeFile, setResumeFile] = useState(null);
   const [resumeFileName, setResumeFileName] = useState("");
   const [skills, setSkills] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [industries, setIndustries] = useState([]);
   const fileInputRef = useRef(null);
   const resumeFileInputRef = useRef(null);
   const [countries, setCountries] = useState([]);
@@ -82,16 +110,54 @@ export default function UserProfileUpdate() {
   const [isDragActive, setIsDragActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { jobCategories, jobTypes, loading } = useSelector(
-    (state) => state.job
-  );
+  // New states for department and industry dropdowns
+  const [departmentSearch, setDepartmentSearch] = useState("");
+  const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
+  const [industrySearch, setIndustrySearch] = useState("");
+  const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
 
-  console.log("Location Data Sample:", locationData?.[0]);
+  useEffect(() => {
+    dispatch(getuser());
+  }, [dispatch]);
+
+  const {
+    jobCategories,
+    jobTypes,
+    departments: departmentOptions,
+    salaryRanges,
+    loading,
+  } = useSelector((state) => state.job);
+  console.log("🚀salaryRanges --->", salaryRanges);
+  console.log("🚀jobCategories --->", jobCategories);
+  console.log("🚀departments --->", departmentOptions);
 
   useEffect(() => {
     dispatch(getJobCategories());
     dispatch(getJobTypes());
+    dispatch(getDepartments());
+    dispatch(getSalaryData());
   }, [dispatch]);
+
+  // Transform API data for dropdowns
+  const salaryOptions =
+    salaryRanges?.map((range) => ({
+      value: range._id,
+      label: range.range,
+    })) || [];
+
+  const departmentSelectOptions =
+    departmentOptions?.map((dept) => ({
+      value: dept._id,
+      label: dept.name,
+    })) || [];
+
+  const industrySelectOptions =
+    jobCategories?.map((category) => ({
+      value: category._id,
+      label: category.title,
+    })) || [];
+
+  console.log("Location Data Sample:", locationData?.[0]);
 
   useEffect(() => {
     if (user?.profilePhotoUrl) {
@@ -122,9 +188,13 @@ export default function UserProfileUpdate() {
     currentPassword: "",
     newPassword: "",
     jobType: "",
-    department: "",
+    department: [],
     category: "",
     salaryRange: "",
+    industry: [],
+    totalWorkExperience: "",
+    noticePeriod: "",
+    currentSalary: "",
     preferredLocations: "",
     education: [
       {
@@ -181,9 +251,7 @@ export default function UserProfileUpdate() {
       // Append all form fields
       Object.keys(values).forEach((key) => {
         if (values[key] !== null && values[key] !== undefined) {
-          if (
-            ["skills", "education", "experience", "preferences"].includes(key)
-          ) {
+          if (["education", "experience"].includes(key)) {
             formData.append(key, JSON.stringify(values[key]));
           } else {
             formData.append(key, values[key]);
@@ -204,17 +272,33 @@ export default function UserProfileUpdate() {
       // Append skills
       formData.append("skills", JSON.stringify(skills));
 
-      // Create preferences object with preferred locations
+      // Append departments and industries
+      formData.append("departments", JSON.stringify(departments));
+      formData.append("industries", JSON.stringify(industries));
+
+      // Create preferences object with preferred locations (OLD LOGIC)
       const preferences = {
         jobTypes: values.jobType ? [values.jobType] : [],
-        department: values.department ? [values.department] : [],
+        department: departments, // Use departments from state
         category: values.category ? [values.category] : [],
         salary_range: values.salaryRange || "",
         preffered_locations: preferredLocations, // Add preferred locations from state
+        industry: industries, // Use industries from state
       };
 
-      // Append preferences
+      // Append preferences (OLD LOGIC)
       formData.append("preferences", JSON.stringify(preferences));
+
+      // Append professional fields
+      if (values.totalWorkExperience) {
+        formData.append("totalWorkExperience", values.totalWorkExperience);
+      }
+      if (values.noticePeriod) {
+        formData.append("noticePeriod", values.noticePeriod);
+      }
+      if (values.currentSalary) {
+        formData.append("currentSalary", values.currentSalary);
+      }
 
       const data = await dispatch(
         updateUserProfileWithResume(formData, {
@@ -249,6 +333,22 @@ export default function UserProfileUpdate() {
 
   useEffect(() => {
     if (user) {
+      // Initialize departments and industries from user data
+      const userDepartments = user.department
+        ? Array.isArray(user.department)
+          ? user.department
+          : [user.department]
+        : [];
+      const userIndustries = user.industry
+        ? Array.isArray(user.industry)
+          ? user.industry
+          : [user.industry]
+        : [];
+
+      // Extract IDs if objects
+      const departmentIds = userDepartments.map((dept) => dept._id || dept);
+      const industryIds = userIndustries.map((ind) => ind._id || ind);
+
       formik.setValues({
         ...defaultInitialValues,
         name: user.name || "",
@@ -265,6 +365,11 @@ export default function UserProfileUpdate() {
         state: user.state || "",
         country: user.country || "",
         pincode: user.pincode || "",
+        totalWorkExperience: user.totalWorkExperience || "",
+        noticePeriod: user.noticePeriod || "",
+        currentSalary: user.currentSalary || "",
+        department: departmentIds,
+        industry: industryIds,
         education:
           user.education?.length > 0
             ? user.education
@@ -273,16 +378,26 @@ export default function UserProfileUpdate() {
           user.experience?.length > 0
             ? user.experience
             : defaultInitialValues.experience,
-        jobType: user.preferences?.jobTypes?.[0] || "",
-        department: user.preferences?.department?.[0] || "",
-        category: user.preferences?.category?.[0] || "",
-        salaryRange: user.preferences?.salary_range || "",
+        jobType:
+          user.preferences?.jobTypes?.[0]?._id ||
+          user.preferences?.jobTypes?.[0] ||
+          "",
+        category:
+          user.preferences?.category?.[0]?._id ||
+          user.preferences?.category?.[0] ||
+          "",
+        salaryRange:
+          user.preferences?.salary_range?._id ||
+          user.preferences?.salary_range ||
+          "",
       });
 
       setSkills(user.skills || []);
-
-      // Add this line to set preferred locations state
       setPreferredLocations(user.preferences?.preffered_locations || []);
+
+      // Set departments and industries for display
+      setDepartments(departmentIds);
+      setIndustries(industryIds);
     }
   }, [user]);
 
@@ -327,6 +442,64 @@ export default function UserProfileUpdate() {
     const newLocations = [...preferredLocations];
     newLocations.splice(index, 1);
     setPreferredLocations(newLocations);
+  };
+
+  // Department functions
+  const addDepartment = (departmentValue = null) => {
+    const valueToAdd = departmentValue || departmentSearch.trim();
+    if (valueToAdd && !departments.includes(valueToAdd)) {
+      const newDepartments = [...departments, valueToAdd];
+      setDepartments(newDepartments);
+      formik.setFieldValue("department", newDepartments);
+    }
+    setDepartmentSearch("");
+    setShowDepartmentDropdown(false);
+  };
+
+  const removeDepartment = (index) => {
+    const newDepartments = [...departments];
+    newDepartments.splice(index, 1);
+    setDepartments(newDepartments);
+    formik.setFieldValue("department", newDepartments);
+  };
+
+  // Industry functions
+  const addIndustry = (industryValue = null) => {
+    const valueToAdd = industryValue || industrySearch.trim();
+    if (valueToAdd && !industries.includes(valueToAdd)) {
+      const newIndustries = [...industries, valueToAdd];
+      setIndustries(newIndustries);
+      formik.setFieldValue("industry", newIndustries);
+    }
+    setIndustrySearch("");
+    setShowIndustryDropdown(false);
+  };
+
+  const removeIndustry = (index) => {
+    const newIndustries = [...industries];
+    newIndustries.splice(index, 1);
+    setIndustries(newIndustries);
+    formik.setFieldValue("industry", newIndustries);
+  };
+
+  // Filter departments based on search
+  const getFilteredDepartments = () => {
+    if (!departmentSearch) return departmentSelectOptions.slice(0, 50);
+
+    const searchLower = departmentSearch.toLowerCase();
+    return departmentSelectOptions
+      .filter((dept) => dept.label.toLowerCase().includes(searchLower))
+      .slice(0, 50);
+  };
+
+  // Filter industries based on search
+  const getFilteredIndustries = () => {
+    if (!industrySearch) return industrySelectOptions.slice(0, 50);
+
+    const searchLower = industrySearch.toLowerCase();
+    return industrySelectOptions
+      .filter((industry) => industry.label.toLowerCase().includes(searchLower))
+      .slice(0, 50);
   };
 
   // Filter cities based on search (with performance optimization)
@@ -434,13 +607,6 @@ export default function UserProfileUpdate() {
     setSkills(newSkills);
   };
 
-  const togglePasswordVisibility = (fieldId) => {
-    const passwordInput = document.getElementById(fieldId);
-    const type =
-      passwordInput.getAttribute("type") === "password" ? "text" : "password";
-    passwordInput.setAttribute("type", type);
-  };
-
   const handleCountryChange = (e, preserveExisting = false) => {
     const selectedCountry = e.target.value;
 
@@ -495,14 +661,31 @@ export default function UserProfileUpdate() {
     }
   };
 
-  // Add this useEffect
+  // Add click outside handlers for all dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Location dropdown
       if (
         showLocationDropdown &&
         !event.target.closest(".user-upt-profile-skill-input-container")
       ) {
         setShowLocationDropdown(false);
+      }
+
+      // Department dropdown
+      if (
+        showDepartmentDropdown &&
+        !event.target.closest(".department-dropdown-container")
+      ) {
+        setShowDepartmentDropdown(false);
+      }
+
+      // Industry dropdown
+      if (
+        showIndustryDropdown &&
+        !event.target.closest(".industry-dropdown-container")
+      ) {
+        setShowIndustryDropdown(false);
       }
     };
 
@@ -510,7 +693,7 @@ export default function UserProfileUpdate() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showLocationDropdown]);
+  }, [showLocationDropdown, showDepartmentDropdown, showIndustryDropdown]);
 
   return (
     <>
@@ -637,13 +820,14 @@ export default function UserProfileUpdate() {
                         </div>
                         <div className="col-md-6 user-upt-profile-form-group">
                           <label className="user-upt-profile-form-label">
-                            Gender
+                            Gender *
                           </label>
                           <select
                             className="form-select user-upt-profile-form-control"
                             name="gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
                           >
                             <option value="">Select Gender</option>
                             <option value="male">Male</option>
@@ -653,6 +837,11 @@ export default function UserProfileUpdate() {
                               Prefer not to say
                             </option>
                           </select>
+                          {formik.touched.gender && formik.errors.gender && (
+                            <div className="text-danger">
+                              {formik.errors.gender}
+                            </div>
+                          )}
                         </div>
                         <div className="col-md-6 user-upt-profile-form-group">
                           <label className="user-upt-profile-form-label">
@@ -682,7 +871,7 @@ export default function UserProfileUpdate() {
 
                       <div className="col-md-12 user-upt-profile-form-group">
                         <label className="user-upt-profile-form-label">
-                          Description
+                          Description *
                         </label>
                         <textarea
                           className="form-control user-upt-profile-form-control"
@@ -742,6 +931,7 @@ export default function UserProfileUpdate() {
                         className="form-control user-upt-profile-form-control"
                         value={formik.values.country}
                         onChange={handleCountryChange}
+                        onBlur={formik.handleBlur}
                       >
                         <option value="">Select Country</option>
                         {countries.map((country) => (
@@ -767,6 +957,7 @@ export default function UserProfileUpdate() {
                         className="form-control user-upt-profile-form-control"
                         value={formik.values.state}
                         onChange={handleStateChange}
+                        onBlur={formik.handleBlur}
                         disabled={!formik.values.country}
                       >
                         <option value="">Select State</option>
@@ -791,6 +982,7 @@ export default function UserProfileUpdate() {
                         className="form-control user-upt-profile-form-control"
                         value={formik.values.city}
                         onChange={handleCityChange}
+                        onBlur={formik.handleBlur}
                         disabled={!formik.values.state}
                       >
                         <option value="">Select City</option>
@@ -817,6 +1009,7 @@ export default function UserProfileUpdate() {
                         name="pincode"
                         value={formik.values.pincode}
                         onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                         required
                       />
                       {formik.touched.pincode && formik.errors.pincode && (
@@ -824,6 +1017,298 @@ export default function UserProfileUpdate() {
                           {formik.errors.pincode}
                         </div>
                       )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Professional Information Card */}
+              <div
+                className="user-upt-profile-card"
+                style={{ overflow: "visible" }}
+              >
+                <div className="user-upt-profile-card-header">
+                  <i className="bi bi-briefcase me-2"></i> Professional
+                  Information
+                </div>
+                <div
+                  className="user-upt-profile-card-body"
+                  style={{ overflow: "visible" }}
+                >
+                  <div className="row">
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <label className="user-upt-profile-form-label">
+                        Total Work Experience *
+                      </label>
+                      <select
+                        className="form-select user-upt-profile-form-control"
+                        name="totalWorkExperience"
+                        value={formik.values.totalWorkExperience}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      >
+                        <option value="">Select Experience</option>
+                        {totalExperienceOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.totalWorkExperience &&
+                        formik.errors.totalWorkExperience && (
+                          <div className="text-danger">
+                            {formik.errors.totalWorkExperience}
+                          </div>
+                        )}
+                    </div>
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <label className="user-upt-profile-form-label">
+                        Notice Period *
+                      </label>
+                      <select
+                        className="form-select user-upt-profile-form-control"
+                        name="noticePeriod"
+                        value={formik.values.noticePeriod}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      >
+                        <option value="">Select Notice Period</option>
+                        {noticePeriodOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.noticePeriod &&
+                        formik.errors.noticePeriod && (
+                          <div className="text-danger">
+                            {formik.errors.noticePeriod}
+                          </div>
+                        )}
+                    </div>
+
+                    {/* Department - Multiple Select with Dropdown like Skills */}
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <label className="user-upt-profile-form-label">
+                        Department *
+                      </label>
+                      <div
+                        className="user-upt-profile-skill-input-container justify-content-between department-dropdown-container"
+                        style={{ position: "relative" }}
+                      >
+                        <input
+                          type="text"
+                          className="form-control user-upt-profile-form-control"
+                          placeholder="Search for a department..."
+                          value={departmentSearch}
+                          onChange={(e) => setDepartmentSearch(e.target.value)}
+                          onFocus={() => setShowDepartmentDropdown(true)}
+                          style={{ width: "100%" }}
+                        />
+
+                        {showDepartmentDropdown && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "100%",
+                              left: 0,
+                              right: 0,
+                              maxHeight: "200px",
+                              overflowY: "auto",
+                              backgroundColor: "white",
+                              border: "1px solid #ddd",
+                              borderRadius: "4px",
+                              marginTop: "4px",
+                              zIndex: 10000,
+                              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            }}
+                            className="custom-scrollbar"
+                          >
+                            {getFilteredDepartments().length > 0 ? (
+                              getFilteredDepartments().map((dept, index) => (
+                                <div
+                                  key={index}
+                                  onClick={() => addDepartment(dept.value)}
+                                  style={{
+                                    padding: "10px 15px",
+                                    cursor: "pointer",
+                                    borderBottom: "1px solid #f0f0f0",
+                                    transition: "background-color 0.2s",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "#f8f9fa")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "white")
+                                  }
+                                >
+                                  <div style={{ fontWeight: "500" }}>
+                                    {dept.label}
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div
+                                style={{
+                                  padding: "15px",
+                                  textAlign: "center",
+                                  color: "#6c757d",
+                                }}
+                              >
+                                No departments found
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div id="departmentsContainer" className="mt-2">
+                        {departments.map((department, index) => (
+                          <div
+                            key={index}
+                            className="user-upt-profile-skill-badge"
+                          >
+                            {departmentSelectOptions.find(
+                              (dept) => dept.value === department
+                            )?.label || department}
+                            <span
+                              className="user-upt-profile-skill-remove"
+                              onClick={() => removeDepartment(index)}
+                            >
+                              ×
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      {formik.touched.department &&
+                        formik.errors.department && (
+                          <div className="text-danger">
+                            {formik.errors.department}
+                          </div>
+                        )}
+                    </div>
+
+                    {/* Industry - Multiple Select with Dropdown like Skills */}
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <label className="user-upt-profile-form-label">
+                        Which Community you prefered *
+                      </label>
+                      <div
+                        className="user-upt-profile-skill-input-container justify-content-between industry-dropdown-container"
+                        style={{ position: "relative" }}
+                      >
+                        <input
+                          type="text"
+                          className="form-control user-upt-profile-form-control"
+                          placeholder="Search for a Community..."
+                          value={industrySearch}
+                          onChange={(e) => setIndustrySearch(e.target.value)}
+                          onFocus={() => setShowIndustryDropdown(true)}
+                          style={{ width: "100%" }}
+                        />
+
+                        {showIndustryDropdown && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "100%",
+                              left: 0,
+                              right: 0,
+                              maxHeight: "200px",
+                              overflowY: "auto",
+                              backgroundColor: "white",
+                              border: "1px solid #ddd",
+                              borderRadius: "4px",
+                              marginTop: "4px",
+                              zIndex: 10000,
+                              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            }}
+                            className="custom-scrollbar"
+                          >
+                            {getFilteredIndustries().length > 0 ? (
+                              getFilteredIndustries().map((industry, index) => (
+                                <div
+                                  key={index}
+                                  onClick={() => addIndustry(industry.value)}
+                                  style={{
+                                    padding: "10px 15px",
+                                    cursor: "pointer",
+                                    borderBottom: "1px solid #f0f0f0",
+                                    transition: "background-color 0.2s",
+                                  }}
+                                  onMouseEnter={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "#f8f9fa")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    (e.currentTarget.style.backgroundColor =
+                                      "white")
+                                  }
+                                >
+                                  <div style={{ fontWeight: "500" }}>
+                                    {industry.label}
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div
+                                style={{
+                                  padding: "15px",
+                                  textAlign: "center",
+                                  color: "#6c757d",
+                                }}
+                              >
+                                No job categories found
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div id="industriesContainer" className="mt-2">
+                        {industries.map((industry, index) => (
+                          <div
+                            key={index}
+                            className="user-upt-profile-skill-badge"
+                          >
+                            {industrySelectOptions.find(
+                              (ind) => ind.value === industry
+                            )?.label || industry}
+                            <span
+                              className="user-upt-profile-skill-remove"
+                              onClick={() => removeIndustry(index)}
+                            >
+                              ×
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      {formik.touched.industry && formik.errors.industry && (
+                        <div className="text-danger">
+                          {formik.errors.industry}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="col-md-6 user-upt-profile-form-group">
+                      <label className="user-upt-profile-form-label">
+                        Current Annual Salary (optional)
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control user-upt-profile-form-control"
+                        name="currentSalary"
+                        placeholder="Enter your current salary EX.10LPA"
+                        value={formik.values.currentSalary}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      />
+                      {formik.touched.currentSalary &&
+                        formik.errors.currentSalary && (
+                          <div className="text-danger">
+                            {formik.errors.currentSalary}
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -989,6 +1474,7 @@ export default function UserProfileUpdate() {
                                       .graduationYear
                                   }
                                   onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
                                 />
                                 {formik.touched.education?.[index]
                                   ?.graduationYear &&
@@ -1115,6 +1601,7 @@ export default function UserProfileUpdate() {
                                   className="form-control user-upt-profile-form-control"
                                   name={`experience[${index}].startDate`}
                                   onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
                                   value={moment(
                                     formik.values.experience[index].startDate
                                   ).format("YYYY-MM-DD")}
@@ -1142,6 +1629,7 @@ export default function UserProfileUpdate() {
                                   placeholder="YYYY-MM-DD"
                                   name={`experience[${index}].endDate`}
                                   onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
                                   value={moment(
                                     formik.values.experience[index].endDate
                                   ).format("YYYY-MM-DD")}
@@ -1173,6 +1661,7 @@ export default function UserProfileUpdate() {
                                   placeholder="Describe your responsibilities and achievements"
                                   name={`experience[${index}].description`}
                                   onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
                                   value={
                                     formik.values.experience[index].description
                                   }

@@ -23,6 +23,98 @@ const JobSeekerProfile = () => {
     return <div>Loading...</div>;
   }
 
+  // Helper function to safely get salary range
+  const getSalaryRange = () => {
+    if (!user.preferences?.salary_range) return "Not specified";
+
+    if (typeof user.preferences.salary_range === "string") {
+      return user.preferences.salary_range;
+    }
+
+    if (user.preferences.salary_range.range) {
+      return user.preferences.salary_range.range;
+    }
+
+    return "Not specified";
+  };
+
+  // Helper function to safely get work status
+  const getWorkStatus = () => {
+    return user.workStatus || "Not specified";
+  };
+
+  // Helper function to safely get employee description
+  const getEmployeeDescription = () => {
+    return user.employeeDescription || "Not specified";
+  };
+
+  // Helper function to safely get current position
+  const getCurrentPosition = () => {
+    if (user.experience && user.experience.length > 0) {
+      return user.experience[0].position;
+    }
+    return "Profession not specified";
+  };
+
+  // Helper function to safely get resume URL
+  const getResumeUrl = () => {
+    if (!user.resume) return "#";
+
+    const resumePath = user.resume.replace(/^src[\\/]/, "");
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resumePath}`;
+  };
+
+  // Helper function to safely get industries
+  const getIndustries = () => {
+    if (!user.industry || !Array.isArray(user.industry)) return [];
+    return user.industry.filter((ind) => ind && ind.title);
+  };
+
+  // Helper functions for preferences
+  const getJobTypes = () => {
+    if (!user.preferences?.jobTypes) return [];
+    return user.preferences.jobTypes.map((job) => job.name || "Not specified");
+  };
+
+  const getDepartments = () => {
+    if (!user.preferences?.department) return [];
+    // Remove duplicates based on _id
+    const uniqueDepartments = user.preferences.department.filter(
+      (dept, index, self) => index === self.findIndex((d) => d._id === dept._id)
+    );
+    return uniqueDepartments.map((dept) => dept.name || "Not specified");
+  };
+
+  const getIndustry = () => {
+    if (!user.preferences?.industry) return "Not specified";
+
+    if (typeof user.preferences.industry === "string") {
+      return user.preferences.industry;
+    }
+
+    if (user.preferences.industry.title) {
+      return user.preferences.industry.title;
+    }
+
+    return "Not specified";
+  };
+
+  const getPreferredLocations = () => {
+    if (!user.preferences?.preffered_locations) return [];
+    return user.preferences.preffered_locations;
+  };
+
+  const hasPreferences = () => {
+    return (
+      user.preferences &&
+      (user.preferences.jobTypes?.length > 0 ||
+        user.preferences.department?.length > 0 ||
+        user.preferences.salary_range ||
+        user.preferences.industry ||
+        user.preferences.preffered_locations?.length > 0)
+    );
+  };
+
   return (
     <>
       <Layout>
@@ -105,19 +197,37 @@ const JobSeekerProfile = () => {
                   <h2 className="jobseeker-profile-name">{user.name}</h2>
                   <p className="jobseeker-profile-title">
                     <i className="bi bi-briefcase me-2"></i>
-                    {user.experience && user.experience.length > 0
-                      ? user.experience[0].position
-                      : "Profession not specified"}
+                    {getCurrentPosition()}
                   </p>
-                  <div className="jobseeker-rating">
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-fill"></i>
-                    <i className="bi bi-star-half"></i>
-                    <span className="text-dark ms-2">(69 reviews)</span>
-                  </div>
                 </div>
+
+                {/* Industries Section */}
+                {getIndustries().length > 0 && (
+                  <div className="jobseeker-industries-container">
+                    <h6 className="jobseeker-industries-title">
+                      <i className="bi bi-building me-2"></i>Communitys
+                    </h6>
+                    <div className="jobseeker-industries-list">
+                      {getIndustries().map((industry, index) => (
+                        <div key={index} className="jobseeker-industry-item">
+                          {industry.image && (
+                            <img
+                              src={industry.image}
+                              alt={industry.title}
+                              className="jobseeker-industry-icon"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          )}
+                          <span className="jobseeker-industry-name">
+                            {industry.title}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-4">
                   <div className="jobseeker-contact-info">
@@ -219,6 +329,19 @@ const JobSeekerProfile = () => {
                         Education
                       </button>
                     </li>
+                    {hasPreferences() && (
+                      <li className="nav-item" role="presentation">
+                        <button
+                          className={`nav-link ${
+                            activeTab === "preferences" ? "active" : ""
+                          }`}
+                          onClick={() => setActiveTab("preferences")}
+                        >
+                          <i className="bi bi-heart me-2"></i>
+                          Preferences
+                        </button>
+                      </li>
+                    )}
                   </ul>
                 </div>
 
@@ -232,9 +355,7 @@ const JobSeekerProfile = () => {
                           <h5 className="jobseeker-section-title">
                             <i className="bi bi-info-circle me-2"></i>About Me
                           </h5>
-                          <p className="fw-bold">
-                            {user.employeeDescription || "Not specified"}
-                          </p>
+                          <p className="fw-bold">{getEmployeeDescription()}</p>
                         </div>
                       </div>
 
@@ -243,9 +364,7 @@ const JobSeekerProfile = () => {
                           <h5 className="jobseeker-section-title">
                             <i className="bi bi-award me-2"></i>Work Status
                           </h5>
-                          <p className="fw-bold">
-                            {user.workStatus || "Not specified"}
-                          </p>
+                          <p className="fw-bold">{getWorkStatus()}</p>
                         </div>
                       </div>
 
@@ -275,11 +394,7 @@ const JobSeekerProfile = () => {
                             <i className="bi bi-currency-dollar me-2"></i>
                             Salary Expectations
                           </h5>
-                          <p className="fw-bold">
-                            {user.preferences && user.preferences.salary_range
-                              ? user.preferences.salary_range
-                              : "Not specified"}
-                          </p>
+                          <p className="fw-bold">{getSalaryRange()}</p>
                         </div>
                       </div>
                     </div>
@@ -344,14 +459,103 @@ const JobSeekerProfile = () => {
                       )}
                     </div>
                   )}
+
+                  {/* Preferences Tab */}
+                  {activeTab === "preferences" && hasPreferences() && (
+                    <div>
+                      <h4 className="jobseeker-section-title">
+                        Job Preferences
+                      </h4>
+
+                      {/* Job Types */}
+                      {getJobTypes().length > 0 && (
+                        <div className="jobseeker-preference-section">
+                          <h5 className="jobseeker-section-title">
+                            <i className="bi bi-briefcase me-2"></i>Preferred
+                            Job Types
+                          </h5>
+                          <div className="d-flex flex-wrap">
+                            {getJobTypes().map((type, index) => (
+                              <span
+                                key={index}
+                                className="jobseeker-preference-badge"
+                              >
+                                {type}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Departments */}
+                      {getDepartments().length > 0 && (
+                        <div className="jobseeker-preference-section">
+                          <h5 className="jobseeker-section-title">
+                            <i className="bi bi-building me-2"></i>Preferred
+                            Departments
+                          </h5>
+                          <div className="d-flex flex-wrap">
+                            {getDepartments().map((dept, index) => (
+                              <span
+                                key={index}
+                                className="jobseeker-preference-badge"
+                              >
+                                {dept}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Industry */}
+                      {getIndustry() !== "Not specified" && (
+                        <div className="jobseeker-preference-section">
+                          <h5 className="jobseeker-section-title">
+                            <i className="bi bi-industry me-2"></i>Preferred
+                            Industry
+                          </h5>
+                          <p className="fw-bold">{getIndustry()}</p>
+                        </div>
+                      )}
+
+                      {/* Preferred Locations */}
+                      {getPreferredLocations().length > 0 && (
+                        <div className="jobseeker-preference-section">
+                          <h5 className="jobseeker-section-title">
+                            <i className="bi bi-geo-alt me-2"></i>Preferred
+                            Locations
+                          </h5>
+                          <div className="d-flex flex-wrap">
+                            {getPreferredLocations().map((location, index) => (
+                              <span
+                                key={index}
+                                className="jobseeker-preference-badge"
+                              >
+                                {location}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Salary Range */}
+                      {getSalaryRange() !== "Not specified" && (
+                        <div className="jobseeker-preference-section">
+                          <h5 className="jobseeker-section-title">
+                            <i className="bi bi-currency-dollar me-2"></i>Salary
+                            Expectations
+                          </h5>
+                          <p className="fw-bold">{getSalaryRange()}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
                 <div className="jobseeker-action-buttons">
                   <a
-                    href={`${
-                      process.env.NEXT_PUBLIC_BACKEND_URL
-                    }/${user?.resume?.replace(/^src[\\/]/, "")}`}
+                    href={getResumeUrl()}
                     download
                     target="_blank"
                     rel="noopener noreferrer"
@@ -491,9 +695,91 @@ const JobSeekerProfile = () => {
             font-weight: 500;
           }
 
+          /* Industries Section Styles */
+          .jobseeker-industries-container {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 0 1rem 1rem 1rem;
+          }
+
+          .jobseeker-industries-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .jobseeker-industries-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+
+          .jobseeker-industry-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+          }
+
+          .jobseeker-industry-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+            border-color: #007bff;
+          }
+
+          .jobseeker-industry-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 2px solid #e9ecef;
+            flex-shrink: 0;
+          }
+
+          .jobseeker-industry-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #495057;
+            line-height: 1.4;
+          }
+
           /* Verified Badge */
           .verified-badge {
             font-size: 0.8rem;
+          }
+
+          /* Preference Styles */
+          .jobseeker-preference-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #007bff;
+          }
+
+          .jobseeker-preference-badge {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 0.25rem;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+            transition: all 0.3s ease;
+          }
+
+          .jobseeker-preference-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
           }
 
           /* Responsive Design */
@@ -515,6 +801,38 @@ const JobSeekerProfile = () => {
             .candidate-profile-missing-item {
               font-size: 0.75rem;
               padding: 3px 10px;
+            }
+
+            .jobseeker-preference-section {
+              padding: 1rem;
+              margin-bottom: 1.5rem;
+            }
+
+            .jobseeker-preference-badge {
+              padding: 0.4rem 0.8rem;
+              font-size: 0.8rem;
+            }
+
+            .jobseeker-industries-container {
+              margin: 0 0.5rem 1rem 0.5rem;
+              padding: 1rem;
+            }
+
+            .jobseeker-industries-title {
+              font-size: 0.85rem;
+            }
+
+            .jobseeker-industry-icon {
+              width: 28px;
+              height: 28px;
+            }
+
+            .jobseeker-industry-name {
+              font-size: 0.8rem;
+            }
+
+            .jobseeker-industry-item {
+              padding: 0.6rem;
             }
           }
         `}</style>

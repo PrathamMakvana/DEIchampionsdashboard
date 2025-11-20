@@ -138,7 +138,7 @@ export default function VerifyOTP() {
       );
 
       if (data?.success) {
-        navigate.push("/employee");
+        navigate.push("/employee/update-profile");
       } else {
         // clear OTPs if invalid
         setMobileOtpValues(["", "", "", "", "", ""]);

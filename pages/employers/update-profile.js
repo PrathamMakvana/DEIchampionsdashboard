@@ -4,17 +4,28 @@ import { useDispatch, useSelector } from "react-redux";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import CompanyImageGallery from "@/components/elements/ImageGallery";
-import { updateEmployersProfile } from "@/api/auth";
+import { getuser, updateEmployersProfile } from "@/api/auth";
 import Swal from "sweetalert2";
 import DynamicSelect from "@/components/elements/DynamicSelect";
-import { getJobCategories } from "@/api/job";
+import { getJobCategories, getDepartments } from "@/api/job";
 import * as Yup from "yup";
 import cityStateData from "@/utils/cityState.json";
 
 const states = cityStateData.data.map((item) => item.state);
 
+const companyTypes = [
+  "Private Limited",
+  "Public Limited",
+  "Partnership",
+  "Proprietorship",
+  "LLP (Limited Liability Partnership)",
+  "Non-Profit",
+  "Other",
+];
+
 export default function CompanyProfileUpdate() {
   const user = useSelector((state) => state.auth.user);
+  console.log("🚀user --->", user);
   const dispatch = useDispatch();
   const [logoPreview, setLogoPreview] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
@@ -38,11 +49,20 @@ export default function CompanyProfileUpdate() {
     }
   }, [user]);
 
-  const { jobCategories } = useSelector((state) => state.job);
+  const { jobCategories, departments } = useSelector((state) => state.job);
 
   useEffect(() => {
+    dispatch(getuser());
     dispatch(getJobCategories());
+    dispatch(getDepartments());
   }, [dispatch]);
+
+  // Convert departments to department options
+  const departmentOptions =
+    departments?.map((category) => ({
+      value: category._id,
+      label: category.name,
+    })) || [];
 
   // Yup validation schema
   const validationSchema = Yup.object().shape({
@@ -59,6 +79,10 @@ export default function CompanyProfileUpdate() {
     pincode: Yup.string()
       .required("Pincode is required")
       .matches(/^[0-9]{6}$/, "Pincode must be 6 digits"),
+    hiringFor: Yup.string().required("Hiring for is required"),
+    department: Yup.string().required("Department is required"),
+    companyType: Yup.string().required("Company type is required"),
+    gstNumber: Yup.string().optional(),
   });
 
   const formik = useFormik({
@@ -74,13 +98,15 @@ export default function CompanyProfileUpdate() {
       city: user?.city || "",
       state: user?.state || "",
       pincode: user?.pincode || "",
-
+      hiringFor: user?.hiringFor || "company",
+      department: user?.department?.[0]?._id || user?.department || "", // ✅ Fixed: using _id instead of name
+      companyType: user?.companyType || "",
+      gstNumber: user?.gstNumber || "",
       tagline: user?.tagline || "",
       aboutUs: user?.companyDescription || "",
       recruitments: user?.recruitments || "",
       people: user?.people || "",
-      category: user?.city || "",
-      salary: user?.city || "",
+      category: user?.category || "", // ✅ Fixed: was user?.city
       memberSince: user?.memberSince
         ? new Date(user.memberSince).toISOString().split("T")[0]
         : "",
@@ -384,6 +410,108 @@ export default function CompanyProfileUpdate() {
               </div>
             </div>
 
+            {/* Company Details Card - NEW SECTION */}
+            <div className="upd-pro-card mb-4">
+              <div className="upd-pro-card-header">
+                <i className="bi bi-building me-2"></i> Company Details
+              </div>
+              <div className="upd-pro-card-body">
+                <div className="row">
+                  <div className="col-md-6 upd-pro-form-group">
+                    <label className="upd-pro-form-label">Hiring For *</label>
+                    <select
+                      className={`form-select upd-pro-form-control ${
+                        formik.touched.hiringFor && formik.errors.hiringFor
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      name="hiringFor"
+                      value={formik.values.hiringFor}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    >
+                      <option value="company">Your company</option>
+                      <option value="consultancy">A consultancy</option>
+                    </select>
+                    {formik.touched.hiringFor && formik.errors.hiringFor && (
+                      <div className="invalid-feedback">
+                        {formik.errors.hiringFor}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="col-md-6 upd-pro-form-group">
+                    <label className="upd-pro-form-label">Department *</label>
+                    <select
+                      className={`form-select upd-pro-form-control ${
+                        formik.touched.department && formik.errors.department
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      name="department"
+                      value={formik.values.department}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    >
+                      <option value="">Select department</option>
+                      {departmentOptions.map((department) => (
+                        <option key={department.value} value={department.value}>
+                          {department.label}
+                        </option>
+                      ))}
+                    </select>
+                    {formik.touched.department && formik.errors.department && (
+                      <div className="invalid-feedback">
+                        {formik.errors.department}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="col-md-6 upd-pro-form-group">
+                    <label className="upd-pro-form-label">Company Type *</label>
+                    <select
+                      className={`form-select upd-pro-form-control ${
+                        formik.touched.companyType && formik.errors.companyType
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      name="companyType"
+                      value={formik.values.companyType}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    >
+                      <option value="">Select company type</option>
+                      {companyTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                    {formik.touched.companyType &&
+                      formik.errors.companyType && (
+                        <div className="invalid-feedback">
+                          {formik.errors.companyType}
+                        </div>
+                      )}
+                  </div>
+
+                  <div className="col-md-6 upd-pro-form-group">
+                    <label className="upd-pro-form-label">
+                      GST Number (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control upd-pro-form-control"
+                      name="gstNumber"
+                      value={formik.values.gstNumber}
+                      onChange={formik.handleChange}
+                      placeholder="Enter GST number"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Contact Information Card */}
             <div className="upd-pro-card mb-4">
               <div className="upd-pro-card-header">
@@ -393,7 +521,7 @@ export default function CompanyProfileUpdate() {
                 <div className="row">
                   <div className="col-md-6 upd-pro-form-group">
                     <label className="upd-pro-form-label">
-                      Email Address *
+                      Company Email Address *
                     </label>
                     <input
                       type="email"
@@ -408,6 +536,10 @@ export default function CompanyProfileUpdate() {
                       onBlur={formik.handleBlur}
                       required
                       disabled
+                      style={{
+                        backgroundColor: "#f5f5f5",
+                        cursor: "not-allowed",
+                      }}
                     />
                     {formik.touched.email && formik.errors.email && (
                       <div className="invalid-feedback">
@@ -431,6 +563,11 @@ export default function CompanyProfileUpdate() {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       required
+                      disabled
+                      style={{
+                        backgroundColor: "#f5f5f5",
+                        cursor: "not-allowed",
+                      }}
                     />
                     {formik.touched.mobile && formik.errors.mobile && (
                       <div className="invalid-feedback">
@@ -460,48 +597,6 @@ export default function CompanyProfileUpdate() {
                     )}
                   </div>
 
-                  {/* <div className="col-md-3 upd-pro-form-group">
-                    <label className="upd-pro-form-label">City *</label>
-                    <input
-                      type="text"
-                      className={`form-control upd-pro-form-control ${
-                        formik.touched.city && formik.errors.city
-                          ? "is-invalid"
-                          : ""
-                      }`}
-                      name="city"
-                      value={formik.values.city}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      required
-                    />
-                    {formik.touched.city && formik.errors.city && (
-                      <div className="invalid-feedback">
-                        {formik.errors.city}
-                      </div>
-                    )}
-                  </div>
-                  <div className="col-md-3 upd-pro-form-group">
-                    <label className="upd-pro-form-label">State *</label>
-                    <input
-                      type="text"
-                      className={`form-control upd-pro-form-control ${
-                        formik.touched.state && formik.errors.state
-                          ? "is-invalid"
-                          : ""
-                      }`}
-                      name="state"
-                      value={formik.values.state}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      required
-                    />
-                    {formik.touched.state && formik.errors.state && (
-                      <div className="invalid-feedback">
-                        {formik.errors.state}
-                      </div>
-                    )}
-                  </div> */}
                   <div className="col-md-3 upd-pro-form-group">
                     <label className="upd-pro-form-label">State *</label>
                     <select

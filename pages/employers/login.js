@@ -21,7 +21,28 @@ const LoginPage = () => {
   };
 
   const loginValidationSchema = Yup.object().shape({
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    email: Yup.string()
+      .email("Invalid email address")
+      .test("is-company-email", "Only company email is allowed", (value) => {
+        if (!value) return false;
+
+        // Block list (public domains)
+        const publicDomains = [
+          "gmail.com",
+          "yahoo.com",
+          "hotmail.com",
+          "outlook.com",
+          "live.com",
+          "icloud.com",
+          "aol.com",
+          "protonmail.com",
+          "zoho.com",
+        ];
+
+        const domain = value.split("@")[1];
+        return domain && !publicDomains.includes(domain.toLowerCase());
+      })
+      .required("Email is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
