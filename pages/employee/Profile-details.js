@@ -19,6 +19,32 @@ const JobSeekerProfile = () => {
     dispatch(getuserProfileCompletionData());
   }, []);
 
+  // Function to get progress bar color based on completion percentage
+  const getProgressBarColor = (percentage) => {
+    if (percentage <= 30) {
+      return {
+        backgroundColor: "#dc3545", // Red
+        textColor: "#721c24",
+        bgColor: "#f8d7da",
+        progressColor: "#dc3545", // Red progress bar
+      };
+    } else if (percentage <= 70) {
+      return {
+        backgroundColor: "#fd7e14", // Orange
+        textColor: "#856404",
+        bgColor: "#fff3cd",
+        progressColor: "#fd7e14", // Orange progress bar
+      };
+    } else {
+      return {
+        backgroundColor: "#28a745", // Green
+        textColor: "#155724",
+        bgColor: "#d4edda",
+        progressColor: "#28a745", // Green progress bar
+      };
+    }
+  };
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -115,46 +141,64 @@ const JobSeekerProfile = () => {
     );
   };
 
+  // Get progress bar colors based on current completion percentage
+  const progressColors = profileCompletionData
+    ? getProgressBarColor(profileCompletionData.profileCompletion)
+    : getProgressBarColor(0);
+
   return (
     <>
       <Layout>
         <div>
-          <div className="d-flex justify-content-end align-items-center mb-4">
-            <button
-              className="btn btn-sm btn-outline-secondary"
-              title="Edit"
-              onClick={() => router.push("/employee/update-profile")}
-            >
-              <i className="bi bi-pencil"></i>
-            </button>
-          </div>
-
           {/* Profile Completion Progress */}
           {profileCompletionData && (
-            <div className="candidate-profile-progress-container mb-4">
-              <div className="candidate-profile-progress-header">
-                <h4 className="candidate-profile-progress-title">
+            <div
+              className="candidate-profile-progress-container mb-4 p-3 rounded"
+              style={{
+                border: `1px solid ${progressColors.backgroundColor}33`,
+              }}
+            >
+              <div className="candidate-profile-progress-header d-flex justify-content-between align-items-center">
+                <h4
+                  className="candidate-profile-progress-title mb-0"
+                  style={{ color: progressColors.textColor }}
+                >
                   <i className="bi bi-graph-up me-2"></i>
                   Profile Completion
                 </h4>
-                <span className="candidate-profile-progress-percentage">
+                <span
+                  className="candidate-profile-progress-percentage fw-bold"
+                  style={{
+                    color: progressColors.textColor,
+                    backgroundColor: progressColors.backgroundColor + "20",
+                  }}
+                >
                   {profileCompletionData.profileCompletion}%
                 </span>
               </div>
-              <div className="candidate-profile-progress-bar">
+              <div className="candidate-profile-progress-bar mt-2 bg-light rounded-pill overflow-hidden">
                 <div
-                  className="candidate-profile-progress-fill"
+                  className="candidate-profile-progress-fill h-100 rounded-pill transition-all duration-500 ease-in-out"
                   style={{
                     width: `${profileCompletionData.profileCompletion}%`,
+                    backgroundColor: progressColors.progressColor,
                   }}
                 ></div>
               </div>
-              <p className="candidate-profile-progress-text">
-                Complete your profile to increase your chances of getting hired
+              <p
+                className="candidate-profile-progress-text mt-2 mb-0 small"
+                style={{ color: progressColors.textColor }}
+              >
+                {profileCompletionData.profileCompletion <= 30 &&
+                  "Complete more sections to improve your profile visibility"}
+                {profileCompletionData.profileCompletion > 30 &&
+                  profileCompletionData.profileCompletion <= 70 &&
+                  "Good progress! Keep completing sections to stand out"}
+                {profileCompletionData.profileCompletion > 70 &&
+                  "Excellent! Your profile is almost complete"}
               </p>
             </div>
           )}
-
           {/* Missing Fields Alert */}
           {profileCompletionData?.missingFields &&
             profileCompletionData.missingFields.length > 0 && (
@@ -186,14 +230,86 @@ const JobSeekerProfile = () => {
               {/* Left Profile Column */}
               <div className="col-lg-4 border-end">
                 <div className="jobseeker-profile-img-container">
-                  <img
-                    src={
-                      user.profilePhotoUrl ||
-                      "https://randomuser.me/api/portraits/men/32.jpg"
-                    }
-                    alt="Profile Photo"
-                    className="jobseeker-profile-img"
-                  />
+                  <div
+                    className="profile-image-wrapper"
+                    // onClick={() => router.push('/update-profile')}
+                  >
+                    <svg className="progress-ring" width="180" height="180">
+                      <circle
+                        className="progress-ring-circle-bg"
+                        stroke="#e9ecef"
+                        strokeWidth="6"
+                        fill="transparent"
+                        r="84"
+                        cx="90"
+                        cy="90"
+                      />
+                      <circle
+                        className="progress-ring-circle"
+                        stroke={progressColors.progressColor}
+                        strokeWidth="6"
+                        fill="transparent"
+                        r="84"
+                        cx="90"
+                        cy="90"
+                        style={{
+                          strokeDasharray: `${
+                            (84 *
+                              2 *
+                              Math.PI *
+                              (profileCompletionData?.profileCompletion || 0)) /
+                            100
+                          } ${84 * 2 * Math.PI}`,
+                          strokeDashoffset: 0,
+                          transform: "rotate(-90deg)",
+                          transformOrigin: "50% 50%",
+                          transition:
+                            "stroke-dasharray 0.8s ease-in-out, stroke 0.3s ease",
+                        }}
+                      />
+                    </svg>
+
+                    {/* Fixed Progress Percentage Badge at Bottom */}
+                    <div
+                      className="progress-percentage-badge"
+                      style={{
+                        backgroundColor: progressColors.progressColor,
+                        position: "absolute",
+                        bottom: "-15px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                        zIndex: 10,
+                        border: "3px solid white",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <span className="progress-percentage-text">
+                        {profileCompletionData?.profileCompletion || 0}%
+                      </span>
+                    </div>
+
+                    <div className="profile-image-inner">
+                      <img
+                        src={
+                          user.profilePhotoUrl ||
+                          "https://randomuser.me/api/portraits/men/32.jpg"
+                        }
+                        alt="Profile Photo"
+                        className="jobseeker-profile-img"
+                      />
+                      <div className="profile-image-overlay">
+                        <i className="bi bi-plus-circle-fill"></i>
+                      </div>
+                    </div>
+                  </div>
+
                   <h2 className="jobseeker-profile-name">{user.name}</h2>
                   <p className="jobseeker-profile-title">
                     <i className="bi bi-briefcase me-2"></i>
@@ -205,7 +321,7 @@ const JobSeekerProfile = () => {
                 {getIndustries().length > 0 && (
                   <div className="jobseeker-industries-container">
                     <h6 className="jobseeker-industries-title">
-                      <i className="bi bi-building me-2"></i>Communitys
+                      <i className="bi bi-building me-2"></i>Communities
                     </h6>
                     <div className="jobseeker-industries-list">
                       {getIndustries().map((industry, index) => (
@@ -350,6 +466,18 @@ const JobSeekerProfile = () => {
                   {/* About Tab */}
                   {activeTab === "about" && (
                     <div>
+                      <div className="section-header-with-edit">
+                        <h4 className="jobseeker-section-main-title">About</h4>
+                        <button
+                          className="edit-section-btn"
+                          onClick={() =>
+                            router.push("/employee/update-profile")
+                          }
+                        >
+                          <i className="bi bi-pencil-square"></i>
+                        </button>
+                      </div>
+
                       <div className="row mt-4">
                         <div className="col-md-6">
                           <h5 className="jobseeker-section-title">
@@ -388,7 +516,7 @@ const JobSeekerProfile = () => {
                         </div>
                       </div>
 
-                      <div className="row mt-4">
+                      <div className="row mt-4 mb-4">
                         <div className="col-md-6">
                           <h5 className="jobseeker-section-title">
                             <i className="bi bi-currency-dollar me-2"></i>
@@ -397,15 +525,37 @@ const JobSeekerProfile = () => {
                           <p className="fw-bold">{getSalaryRange()}</p>
                         </div>
                       </div>
+
+                      <div className=" me-4" style={{ marginTop: "3rem" }}>
+                        <a
+                          href={getResumeUrl()}
+                          download
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-primary"
+                        >
+                          <i className="bi bi-eye me-2"></i>View Resume
+                        </a>
+                      </div>
                     </div>
                   )}
 
                   {/* Experience Tab */}
                   {activeTab === "experience" && (
                     <div>
-                      <h4 className="jobseeker-section-title">
-                        Work Experience
-                      </h4>
+                      <div className="section-header-with-edit">
+                        <h4 className="jobseeker-section-main-title">
+                          Work Experience
+                        </h4>
+                        <button
+                          className="edit-section-btn"
+                          onClick={() =>
+                            router.push("/employee/update-profile")
+                          }
+                        >
+                          <i className="bi bi-pencil-square"></i>
+                        </button>
+                      </div>
 
                       {user.experience && user.experience.length > 0 ? (
                         user.experience.map((exp, index) => (
@@ -437,7 +587,19 @@ const JobSeekerProfile = () => {
                   {/* Education Tab */}
                   {activeTab === "education" && (
                     <div>
-                      <h4 className="jobseeker-section-title">Education</h4>
+                      <div className="section-header-with-edit">
+                        <h4 className="jobseeker-section-main-title">
+                          Education
+                        </h4>
+                        <button
+                          className="edit-section-btn"
+                          onClick={() =>
+                            router.push("/employee/update-profile")
+                          }
+                        >
+                          <i className="bi bi-pencil-square"></i>
+                        </button>
+                      </div>
 
                       {user.education && user.education.length > 0 ? (
                         user.education.map((edu, index) => (
@@ -463,9 +625,19 @@ const JobSeekerProfile = () => {
                   {/* Preferences Tab */}
                   {activeTab === "preferences" && hasPreferences() && (
                     <div>
-                      <h4 className="jobseeker-section-title">
-                        Job Preferences
-                      </h4>
+                      <div className="section-header-with-edit">
+                        <h4 className="jobseeker-section-main-title">
+                          Job Preferences
+                        </h4>
+                        <button
+                          className="edit-section-btn"
+                          onClick={() =>
+                            router.push("/employee/update-profile")
+                          }
+                        >
+                          <i className="bi bi-pencil-square"></i>
+                        </button>
+                      </div>
 
                       {/* Job Types */}
                       {getJobTypes().length > 0 && (
@@ -551,33 +723,147 @@ const JobSeekerProfile = () => {
                     </div>
                   )}
                 </div>
-
-                {/* Action Buttons */}
-                <div className="jobseeker-action-buttons">
-                  <a
-                    href={getResumeUrl()}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="jobseeker-btn-primary"
-                  >
-                    <i className="bi bi-eye me-2"></i>View Resume
-                  </a>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
         <style jsx>{`
-          /* Profile Completion Progress Styles - Clean Design */
+          /* Profile Image with Circular Progress */
+          .profile-image-wrapper {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 2rem auto 1rem;
+            cursor: pointer;
+          }
+
+          .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(0deg);
+          }
+
+          .progress-ring-circle-bg {
+            transition: stroke 0.3s ease;
+          }
+
+          .progress-ring-circle {
+            transition: stroke-dasharray 0.8s ease-in-out, stroke 0.3s ease;
+          }
+
+          .profile-image-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          }
+
+          .jobseeker-profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+          }
+
+          .profile-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 123, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+          }
+
+          .profile-image-overlay i {
+            font-size: 3rem;
+            color: white;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+          }
+
+          .jobseeker-profile-img-container {
+            text-align: center;
+            padding: 1rem 0;
+          }
+
+          .jobseeker-profile-name {
+            margin-top: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          .jobseeker-profile-title {
+            color: #6c757d;
+            font-size: 0.95rem;
+          }
+
+          /* Section Header with Edit Button */
+          .section-header-with-edit {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+          }
+
+          .jobseeker-section-main-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+          }
+
+          .edit-section-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+
+          .edit-section-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+            background: linear-gradient(135deg, #0056b3, #004085);
+          }
+
+          .edit-section-btn:active {
+            transform: translateY(0);
+          }
+
+          .edit-section-btn i {
+            font-size: 1.1rem;
+          }
+
+          /* Profile Completion Progress Styles - Clean Design with Dynamic Colors */
           .candidate-profile-progress-container {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
             border-radius: 12px;
             padding: 20px;
-            color: #495057;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
           }
 
           .candidate-profile-progress-header {
@@ -591,20 +877,17 @@ const JobSeekerProfile = () => {
             font-size: 1.2rem;
             font-weight: 600;
             margin: 0;
-            color: #495057;
           }
 
           .candidate-profile-progress-percentage {
             font-size: 1.5rem;
             font-weight: bold;
-            background: #e9ecef;
-            color: #495057;
             padding: 5px 12px;
             border-radius: 20px;
           }
 
           .candidate-profile-progress-bar {
-            height: 8px;
+            height: 10px;
             background: #e9ecef;
             border-radius: 10px;
             overflow: hidden;
@@ -613,9 +896,8 @@ const JobSeekerProfile = () => {
 
           .candidate-profile-progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #28a745, #20c997);
             border-radius: 10px;
-            transition: width 0.5s ease-in-out;
+            transition: width 0.8s ease-in-out, background-color 0.3s ease;
             position: relative;
             overflow: hidden;
           }
@@ -647,8 +929,19 @@ const JobSeekerProfile = () => {
 
           .candidate-profile-progress-text {
             font-size: 0.9rem;
-            color: #6c757d;
             margin: 0;
+          }
+
+          .transition-all {
+            transition: all 0.3s ease;
+          }
+
+          .duration-500 {
+            transition-duration: 0.5s;
+          }
+
+          .ease-in-out {
+            transition-timing-function: ease-in-out;
           }
 
           /* Missing Fields Styles */
@@ -715,6 +1008,30 @@ const JobSeekerProfile = () => {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
+          }
+
+          .progress-percentage-text {
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1;
+          }
+
+          .profile-image-wrapper:hover .progress-percentage-badge {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+          }
+
+          @media (max-width: 768px) {
+            .progress-percentage-badge {
+              width: 40px;
+              height: 40px;
+              bottom: 8px;
+            }
+
+            .progress-percentage-text {
+              font-size: 0.6rem;
+            }
           }
 
           .jobseeker-industry-item {
@@ -784,6 +1101,49 @@ const JobSeekerProfile = () => {
 
           /* Responsive Design */
           @media (max-width: 768px) {
+            .profile-image-wrapper {
+              width: 150px;
+              height: 150px;
+            }
+
+            .progress-ring {
+              width: 150px;
+              height: 150px;
+            }
+
+            .progress-ring circle {
+              r: 69;
+              cx: 75;
+              cy: 75;
+            }
+
+            .profile-image-inner {
+              width: 120px;
+              height: 120px;
+            }
+
+            .profile-image-overlay i {
+              font-size: 2.5rem;
+            }
+
+            .jobseeker-profile-name {
+              font-size: 1.3rem;
+            }
+
+            .section-header-with-edit {
+              flex-direction: row;
+              gap: 1rem;
+            }
+
+            .jobseeker-section-main-title {
+              font-size: 1.2rem;
+            }
+
+            .edit-section-btn {
+              padding: 0.4rem 0.8rem;
+              font-size: 0.9rem;
+            }
+
             .candidate-profile-progress-header {
               flex-direction: column;
               align-items: flex-start;

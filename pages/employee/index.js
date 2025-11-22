@@ -1,9 +1,14 @@
 "use client";
 import { getAuthUser, getResendVerifyEmail, getuser } from "@/api/auth";
 import Layout from "@/components/layout/Layout";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMyApplications, getMySavedJobs } from "@/api/job";
+import {
+  getMyApplications,
+  getMySavedJobs,
+  getRecommendedJobs,
+  applyJob,
+} from "@/api/job";
 import { requestForToken } from "@/utils/firebase";
 import { saveFcmToken } from "@/api/notification";
 import { toast } from "react-toastify";
@@ -20,58 +25,81 @@ import {
   FaEnvelope,
   FaExclamationTriangle,
   FaPaperPlane,
+  FaAngleDoubleLeft,
+  FaAngleLeft,
+  FaAngleRight,
+  FaAngleDoubleRight,
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 
 export default function Home() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  console.log("🚀user --->", user);
-  const { myApplications, mySavedJobs } = useSelector((state) => state.job);
+  const { myApplications, mySavedJobs, recommendedJobs, loading } = useSelector(
+    (state) => state.job
+  );
 
-  // Fetch applications & saved jobs
+  // States for recommended jobs pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 6;
+
+  // Fetch applications, saved jobs, and recommended jobs
   useEffect(() => {
     dispatch(getMyApplications());
     dispatch(getMySavedJobs());
     dispatch(getAuthUser());
     dispatch(getuser());
+    dispatch(getRecommendedJobs());
   }, [dispatch]);
 
-  
-  
-const hasRegisteredFcm = useRef(false);
+  // Pagination calculations for recommended jobs
+  const approvedRecommendedJobs =
+    recommendedJobs?.filter((job) => job.isApproved === "approved") || [];
 
-useEffect(() => {
-  if (hasRegisteredFcm.current) return;          // ⛔ Already executed, skip
-  if (!user?._id) return;                       // ⛔ User not ready, skip
+  // Pagination calculations using only approved jobs
+  const totalPages = Math.ceil(approvedRecommendedJobs.length / rowsPerPage);
 
-  const registerFcmToken = async () => {
-    const token = await requestForToken();
-    if (token) {
-      await dispatch(
-        saveFcmToken(
-          { 
-            fcmToken: token, 
-            userId: user._id,
-            deviceType: "web"
-          },
-          {
-            showSuccess: (msg) => toast.success(msg),
-            showError: (msg) => toast.error(msg),
-          }
-        )
-      );
-    }
-  };
+  const paginatedJobs = approvedRecommendedJobs.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
-  hasRegisteredFcm.current = true;              // ✅ Mark as executed
-  registerFcmToken();
-}, [user?._id]);
+  // Reset to first page when recommended jobs data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [recommendedJobs]);
 
+  // FCM Token Registration
+  const hasRegisteredFcm = useRef(false);
 
+  useEffect(() => {
+    if (hasRegisteredFcm.current) return;
+    if (!user?._id) return;
 
+    const registerFcmToken = async () => {
+      const token = await requestForToken();
+      if (token) {
+        await dispatch(
+          saveFcmToken(
+            {
+              fcmToken: token,
+              userId: user._id,
+              deviceType: "web",
+            },
+            {
+              showSuccess: (msg) => toast.success(msg),
+              showError: (msg) => toast.error(msg),
+            }
+          )
+        );
+      }
+    };
 
-  // Compute counts
+    hasRegisteredFcm.current = true;
+    registerFcmToken();
+  }, [user?._id]);
+
+  // Compute counts for dashboard cards
   const total = myApplications?.length || 0;
   const savedTotal = mySavedJobs?.length || 0;
 
@@ -97,8 +125,8 @@ useEffect(() => {
         .length || 0,
   };
 
-  // Cards with Font Awesome icons
-  const iconColor = "#007bff"; // Blue tone
+  // Dashboard cards with Font Awesome icons
+  const iconColor = "#007bff";
   const cards = [
     {
       title: "All Applied Applications",
@@ -108,14 +136,12 @@ useEffect(() => {
         "All Applications"
       )}`,
     },
-
     {
       title: "All Saved Jobs",
       count: savedTotal,
       icon: <FaBookmark size={40} color={iconColor} />,
       link: `/employee/save-jobs`,
     },
-
     {
       title: "Pending",
       count: statusCounts.Pending,
@@ -159,7 +185,6 @@ useEffect(() => {
   ];
 
   // Check if email is not verified
-
   const isEmailNotVerified = useMemo(() => {
     return user && !user.emailVerified;
   }, [user]);
@@ -193,6 +218,111 @@ useEffect(() => {
       });
     }
   };
+
+  // Recommended Jobs Functions
+  const getMatchBadge = (score) => {
+    if (score >= 90) {
+      return {
+        backgroundColor: "#D1FAE5",
+        color: "#065F46",
+        borderColor: "#A7F3D0",
+      };
+    } else if (score >= 80) {
+      return {
+        backgroundColor: "#DBEAFE",
+        color: "#1E40AF",
+        borderColor: "#BFDBFE",
+      };
+    } else if (score >= 70) {
+      return {
+        backgroundColor: "#FEF3C7",
+        color: "#92400E",
+        borderColor: "#FDE68A",
+      };
+    } else {
+      return {
+        backgroundColor: "#F3F4F6",
+        color: "#374151",
+        borderColor: "#E5E7EB",
+      };
+    }
+  };
+
+  const handleApplyJob = (jobId, jobTitle) => {
+    Swal.fire({
+      title: `Apply for ${jobTitle}?`,
+      text: "Your profile will be submitted for this position.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#10B981",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Yes, Apply",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(
+          applyJob(jobId, {
+            showSuccess: (msg) => Swal.fire("Applied!", msg, "success"),
+            showError: (msg) => Swal.fire("Error", msg, "error"),
+          })
+        );
+        dispatch(getRecommendedJobs());
+      }
+    });
+  };
+
+  // Function to strip HTML tags and truncate text
+  const truncateDescription = (html, maxLength = 50) => {
+    if (!html) return "No description available.";
+
+    // Remove HTML tags
+    const text = html.replace(/<[^>]*>/g, "");
+
+    // Truncate to maxLength characters
+    if (text.length <= maxLength) return text;
+
+    return text.substring(0, maxLength) + "...";
+  };
+
+  // Loading skeleton component for recommended jobs
+  const LoadingSkeleton = () => (
+    <div className="jobs-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-4">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          key={index}
+          className="job-card flex flex-col h-full border rounded-2xl shadow-md p-4 bg-gray-100 animate-pulse"
+        >
+          <div className="flex-grow">
+            <div className="job-card-header mb-3">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                </div>
+                <div className="h-6 bg-gray-300 rounded w-16"></div>
+              </div>
+            </div>
+            <div className="job-meta flex flex-wrap gap-3 mb-3">
+              <div className="h-4 bg-gray-300 rounded w-24"></div>
+              <div className="h-4 bg-gray-300 rounded w-20"></div>
+              <div className="h-4 bg-gray-300 rounded w-28"></div>
+            </div>
+            <div className="skills-section mb-3">
+              <div className="flex flex-wrap gap-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-6 bg-gray-300 rounded w-16"></div>
+                ))}
+              </div>
+            </div>
+            <div className="h-16 bg-gray-300 rounded mb-2"></div>
+          </div>
+          <div className="job-actions flex justify-between pt-3 border-t mt-auto">
+            <div className="h-6 bg-gray-300 rounded w-20"></div>
+            <div className="h-6 bg-gray-300 rounded w-24"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <Layout breadcrumbTitle="Dashboard" breadcrumbActive="Dashboard">
@@ -230,34 +360,275 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Dashboard Cards Grid */}
-      <div className="col-xxl-12 col-xl-12 col-lg-12">
+      {/* Recommended Jobs Section */}
+      <div className="col-xxl-12 col-xl-12 col-lg-12 mt-6">
         <div className="section-box">
-          <div className="row">
-            {cards.map((card, idx) => (
-              <div
-                key={idx}
-                className="col-xxl-3 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-4"
-              >
-                <Link href={card.link}>
-                  <div
-                    className="card-style-1 hover-up cursor-pointer transition-transform hover:-translate-y-1 text-center d-flex flex-column align-items-center justify-content-center"
-                    style={{
-                      height: "200px",
-                      borderRadius: "12px",
-                      boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
-                      padding: "20px",
-                      backgroundColor: "#fff",
-                    }}
-                  >
-                    <div className="mb-3">{card.icon}</div>
-                    <h3 className="fw-bold mb-1">{card.count}</h3>
-                    <p className="color-text-paragraph-2 mb-0">{card.title}</p>
-                  </div>
-                </Link>
+          {/* Reduced Height Header */}
+          <div
+            className="page-header mb-3"
+            style={{ minHeight: "auto", padding: "0.5rem 0" }}
+          >
+            <div className="header-content flex justify-between items-center">
+              <div className="">
+                <h4 className="page-title  font-bold mb-1 ps-3">
+                  Recommended Jobs
+                </h4>
+                <p className="page-subtitle text-gray-600 text-sm ps-3">
+                  Jobs matched to your profile and preferences
+                </p>
               </div>
-            ))}
+              <div className="header-stats text-gray-700 text-sm">
+                <span className="app-count font-medium">
+                  <span className="count-number">
+                    {recommendedJobs?.length || 0}
+                  </span>{" "}
+                  recommendations
+                </span>
+              </div>
+            </div>
           </div>
+
+          {/* Recommended Jobs List */}
+          {loading ? (
+            <LoadingSkeleton />
+          ) : (
+            <>
+              {paginatedJobs.length > 0 ? (
+                <div className="jobs-grid grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {paginatedJobs.map((job) => {
+                    const badgeStyle = getMatchBadge(
+                      job.recommendationScore || 0
+                    );
+                    const matchScore = job.recommendationScore || 0;
+
+                    return (
+                      <div
+                        key={job._id}
+                        className="job-card flex flex-col h-full border rounded-xl shadow-sm p-3 bg-white hover:shadow-md transition-shadow duration-300"
+                        style={{ minHeight: "280px" }}
+                      >
+                        {/* Content */}
+                        <div className="flex-grow">
+                          <div className="job-card-header mb-2">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1 leading-tight">
+                                <h3
+                                  className="job-title font-semibold text-base uppercase mb-0.5"
+                                  style={{ lineHeight: "1.2" }}
+                                >
+                                  {job.jobTitle}
+                                </h3>
+
+                                <p className="company-name text-xs text-gray-600">
+                                  {job.postedBy?.companyName || "Company Name"}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Meta Info */}
+                          <div className="job-meta flex flex-wrap gap-3 text-xs text-gray-600 mb-2">
+                            <span className="flex items-center gap-1">
+                              <i className="bi bi-geo-alt"></i>
+                              {job.city}, {job.state}
+                            </span>
+
+                            <span className="flex items-center gap-1">
+                              <i className="bi bi-briefcase"></i>{" "}
+                              {job.jobType?.name}
+                            </span>
+
+                            <span className="flex items-center gap-1">
+                              <i className="bi bi-cash"></i>{" "}
+                              {job?.salary?.range}
+                            </span>
+
+                            <span className="flex items-center gap-1">
+                              <i className="bi bi-diagram-3"></i>{" "}
+                              {job.category?.title}
+                            </span>
+
+                            <span className="flex items-center gap-1">
+                              <i className="bi bi-grid"></i>{" "}
+                              {job.department?.name}
+                            </span>
+
+                            <span className="flex items-center gap-1">
+                              <i className="bi bi-people"></i>{" "}
+                              {job.applicants?.length} Applicants
+                            </span>
+                          </div>
+
+                          {/* Skills */}
+                          {/* {job.tags && job.tags.length > 0 && (
+                            <div className="skills-section mb-2">
+                              <div className="flex flex-wrap gap-1">
+                                {job.tags.slice(0, 3).map((tag, index) => (
+                                  <span
+                                    key={index}
+                                    className="skill-tag px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                                {job.tags.length > 3 && (
+                                  <span className="skill-tag px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                                    +{job.tags.length - 3} more
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )} */}
+
+                          {/* Description */}
+                          <p
+                            className="job-description text-xs text-gray-700 mb-2"
+                            style={{
+                              flexGrow: "1",
+                              overflow: "hidden",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: "vertical",
+                              textOverflow: "ellipsis",
+                              lineHeight: "1.4",
+                            }}
+                          >
+                            {truncateDescription(job.jobDescription, 50)}
+                          </p>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="job-actions flex justify-between pt-2 border-t mt-auto">
+                          <Link
+                            className="btn-details text-blue-600 hover:underline flex items-center text-xs"
+                            href={`/employee/job-details/${job._id}`}
+                          >
+                            <i className="bi bi-eye me-1"></i> View Details
+                          </Link>
+
+                          <button
+                            className="btn-details text-blue-600 hover:underline flex items-center text-xs"
+                            onClick={() =>
+                              handleApplyJob(job._id, job.jobTitle)
+                            }
+                          >
+                            <i className="bi bi-send-check me-1"></i> Apply Now
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="col-span-3 text-center py-8">
+                  <div className="text-gray-400 mb-3">
+                    <i className="bi bi-briefcase text-4xl"></i>
+                  </div>
+                  <p className="text-gray-500 text-base mb-2">
+                    No recommended jobs found
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    Update your profile and skills to get better job
+                    recommendations
+                  </p>
+                </div>
+              )}
+
+              {/* Pagination - Only show if there are jobs */}
+              {paginatedJobs.length > 0 && (
+                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center px-2 py-2 border-t gap-2 mt-4">
+                  <div className="text-muted small text-center text-sm-start">
+                    Showing{" "}
+                    <span className="fw-semibold">
+                      {paginatedJobs.length > 0
+                        ? (currentPage - 1) * rowsPerPage + 1
+                        : 0}
+                    </span>{" "}
+                    to{" "}
+                    <span className="fw-semibold">
+                      {Math.min(
+                        currentPage * rowsPerPage,
+                        recommendedJobs.length
+                      )}
+                    </span>{" "}
+                    of{" "}
+                    <span className="fw-semibold">
+                      {recommendedJobs.length}
+                    </span>{" "}
+                    Recommendations
+                  </div>
+
+                  <div className="d-flex align-items-center gap-1">
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                      }}
+                    >
+                      <FaAngleDoubleLeft size={10} />
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      disabled={currentPage === 1}
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                      }}
+                    >
+                      <FaAngleLeft size={10} />
+                    </button>
+                    <span className="mx-2 fw-semibold small">
+                      Page {currentPage} of {totalPages || 1}
+                    </span>
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(p + 1, totalPages))
+                      }
+                      disabled={currentPage === totalPages || totalPages === 0}
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                      }}
+                    >
+                      <FaAngleRight size={10} />
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages || totalPages === 0}
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                      }}
+                    >
+                      <FaAngleDoubleRight size={10} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 

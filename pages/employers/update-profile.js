@@ -210,205 +210,268 @@ export default function CompanyProfileUpdate() {
           <form onSubmit={formik.handleSubmit}>
             {/* Basic Information Card */}
             <div className="upd-pro-card mb-4">
-              <div className="upd-pro-card-header">
-                <i className="bi bi-info-circle me-2"></i> Basic Information
+  <div className="upd-pro-card-header">
+    <i className="bi bi-info-circle me-2"></i> Basic Information
+  </div>
+
+  <div className="upd-pro-card-body">
+    <div className="row">
+      <div className="col-md-4 text-center">
+
+        {/* Avatar Wrapper */}
+        <div
+          className="upd-pro-avatar"
+          onClick={() => logoFileInputRef.current.click()}
+          style={{
+            cursor: "pointer",
+            width: "150px",
+            height: "150px",
+            borderRadius: "50%",
+            overflow: "hidden",
+            margin: "0 auto",
+            position: "relative",
+            border: "2px solid #ddd",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.querySelector(".hoverOverlay").style.opacity = 1;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.querySelector(".hoverOverlay").style.opacity = 0;
+          }}
+        >
+          {/* Avatar Image or Initials */}
+          {logoPreview ? (
+            <img
+              src={logoPreview}
+              alt="Company Logo"
+              style={{
+                height: "100%",
+                width: "100%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <span
+              id="logoInitials"
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "40px",
+                fontWeight: "bold",
+                background: "#f0f0f0",
+                color: "#555",
+              }}
+            >
+              {user?.companyName
+                ? user.companyName.substring(0, 2).toUpperCase()
+                : "KS"}
+            </span>
+          )}
+
+          {/* Hover Overlay */}
+     <div
+  className="hoverOverlay"
+  style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    height: "100%",
+    width: "100%",
+    background: "rgba(0,0,0,0.55)",
+    color: "#fff",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: "600",
+    opacity: 0,
+    transition: "opacity 0.3s ease",
+  }}
+>
+  <div
+    style={{
+      fontSize: "40px",
+      marginBottom: "5px",
+      lineHeight: "40px",
+    }}
+  >
+    +
+  </div>
+  <div
+    style={{
+      fontSize: "14px",
+      letterSpacing: "0.5px",
+    }}
+  >
+    Change Image
+  </div>
+</div>
+
+
+          <input
+            type="file"
+            ref={logoFileInputRef}
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleLogoUpload}
+          />
+        </div>
+
+        {/* Status */}
+        <div className="mb-3">
+          <span
+            className={`upd-pro-status-badge ${
+              verificationStatus === "Verified" ? "upd-pro-verified" : ""
+            }`}
+          >
+            {verificationStatus}
+          </span>
+        </div>
+
+        <div className="upd-pro-account-type">
+          Member Since:{" "}
+          {user?.memberSince
+            ? new Date(user.memberSince).toLocaleDateString()
+            : "2015"}
+        </div>
+      </div>
+
+      {/* RIGHT SIDE FIELDS REMAIN SAME */}
+      <div className="col-md-8">
+        <div className="row">
+
+          {/* Company Name */}
+          <div className="col-md-6 upd-pro-form-group">
+            <label className="upd-pro-form-label">Company Name *</label>
+            <input
+              type="text"
+              className={`form-control upd-pro-form-control ${
+                formik.touched.companyName && formik.errors.companyName
+                  ? "is-invalid"
+                  : ""
+              }`}
+              name="companyName"
+              value={formik.values.companyName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              required
+            />
+            {formik.touched.companyName && formik.errors.companyName && (
+              <div className="invalid-feedback">
+                {formik.errors.companyName}
               </div>
-              <div className="upd-pro-card-body">
-                <div className="row">
-                  <div className="col-md-4 text-center">
-                    <div
-                      className="upd-pro-avatar"
-                      onClick={() => logoFileInputRef.current.click()}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {logoPreview ? (
-                        <img
-                          src={logoPreview}
-                          alt="Company Logo"
-                          style={{
-                            height: "100%",
-                            width: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      ) : (
-                        <span id="logoInitials">
-                          {user?.companyName
-                            ? user.companyName.substring(0, 2).toUpperCase()
-                            : "KS"}
-                        </span>
-                      )}
-                      <input
-                        type="file"
-                        ref={logoFileInputRef}
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={handleLogoUpload}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <span
-                        className={`upd-pro-status-badge ${
-                          verificationStatus === "Verified"
-                            ? "upd-pro-verified"
-                            : ""
-                        }`}
-                      >
-                        {verificationStatus}
-                      </span>
-                    </div>
-                    <div className="upd-pro-account-type">
-                      Member Since:{" "}
-                      {user?.memberSince
-                        ? new Date(user.memberSince).toLocaleDateString()
-                        : "2015"}
-                    </div>
-                  </div>
-                  <div className="col-md-8">
-                    <div className="row">
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">
-                          Company Name *
-                        </label>
-                        <input
-                          type="text"
-                          className={`form-control upd-pro-form-control ${
-                            formik.touched.companyName &&
-                            formik.errors.companyName
-                              ? "is-invalid"
-                              : ""
-                          }`}
-                          name="companyName"
-                          value={formik.values.companyName}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          required
-                        />
-                        {formik.touched.companyName &&
-                          formik.errors.companyName && (
-                            <div className="invalid-feedback">
-                              {formik.errors.companyName}
-                            </div>
-                          )}
-                      </div>
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">
-                          Contact Person *
-                        </label>
-                        <input
-                          type="text"
-                          className={`form-control upd-pro-form-control ${
-                            formik.touched.name && formik.errors.name
-                              ? "is-invalid"
-                              : ""
-                          }`}
-                          name="name"
-                          value={formik.values.name}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          required
-                        />
-                        {formik.touched.name && formik.errors.name && (
-                          <div className="invalid-feedback">
-                            {formik.errors.name}
-                          </div>
-                        )}
-                      </div>
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">
-                          Member Since
-                        </label>
-                        <input
-                          type="date"
-                          className="form-control upd-pro-form-control"
-                          name="memberSince"
-                          value={formik.values.memberSince}
-                          onChange={formik.handleChange}
-                        />
-                      </div>
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">Website</label>
-                        <input
-                          type="url"
-                          className="form-control upd-pro-form-control"
-                          name="companyWebsite"
-                          value={formik.values.companyWebsite}
-                          onChange={formik.handleChange}
-                        />
-                      </div>
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">
-                          Company Size *
-                        </label>
-                        <select
-                          className={`form-select upd-pro-form-control ${
-                            formik.touched.companySize &&
-                            formik.errors.companySize
-                              ? "is-invalid"
-                              : ""
-                          }`}
-                          name="companySize"
-                          value={formik.values.companySize}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                        >
-                          <option value="">Select size</option>
-                          <option value="1-10 employees">1-10 employees</option>
-                          <option value="11-50 employees">
-                            11-50 employees
-                          </option>
-                          <option value="51-200 employees">
-                            51-200 employees
-                          </option>
-                          <option value="201-500 employees">
-                            201-500 employees
-                          </option>
-                          <option value="501-1000 employees">
-                            501-1000 employees
-                          </option>
-                          <option value="1000+ employees">
-                            1000+ employees
-                          </option>
-                        </select>
-                        {formik.touched.companySize &&
-                          formik.errors.companySize && (
-                            <div className="invalid-feedback">
-                              {formik.errors.companySize}
-                            </div>
-                          )}
-                      </div>
-                      <div className="col-md-6 upd-pro-form-group">
-                        <label className="upd-pro-form-label">
-                          Account Status
-                        </label>
-                        <div
-                          className="form-control upd-pro-form-control"
-                          style={{
-                            backgroundColor: "#e8f5e9",
-                            color: "#2e7d32",
-                            fontWeight: "500",
-                          }}
-                        >
-                          <i className="bi bi-check-circle-fill me-2"></i>{" "}
-                          Active
-                        </div>
-                      </div>
-                      <div className="col-md-12 upd-pro-form-group">
-                        <label className="upd-pro-form-label">Tagline</label>
-                        <input
-                          type="text"
-                          className="form-control upd-pro-form-control"
-                          name="tagline"
-                          value={formik.values.tagline}
-                          onChange={formik.handleChange}
-                          placeholder="Enter your company tagline"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            )}
+          </div>
+
+          {/* Contact Person */}
+          <div className="col-md-6 upd-pro-form-group">
+            <label className="upd-pro-form-label">Contact Person *</label>
+            <input
+              type="text"
+              className={`form-control upd-pro-form-control ${
+                formik.touched.name && formik.errors.name ? "is-invalid" : ""
+              }`}
+              name="name"
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              required
+            />
+            {formik.touched.name && formik.errors.name && (
+              <div className="invalid-feedback">{formik.errors.name}</div>
+            )}
+          </div>
+
+          {/* Member Since */}
+          <div className="col-md-6 upd-pro-form-group">
+            <label className="upd-pro-form-label">Member Since</label>
+            <input
+              type="date"
+              className="form-control upd-pro-form-control"
+              name="memberSince"
+              value={formik.values.memberSince}
+              onChange={formik.handleChange}
+            />
+          </div>
+
+          {/* Website */}
+          <div className="col-md-6 upd-pro-form-group">
+            <label className="upd-pro-form-label">Website</label>
+            <input
+              type="url"
+              className="form-control upd-pro-form-control"
+              name="companyWebsite"
+              value={formik.values.companyWebsite}
+              onChange={formik.handleChange}
+            />
+          </div>
+
+          {/* Company Size */}
+          <div className="col-md-6 upd-pro-form-group">
+            <label className="upd-pro-form-label">Company Size *</label>
+            <select
+              className={`form-select upd-pro-form-control ${
+                formik.touched.companySize && formik.errors.companySize
+                  ? "is-invalid"
+                  : ""
+              }`}
+              name="companySize"
+              value={formik.values.companySize}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            >
+              <option value="">Select size</option>
+              <option value="1-10 employees">1-10 employees</option>
+              <option value="11-50 employees">11-50 employees</option>
+              <option value="51-200 employees">51-200 employees</option>
+              <option value="201-500 employees">201-500 employees</option>
+              <option value="501-1000 employees">501-1000 employees</option>
+              <option value="1000+ employees">1000+ employees</option>
+            </select>
+            {formik.touched.companySize && formik.errors.companySize && (
+              <div className="invalid-feedback">
+                {formik.errors.companySize}
               </div>
+            )}
+          </div>
+
+          {/* Account Status */}
+          <div className="col-md-6 upd-pro-form-group">
+            <label className="upd-pro-form-label">Account Status</label>
+            <div
+              className="form-control upd-pro-form-control"
+              style={{
+                backgroundColor: "#e8f5e9",
+                color: "#2e7d32",
+                fontWeight: "500",
+              }}
+            >
+              <i className="bi bi-check-circle-fill me-2"></i> Active
             </div>
+          </div>
+
+          {/* Tagline */}
+          <div className="col-md-12 upd-pro-form-group">
+            <label className="upd-pro-form-label">Tagline</label>
+            <input
+              type="text"
+              className="form-control upd-pro-form-control"
+              name="tagline"
+              value={formik.values.tagline}
+              onChange={formik.handleChange}
+              placeholder="Enter your company tagline"
+            />
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
             {/* Company Details Card - NEW SECTION */}
             <div className="upd-pro-card mb-4">

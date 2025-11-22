@@ -188,14 +188,14 @@ export const employeeLinks = [
   },
   {
     path: "/employee/save-jobs",
-    label: "Save Jobs",
+    label: "Saved Jobs",
     icon: "bi-list-task", // Jobs
   },
-  {
-    path: "/employee/recommended-jobs",
-    label: "Recommended Job",
-    icon: "bi-people", // Recruiters
-  },
+  // {
+  //   path: "/employee/recommended-jobs",
+  //   label: "Recommended Job",
+  //   icon: "bi-people", 
+  // },
   {
     path: "/employee/Profile-details",
     label: "Profile Details",
@@ -222,11 +222,11 @@ export const employeeLinks = [
   //   label: "My Profile",
   //   icon: "bi-person", // Profile
   // },
-  // {
-  //   path: "/employee/settings",
-  //   label: "Settings",
-  //   icon: "bi-gear", // Settings
-  // },
+  {
+    path: "/employee/settings",
+    label: "Settings",
+    icon: "bi-gear", // Settings
+  },
   // {
   //   path: "/employee/register",
   //   label: "Register",

@@ -1,10 +1,11 @@
 "use client";
+import { useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { loginEmployer } from "@/api/auth";
+import { loginEmployer, getuserProfileCompletionData } from "@/api/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -13,7 +14,26 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useRouter();
   const loading = useSelector((state) => state.auth.loading);
+  const user = useSelector((state) => state.auth.user);
+  const profileCompletionData = useSelector((state) => state.auth.profileCompletion);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Check profile completion and redirect if not 100%
+  useEffect(() => {
+    const checkProfileCompletion = async () => {
+      if (user) {
+        // Dispatch to get latest profile completion data
+        await dispatch(getuserProfileCompletionData());
+        
+        // Check if profile completion exists and is less than 100%
+        if (profileCompletionData && profileCompletionData.profileCompletion < 100) {
+          navigate.push("/employee/Profile-details");
+        }
+      }
+    };
+
+    checkProfileCompletion();
+  }, [user, profileCompletionData, dispatch, navigate]);
 
   const loginInitialValues = {
     email: "",
@@ -52,7 +72,15 @@ export default function Login() {
       console.log("🚀data 222--->", data);
 
       if (data?.success) {
-        navigate.push("/employee");
+        // After successful login, check profile completion
+        const profileData = await dispatch(getuserProfileCompletionData());
+        
+        // Redirect based on profile completion
+        if (profileData?.profileCompletion < 100) {
+          navigate.push("/employee/Profile-details");
+        } else {
+          navigate.push("/employee");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -63,6 +91,7 @@ export default function Login() {
       });
     }
   };
+
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
       <div className="row justify-content-center w-100">

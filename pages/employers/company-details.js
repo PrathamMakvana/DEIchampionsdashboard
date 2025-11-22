@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { getuser, getuserProfileCompletionData } from "@/api/auth";
 import { getJobs } from "@/api/job";
+import { FaAngleDoubleLeft, FaAngleLeft, FaAngleRight, FaAngleDoubleRight } from "react-icons/fa";
 
 const CompanyProfile = () => {
   const router = useRouter();
@@ -16,11 +17,22 @@ const CompanyProfile = () => {
     (state) => state.auth.profileCompletion
   );
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage] = useState(5); // You can adjust this number
+
   useEffect(() => {
     dispatch(getuser());
     dispatch(getJobs());
     dispatch(getuserProfileCompletionData());
   }, []);
+
+  // Calculate paginated jobs
+  const paginatedJobs = Array.isArray(jobs) 
+    ? jobs.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+    : [];
+
+  const totalPages = Array.isArray(jobs) ? Math.ceil(jobs.length / rowsPerPage) : 0;
 
   // Helper function to get year from date
   const getYear = (dateString) => {
@@ -496,7 +508,7 @@ const CompanyProfile = () => {
           </button>
         </div>
 
-        <div className="container">
+        {/* <div className="container">
           {profileCompletionData && (
             <div className="com-profile-comp-progress-container mb-4">
               <div className="com-profile-comp-progress-header">
@@ -523,7 +535,6 @@ const CompanyProfile = () => {
             </div>
           )}
 
-          {/* Missing Fields Alert */}
           {profileCompletionData?.missingFields &&
             profileCompletionData.missingFields.length > 0 && (
               <div className="com-profile-comp-missing-fields">
@@ -545,7 +556,7 @@ const CompanyProfile = () => {
                 </div>
               </div>
             )}
-        </div>
+        </div> */}
 
         <div className="container">
           {/* Banner */}
@@ -687,90 +698,235 @@ const CompanyProfile = () => {
                 )}
 
                 {/* Job Openings */}
-                <div className="job-openings mt-5">
-                  <h2 className="jobposter-section-title">
-                    Current Job Openings
-                  </h2>
+<div className="job-openings mt-5">
+  <h2 className="jobposter-section-title">
+    Current Job Openings
+  </h2>
 
-                  {Array.isArray(jobs) && jobs.length > 0 ? (
-                    jobs.map((job) => (
-                      <div className="job-card" key={job._id}>
-                        <h4 className="job-title">{job.jobTitle}</h4>
+  {Array.isArray(jobs) && jobs.length > 0 ? (
+    <>
+      {/* Paginated Job Cards */}
+      {paginatedJobs.map((job) => {
+        // Helper function to strip HTML tags and limit text
+        const stripHtmlAndLimit = (html, limit = 100) => {
+          if (!html) return '';
+          const text = html.replace(/<[^>]*>/g, '');
+          return text.length > limit ? text.substring(0, limit) + '...' : text;
+        };
 
-                        <div className="job-meta">
-                          {job.jobType?.name && (
-                            <div className="job-meta-item">
-                              <i className="bi bi-briefcase"></i>
-                              <span>{job.jobType.name}</span>
-                            </div>
-                          )}
-                          {(job.city || job.state) && (
-                            <div className="job-meta-item">
-                              <i className="bi bi-geo-alt"></i>
-                              <span>
-                                {job.city}
-                                {job.city && job.state && ", "}
-                                {job.state}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+        return (
+          <div className="job-card" key={job._id} style={{ 
+            minHeight: 'auto', 
+            maxHeight: 'none',
+            padding: '16px',
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            backgroundColor: '#fff'
+          }}>
+            <div className="d-flex justify-content-between align-items-start mb-2">
+              <h4 className="job-title mb-0" style={{ fontSize: '1.1rem', fontWeight: '600' }}>
+                {job.jobTitle}
+              </h4>
+            </div>
 
-                        <p
-                          className="job-description line-clamp-3"
-                          style={{
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                            lineHeight: "1.5em",
-                            maxHeight: "4.5em",
-                          }}
-                          dangerouslySetInnerHTML={{
-                            __html: job.jobDescription,
-                          }}
-                        />
-
-                        <div className="mb-3">
-                          {job.tags && job.tags.length > 0 ? (
-                            job.tags.map((tag, idx) => (
-                              <span className="skill-badge" key={idx}>
-                                {tag}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="skill-badge">No Tags</span>
-                          )}
-                        </div>
-                        <div className="d-flex justify-content-end">
-                          <a
-                            href={`/employers/manage-job-details?id=${job._id}`}
-                            className="text-primary text-decoration-none d-flex align-items-center gap-1"
-                            style={{
-                              padding: "5px 15px",
-                              border: "1px solid ",
-                              borderRadius: "30px",
-                              width: "fit-content",
-                            }}
-                          >
-                            <i className="bi bi-eye"></i> View Job Details
-                          </a>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No job openings available.</p>
-                  )}
-
-                  {Array.isArray(jobs) && jobs.length > 0 && (
-                    <div className="text-center mt-4">
-                      <button className="btn btn-primary">
-                        <i className="bi bi-search me-2"></i>View All{" "}
-                        {jobs.length} Positions
-                      </button>
-                    </div>
-                  )}
+            <div className="job-meta mb-2" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              {job.jobType?.name && (
+                <div className="job-meta-item" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="bi bi-briefcase"></i>
+                  <span style={{ fontSize: '0.85rem' }}>{job.jobType.name}</span>
                 </div>
+              )}
+              {job.department?.name && (
+                <div className="job-meta-item" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="bi bi-building"></i>
+                  <span style={{ fontSize: '0.85rem' }}>{job.department.name}</span>
+                </div>
+              )}
+              {(job.city || job.state) && (
+                <div className="job-meta-item" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="bi bi-geo-alt"></i>
+                  <span style={{ fontSize: '0.85rem' }}>
+                    {job.city}
+                    {job.city && job.state && ", "}
+                    {job.state}
+                  </span>
+                </div>
+              )}
+              {job.salary?.range && (
+                <div className="job-meta-item" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="bi bi-currency-rupee"></i>
+                  <span style={{ fontSize: '0.85rem' }}>{job.salary.range}</span>
+                </div>
+              )}
+              {job.category?.title && (
+                <div className="job-meta-item" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="bi bi-tag"></i>
+                  <span style={{ fontSize: '0.85rem' }}>{job.category.title}</span>
+                </div>
+              )}
+            </div>
+
+            <p
+              className="job-description mb-2"
+              style={{
+                fontSize: '0.9rem',
+                lineHeight: '1.4',
+                color: '#666',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                maxHeight: '2.8em',
+                marginBottom: '12px'
+              }}
+            >
+              {stripHtmlAndLimit(job.jobDescription)}
+            </p>
+
+            <div className="d-flex justify-content-between align-items-center" style={{ 
+              paddingTop: '12px', 
+              borderTop: '1px solid #f0f0f0',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              <div className="text-muted small" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="bi bi-people"></i>
+                  {job.applicants?.length || 0} applicants
+                </span>
+                {job.savedBy?.length > 0 && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <i className="bi bi-bookmark"></i>
+                    {job.savedBy.length} saved
+                  </span>
+                )}
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <i className="bi bi-clock"></i>
+                  Posted {new Date(job.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              
+              <a
+                href={`/employers/manage-job-details?id=${job._id}`}
+                className="text-primary text-decoration-none d-flex align-items-center gap-1"
+                style={{
+                  padding: "6px 16px",
+                  border: "1px solid #007bff",
+                  borderRadius: "30px",
+                  width: "fit-content",
+                  fontSize: '0.85rem',
+                  backgroundColor: '#fff',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <i className="bi bi-eye"></i> View Details
+              </a>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Pagination Component */}
+      {paginatedJobs.length > 0 && (
+        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center px-2 py-2 border-top gap-2 mt-4">
+          <div className="text-muted small text-center text-sm-start">
+            Showing{" "}
+            <span className="fw-semibold">
+              {paginatedJobs.length > 0
+                ? (currentPage - 1) * rowsPerPage + 1
+                : 0}
+            </span>{" "}
+            to{" "}
+            <span className="fw-semibold">
+              {Math.min(
+                currentPage * rowsPerPage,
+                jobs.length
+              )}
+            </span>{" "}
+            of{" "}
+            <span className="fw-semibold">
+              {jobs.length}
+            </span>{" "}
+            Job Openings
+          </div>
+
+          <div className="d-flex align-items-center gap-1">
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              style={{
+                width: "28px",
+                height: "28px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
+            >
+              <FaAngleDoubleLeft size={10} />
+            </button>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              style={{
+                width: "28px",
+                height: "28px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
+            >
+              <FaAngleLeft size={10} />
+            </button>
+            <span className="mx-2 fw-semibold small">
+              Page {currentPage} of {totalPages || 1}
+            </span>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() =>
+                setCurrentPage((p) => Math.min(p + 1, totalPages))
+              }
+              disabled={currentPage === totalPages || totalPages === 0}
+              style={{
+                width: "28px",
+                height: "28px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
+            >
+              <FaAngleRight size={10} />
+            </button>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages || totalPages === 0}
+              style={{
+                width: "28px",
+                height: "28px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
+            >
+              <FaAngleDoubleRight size={10} />
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  ) : (
+    <p>No job openings available.</p>
+  )}
+</div>
+             
+             
               </div>
 
               {/* Right Column - Sidebar */}

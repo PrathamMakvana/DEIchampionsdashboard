@@ -1,55 +1,62 @@
 import {
   setUserSettings,
   setLoading,
-} from "@/store/slice/userSettingsSlice";
+} from "@/store/slice/userSettingSlice";
 
-import { fetcher, fetcherPost, fetcherUpdate, fetcherDelete } from "@/utils/axios";
-
-/* -----------------------------------------------------
- ✅ Create User Settings (POST)
------------------------------------------------------ */
-export const createUserSettings =
-  (payload, { showSuccess, showError } = {}) =>
-  async (dispatch) => {
-    try {
-      dispatch(setLoading(true));
-
-      const res = await fetcherPost(["/user-setting/add", payload]);
-
-      dispatch(setUserSettings(res?.data || null));
-      dispatch(setLoading(false));
-
-      if (showSuccess) showSuccess("User settings created!");
-      return res;
-    } catch (error) {
-      dispatch(setLoading(false));
-      if (showError) showError(error?.response?.data?.message || "Failed to create user settings.");
-      return null;
-    }
-  };
+import { fetcher, fetcherUpdate, fetcherDelete } from "@/utils/axios";
 
 /* -----------------------------------------------------
  ✅ Get settings (GET)
 ----------------------------------------------------- */
 export const getMyUserSettings = () => async (dispatch) => {
   try {
+    console.log("🟡 getMyUserSettings - START");
     dispatch(setLoading(true));
 
     const res = await fetcher("/user-setting/get-my");
-
-    dispatch(setUserSettings(res?.data || null));
+    console.log("🟢 getMyUserSettings - API Response:", res);
+    
+    // FIX: fetcher already returns res.data, so we access res.data directly
+    const settingsData = res?.data || null;
+    console.log("🟢 getMyUserSettings - Settings data to store:", settingsData);
+    
+    dispatch(setUserSettings(settingsData));
+    console.log("🟢 getMyUserSettings - Dispatched to Redux");
+    
     dispatch(setLoading(false));
+    console.log("🟢 getMyUserSettings - COMPLETE");
 
     return res;
   } catch (error) {
+    console.error("🔴 getMyUserSettings - ERROR:", error);
+    console.error("🔴 getMyUserSettings - Error response:", error?.response);
     dispatch(setLoading(false));
-    console.error("Error fetching user settings:", error);
     return null;
   }
 };
 
+
+export const getSettingsByUserId = (userId) => async (dispatch) => {
+  try {
+    console.log("🟡 getSettingsByUserId - START for user:", userId);
+    
+    const res = await fetcher(`/user-setting/get-by-user/${userId}`);
+    console.log("🟢 getSettingsByUserId - API Response:", res);
+    
+    const settingsData = res?.data || null;
+    console.log("🟢 getSettingsByUserId - Settings data:", settingsData);
+    
+    return settingsData;
+  } catch (error) {
+    console.error("🔴 getSettingsByUserId - ERROR:", error);
+    console.error("🔴 getSettingsByUserId - Error response:", error?.response);
+    return null;
+  }
+};
+
+
 /* -----------------------------------------------------
- ✅ Update User Settings (PUT)
+ ✅ Create or Update User Settings (PUT)
 ----------------------------------------------------- */
 export const updateUserSettings =
   (payload, { showSuccess, showError } = {}) =>
@@ -59,14 +66,21 @@ export const updateUserSettings =
 
       const res = await fetcherUpdate(["/user-setting/update", payload]);
 
-      dispatch(setUserSettings(res?.data || null));
+      // FIX: fetcherUpdate already returns res.data
+      const settingsData = res?.data || null;
+      
+      dispatch(setUserSettings(settingsData));
       dispatch(setLoading(false));
 
-      if (showSuccess) showSuccess("Settings updated!");
+      if (typeof showSuccess === 'function') {
+        showSuccess("Settings saved successfully!");
+      }
       return res;
     } catch (error) {
       dispatch(setLoading(false));
-      if (showError) showError(error?.response?.data?.message || "Failed to update settings.");
+      if (typeof showError === 'function') {
+        showError(error?.response?.data?.message || "Failed to save settings.");
+      }
       return null;
     }
   };
@@ -85,11 +99,15 @@ export const deleteUserSettings =
       dispatch(setUserSettings(null));
       dispatch(setLoading(false));
 
-      if (showSuccess) showSuccess("Settings deleted.");
+      if (typeof showSuccess === 'function') {
+        showSuccess("Settings deleted.");
+      }
       return res;
     } catch (error) {
       dispatch(setLoading(false));
-      if (showError) showError(error?.response?.data?.message || "Failed to delete settings.");
+      if (typeof showError === 'function') {
+        showError(error?.response?.data?.message || "Failed to delete settings.");
+      }
       return null;
     }
   };

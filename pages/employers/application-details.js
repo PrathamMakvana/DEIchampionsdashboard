@@ -1,4 +1,6 @@
 import { getuserbyid } from "@/api/auth";
+import { getSettingsByUserId } from "@/api/userSetting"; // Import the new function
+import { getAuthUser } from "@/api/auth";
 import Layout from "@/components/layout/Layout";
 import { useRouter } from "next/router";
 import {
@@ -12,10 +14,9 @@ import {
   FaSuitcase,
   FaFilePdf,
   FaDownload,
-  FaCheckCircle,
-  FaTimesCircle,
+  FaIndustry,
 } from "react-icons/fa";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import moment from "moment";
 
@@ -25,25 +26,87 @@ const ApplicationDetails = () => {
   const { id } = route.query;
   const [applicationData, setApplicationData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showIndustry, setShowIndustry] = useState(false);
+  const [applicantSettings, setApplicantSettings] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
-  // ✅ Fetch user details when ID is available
+  // Get logged in user from Redux store if available
+  const currentUser = useSelector((state) => state.auth?.user);
+
+  // ✅ Fetch applicant details and determine industry visibility
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
-        const res = await dispatch(getuserbyid(id));
-        console.log("🚀 response --->", res);
-        setApplicationData(res?.payload || res || null);
+        setLoading(true);
+
+        // 1. Fetch applicant data
+        const applicantRes = await dispatch(getuserbyid(id));
+        const applicant = applicantRes?.payload || applicantRes || null;
+        setApplicationData(applicant);
+
+        if (!applicant) {
+          setLoading(false);
+          return;
+        }
+
+        // 2. Fetch the APPLICANT'S user settings using their user ID
+        const applicantUserId = applicant._id; // This is the applicant's user ID
+        console.log("🟡 Fetching settings for applicant ID:", applicantUserId);
+
+        const settingsData = await getSettingsByUserId(applicantUserId)(
+          dispatch
+        );
+        setApplicantSettings(settingsData);
+
+        const applicantPrivacyMode = settingsData?.privacyMode || "selective";
+
+        console.log("🟡 Applicant Privacy Mode:", applicantPrivacyMode);
+
+        // 3. Determine privacy mode and industry visibility
+        if (applicantPrivacyMode === "public") {
+          // Public mode: always show industry
+          console.log("🟢 Public mode - showing industry");
+          setShowIndustry(true);
+        } else if (applicantPrivacyMode === "private") {
+          // Private mode: never show industry
+          console.log("🔴 Private mode - hiding industry");
+          setShowIndustry(false);
+        } else if (applicantPrivacyMode === "selective") {
+          // Selective mode: show only if logged-in user is company verified
+          let authUser = currentUser;
+
+          // If not in Redux, fetch it
+          if (!authUser) {
+            const authRes = await dispatch(getAuthUser());
+            authUser = authRes || null;
+            setLoggedInUser(authUser);
+          }
+
+          console.log(
+            "🟡 Selective mode - checking company verification:",
+            authUser?.companyVerified
+          );
+
+          // Check if logged-in user is company verified
+          if (authUser && authUser.companyVerified === true) {
+            console.log("🟢 Company verified - showing industry");
+            setShowIndustry(true);
+          } else {
+            console.log("🔴 Company not verified - hiding industry");
+            setShowIndustry(false);
+          }
+        }
       } catch (error) {
-        console.error("Error fetching job:", error);
+        console.error("Error fetching application data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id, dispatch]);
+  }, [id, dispatch, currentUser]);
 
   if (loading) {
     return (
@@ -84,6 +147,7 @@ const ApplicationDetails = () => {
     education,
     experience,
     resume,
+    industry,
   } = applicationData;
 
   const candidate = {
@@ -181,6 +245,36 @@ const ApplicationDetails = () => {
                 </div>
               </div>
 
+              {/* Industry - Show based on privacy settings */}
+              {showIndustry && industry?.length > 0 && (
+                <div className="appView-section">
+                  <h3 className="appView-section-title">
+                    <FaIndustry /> Industry
+                  </h3>
+
+                  <div className="row">
+                    {industry.map((ind, index) => (
+                      <div
+                        key={index}
+                        className="col-lg-3 col-md-4 col-sm-6 col-12 mb-3"
+                      >
+                        <div className="appView-industry-item d-flex align-items-center p-2">
+                          <img
+                            src={ind.image || "/default-industry.png"}
+                            alt={ind.title}
+                            className="appView-industry-img"
+                          />
+
+                          <div className="ms-3 d-flex align-items-center">
+                            <h5 className="mb-0">{ind.title}</h5>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Skills */}
               {skills?.length > 0 && (
                 <div className="appView-section">
@@ -198,46 +292,91 @@ const ApplicationDetails = () => {
               )}
 
               {/* Job Preferences */}
-              {preferences && (
-                <div className="appView-section">
-                  <h3 className="appView-section-title">
-                    <FaBriefcase /> Job Preferences
-                  </h3>
-                  <div className="row">
-                    {/* <div className="col-md-6 mb-3">
-                      <strong>Job Types:</strong>
-                      {preferences.jobTypes?.length > 0 ? (
-                        preferences.jobTypes.map((type, index) => (
-                          <span
-                            key={index}
-                            className="appView-tag appView-status-inactive"
-                          >
-                            {type}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="ms-2 text-muted">N/A</span>
-                      )}
-                    </div> */}
-                    <div className="col-md-6 mb-3">
-                      <strong>Salary Range:</strong>{" "}
-                      {preferences.salary_range || "N/A"}
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <strong>Preferred Locations:</strong>
-                      {preferences.preffered_locations?.length > 0 ? (
-                        preferences.preffered_locations.map((loc, index) => (
-                          <span key={index} className="appView-tag">
-                            {loc}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="ms-2 text-muted">N/A</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
+{preferences && (
+  <div className="appView-section">
+    <h3 className="appView-section-title">
+      <FaBriefcase /> Job Preferences
+    </h3>
+
+    <div className="row g-3">
+
+      {/* Salary Range */}
+      <div className="col-md-6">
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: "10px",
+            border: "1px solid #e3e6ea",
+            minHeight: "120px",
+            padding: "16px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <strong style={{ fontSize: "1rem", marginBottom: "8px" }}>
+            Salary Range
+          </strong>
+          <span style={{ fontSize: "1.2rem", color: "#6c757d" }}>
+            {preferences.salary_range?.range || "N/A"}
+          </span>
+        </div>
+      </div>
+
+      {/* Preferred Locations */}
+      <div className="col-md-6">
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: "10px",
+            border: "1px solid #e3e6ea",
+            minHeight: "120px",
+            padding: "16px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <strong style={{ fontSize: "1rem", marginBottom: "8px" }}>
+            Preferred Locations
+          </strong>
+
+          {preferences.preffered_locations?.length > 0 ? (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                marginTop: "2px",
+              }}
+            >
+              {preferences.preffered_locations.map((loc, index) => (
+                <span
+                  key={index}
+                  style={{
+                    background: "#eef3ff",
+                    color: "#1a3fa8",
+                    padding: "4px 8px",
+                    borderRadius: "6px",
+                    fontSize: "0.9rem",
+                    lineHeight: "1.2",
+                    display: "inline-block",
+                  }}
+                >
+                  {loc}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span style={{ fontSize: "0.9rem", color: "#6c757d" }}>N/A</span>
+          )}
+        </div>
+      </div>
+
+    </div>
+  </div>
+)}
+
 
               {/* Education */}
               {education?.length > 0 && (
@@ -311,18 +450,6 @@ const ApplicationDetails = () => {
                   </div>
                 </div>
               )}
-
-              {/* Actions */}
-              {/* <div className="appView-section text-center">
-                <button className="btn appView-btn-primary me-3">
-                  <FaCheckCircle className="me-2" />
-                  Approve Application
-                </button>
-                <button className="btn appView-btn-outline">
-                  <FaTimesCircle className="me-2" />
-                  Reject Application
-                </button>
-              </div> */}
             </div>
           </div>
         </div>
@@ -407,6 +534,25 @@ const ApplicationDetails = () => {
           }
           .appView-current-job {
             border-left-color: #ff6b6b;
+          }
+          .appView-industry-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+          }
+          .appView-industry-item:hover {
+            border-color: #4e54c8;
+            box-shadow: 0 4px 12px rgba(78, 84, 200, 0.15);
+          }
+          .appView-industry-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
           }
           .appView-btn-primary {
             background-color: #4e54c8;
