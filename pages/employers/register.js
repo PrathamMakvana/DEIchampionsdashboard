@@ -447,7 +447,7 @@ export default function JobPosterRegistration() {
               <i className="bi bi-globe text-primary"></i>
             </span>
             <Field
-              type="url"
+              type="text"
               name="companyWebsite"
               className="form-control form-control-lg border-start-0"
               placeholder="https://yourcompany.com"
