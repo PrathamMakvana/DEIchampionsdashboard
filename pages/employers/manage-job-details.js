@@ -290,227 +290,201 @@ const JobDetailsPage = () => {
 
             <div className="card-body">
               {/* Header */}
-              <div className="job-header d-flex justify-content-between align-items-start flex-wrap">
+              <div className="job-header d-flex justify-content-between align-items-start flex-wrap mb-4">
                 <div>
-                  <h3>{currentJob.jobTitle}</h3>
-                  <p className="text-muted">
-                    {currentJob.category?.title || "N/A"} • Posted on{" "}
-                    {formatDate(currentJob.createdAt)}
+                  <h3 className="mb-2">{currentJob.jobTitle}</h3>
+                  <p className="text-muted mb-0">
+                    <i className="bi bi-calendar me-1"></i>
+                    Posted {getTimeAgo(currentJob.createdAt)}
                   </p>
                 </div>
 
                 {getJobStatusBadge(currentJob.status)}
               </div>
 
-              {/* Meta Fields */}
-              <div className="job-meta d-flex flex-wrap gap-4 mt-4">
-                {/* Category */}
-                {currentJob.category?.title && (
-                  <div className="meta-item">
-                    <div className="meta-icon">
-                      <i className="bi bi-tags"></i>
-                    </div>
-                    <div className="meta-content">
-                      <h5>Category</h5>
-                      <p>
-                        {currentJob.category?.image && (
-                          <img
-                            src={currentJob.category.image}
-                            alt={currentJob.category.title}
+              {/* CATEGORY + GRID BOXES */}
+              <div style={{ marginBottom: "30px" }}>
+                <div
+                  className="row"
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "18px 0",
+                    paddingTop: "18px",
+                    paddingBottom: "18px",
+                    borderTop: "1px solid #eee",
+                    borderBottom: "1px solid #eee",
+                  }}
+                >
+                  {[
+                    /* CATEGORY BOX */
+                    currentJob.category && {
+                      icon: "bi-tags",
+                      label: "Job Category",
+                      value: currentJob.category.title,
+                      image: currentJob.category.image, // Category image
+                    },
+
+                    {
+                      icon: "bi-building",
+                      label: "Department",
+                      value: currentJob.department?.name || "N/A",
+                    },
+                    {
+                      icon: "bi-briefcase",
+                      label: "Job Type",
+                      value: currentJob.jobType?.name || "N/A",
+                    },
+                    currentJob.workExperience && {
+                      icon: "bi-award",
+                      label: "Experience Required",
+                      value: currentJob.workExperience,
+                    },
+                    {
+                      icon: "bi-currency-dollar",
+                      label: "Salary Range",
+                      value: currentJob.salary?.range || "Not specified",
+                    },
+                    {
+                      icon: "bi-geo-alt",
+                      label: "Location",
+                      value:
+                        currentJob.city ||
+                        currentJob.locationState ||
+                        currentJob.locationCountry ||
+                        "N/A",
+                    },
+                    currentJob.candidateQualification && {
+                      icon: "bi-mortarboard",
+                      label: "Qualification Required",
+                      value: currentJob.candidateQualification,
+                    },
+                    currentJob.languages?.length > 0 && {
+                      icon: "bi-translate",
+                      label: "Languages Known",
+                      value: currentJob.languages.join(", "),
+                    },
+                    currentJob.genderPreference && {
+                      icon: "bi-people",
+                      label: "Gender Preference",
+                      value: currentJob.genderPreference,
+                    },
+                  ]
+                    .filter(Boolean)
+                    .map((item, i) => (
+                      <div
+                        key={i}
+                        className="col-6 col-md-4 col-lg-3"
+                        style={{ padding: "10px" }}
+                      >
+                        <div
+                          style={{
+                            padding: "14px 16px",
+                            borderRadius: "12px",
+                            background: "#f8f9fa",
+                            boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: "10px",
+                          }}
+                        >
+                          {/* Icon or Category Icon */}
+                          <div
                             style={{
-                              width: "22px",
-                              height: "22px",
-                              objectFit: "cover",
-                              borderRadius: "4px",
-                              marginRight: "8px",
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: "10px",
                             }}
-                          />
-                        )}
-                        {currentJob.category.title}
-                      </p>
-                    </div>
-                  </div>
-                )}
+                          >
+                            <i
+                              className={`bi ${item.icon}`}
+                              style={{
+                                fontSize: "22px",
+                                color: "#0d6efd",
+                                marginTop: "2px",
+                              }}
+                            ></i>
 
-                {/* Department */}
-                <div className="meta-item">
-                  <div className="meta-icon">
-                    <i className="bi bi-building"></i>
-                  </div>
-                  <div className="meta-content">
-                    <h5>Department</h5>
-                    <p>{currentJob.department?.name || "N/A"}</p>
-                  </div>
-                </div>
+                            <div>
+                              <small
+                                style={{
+                                  color: "#6c757d",
+                                  fontSize: "12px",
+                                  display: "block",
+                                  marginBottom: "4px",
+                                }}
+                              >
+                                {item.label}
+                              </small>
+                              <span
+                                style={{ fontWeight: 600, fontSize: "15px" }}
+                              >
+                                {item.value}
+                              </span>
+                            </div>
+                          </div>
 
-                {/* Experience */}
-                {currentJob.workExperience && (
-                  <div className="meta-item">
-                    <div className="meta-icon">
-                      <i className="bi bi-award"></i>
-                    </div>
-                    <div className="meta-content">
-                      <h5>Experience Required</h5>
-                      <p>{currentJob.workExperience}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Salary */}
-                <div className="meta-item">
-                  <div className="meta-icon">
-                    <i className="bi bi-currency-dollar"></i>
-                  </div>
-                  <div className="meta-content">
-                    <h5>Salary</h5>
-                    <p>{currentJob.salary?.range || "Not specified"}</p>
-                  </div>
-                </div>
-
-                {/* Job Type */}
-                <div className="meta-item">
-                  <div className="meta-icon">
-                    <i className="bi bi-briefcase"></i>
-                  </div>
-                  <div className="meta-content">
-                    <h5>Job Type</h5>
-                    <p>{currentJob.jobType?.name || "N/A"}</p>
-                  </div>
-                </div>
-
-                {/* Location */}
-                <div className="meta-item">
-                  <div className="meta-icon">
-                    <i className="bi bi-geo-alt"></i>
-                  </div>
-                  <div className="meta-content">
-                    <h5>Location</h5>
-                    <p>
-                      {currentJob.locationArea
-                        ? `${currentJob.locationArea}, `
-                        : ""}
-                      {currentJob.city ? `${currentJob.city}, ` : ""}
-                      {currentJob.locationState
-                        ? `${currentJob.locationState}, `
-                        : ""}
-                      {currentJob.locationCountry || ""}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Qualification */}
-                {currentJob.candidateQualification && (
-                  <div className="meta-item">
-                    <div className="meta-icon">
-                      <i className="bi bi-mortarboard"></i>
-                    </div>
-                    <div className="meta-content">
-                      <h5>Qualification</h5>
-                      <p>{currentJob.candidateQualification}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Gender Preference */}
-                {currentJob.genderPreference && (
-                  <div className="meta-item">
-                    <div className="meta-icon">
-                      <i className="bi bi-people"></i>
-                    </div>
-                    <div className="meta-content">
-                      <h5>Gender Preference</h5>
-                      <p>{currentJob.genderPreference}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Candidate Industry */}
-                {currentJob.candidateIndustry && (
-                  <div className="meta-item">
-                    <div className="meta-icon">
-                      <i className="bi bi-building-check"></i>
-                    </div>
-                    <div className="meta-content">
-                      <h5>Candidate Industry</h5>
-                      <p>{currentJob.candidateIndustry}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Languages */}
-                {currentJob.languages && currentJob.languages.length > 0 && (
-                  <div className="meta-item">
-                    <div className="meta-icon">
-                      <i className="bi bi-translate"></i>
-                    </div>
-                    <div className="meta-content">
-                      <h5>Languages</h5>
-                      <p>{currentJob.languages.join(", ")}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Updated */}
-                <div className="meta-item">
-                  <div className="meta-icon">
-                    <i className="bi bi-clock-history"></i>
-                  </div>
-                  <div className="meta-content">
-                    <h5>Last Updated</h5>
-                    <p>{getTimeAgo(currentJob.updatedAt)}</p>
-                  </div>
+                          {/* CATEGORY IMAGE (only for category box) */}
+                          {item.image && (
+                            <img
+                              src={item.image}
+                              alt="Category"
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "8px",
+                                objectFit: "cover",
+                              }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </div>
 
               {/* Job Description */}
-              <hr className="my-4" />
-              <h4>Job Description</h4>
-
-              <div
-                dangerouslySetInnerHTML={{
-                  __html:
-                    currentJob.jobDescription?.trim() ||
-                    "<p>No job description provided.</p>",
-                }}
-              />
+              <div className="mb-4">
+                <h4 className="mb-3">Job Description</h4>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      currentJob.jobDescription?.trim() ||
+                      "<p>No job description provided.</p>",
+                  }}
+                />
+              </div>
 
               {/* Tags */}
               {currentJob.tags && currentJob.tags.length > 0 && (
-                <>
-                  <h4 className="mt-4 mb-3">Tags</h4>
+                <div>
+                  <h6 className="mb-3 text-muted">Tags</h6>
                   <div>
                     {currentJob.tags.map((tag, i) => (
                       <span
                         key={i}
-                        style={{
-                          display: "inline-block",
-                          padding: "3px 10px",
-                          marginRight: "8px",
-                          marginBottom: "8px",
-                          backgroundColor: "#3C65F5",
-                          color: "#fff",
-                          borderRadius: "4px",
-                          fontSize: "11px",
-                          fontWeight: "500",
-                        }}
+                        className="badge bg-primary me-2 mb-2"
+                        style={{ padding: "6px 12px", fontSize: "13px" }}
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Applicants Card - Only show if there are applicants */}
-          {applicants.length > 0 && (
-            <div className="content-card">
-              <div className="card-header">
-                <h3 className="card-title" style={{ fontSize: "24px" }}>
-                  <i className="bi bi-people me-2"></i> Applicants (
-                  {filteredApplicants.length})
-                </h3>
+          {/* Applicants Card */}
+          <div className="content-card">
+            <div className="card-header">
+              <h3 className="card-title" style={{ fontSize: "24px" }}>
+                <i className="bi bi-people me-2"></i> Applicants (
+                {filteredApplicants.length})
+              </h3>
+              {applicants.length > 0 && (
                 <div className="filters-container">
                   <button
                     className={`filter-btn ${
@@ -569,199 +543,186 @@ const JobDetailsPage = () => {
                     Rejected
                   </button>
                 </div>
-              </div>
-              <div className="card-body">
-                {Array.isArray(filteredApplicants) &&
+              )}
+            </div>
+            <div className="card-body">
+              {applicants.length === 0 ? (
+                <div className="text-center py-5">
+                  <i
+                    className="bi bi-inbox text-muted"
+                    style={{ fontSize: "4rem" }}
+                  ></i>
+                  <h4 className="mt-3 text-muted">No Applications Yet</h4>
+                  <p className="text-muted">
+                    This job hasn't received any applications yet. Applications
+                    will appear here once candidates apply.
+                  </p>
+                </div>
+              ) : Array.isArray(filteredApplicants) &&
                 filteredApplicants.length > 0 ? (
-                  filteredApplicants.map((applicant, index) => {
-                    const applicantStatus = getApplicantStatus(applicant._id);
+                filteredApplicants.map((applicant, index) => {
+                  const applicantStatus = getApplicantStatus(applicant._id);
 
-                    return (
-                      <div
-                        key={index}
-                        className="applicant-card container mb-4 p-3 border rounded"
-                      >
-                        <div className="row applicant-header align-items-center">
-                          <div className="col-auto">
-                            <div
-                              className="applicant-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                              style={{ width: 45, height: 45 }}
-                            >
-                              {applicant?.name
-                                ? applicant.name.charAt(0).toUpperCase()
-                                : "A"}
-                            </div>
-                          </div>
-                          <div className="col">
-                            <div className="applicant-info">
-                              <h5 className="mb-1 fs-6 fw-semibold">
-                                {applicant.name || "Applicant"}
-                              </h5>
-                              <p className="text-muted fs-7 mb-0">
-                                {applicant.workStatus ||
-                                  "No experience specified"}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="col-auto ms-auto">
-                            {getStatusBadge(applicantStatus)}
+                  return (
+                    <div
+                      key={index}
+                      className="applicant-card container mb-3 p-3 border rounded"
+                    >
+                      <div className="row applicant-header align-items-center">
+                        <div className="col-auto">
+                          <div
+                            className="applicant-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                            style={{ width: 45, height: 45 }}
+                          >
+                            {applicant?.name
+                              ? applicant.name.charAt(0).toUpperCase()
+                              : "A"}
                           </div>
                         </div>
-
-                        <div className="row applicant-meta text-center text-md-start mt-3">
-                          <div className="col-12 col-md-3 mb-3 mb-md-0">
-                            <h6 className="fw-semibold fs-7 mb-1">Location</h6>
-                            <p className="mb-0 fs-7 text-muted">
-                              {applicant.city || "Not specified"}
-                            </p>
-                          </div>
-                          <div className="col-12 col-md-3 mb-3 mb-md-0">
-                            <h6 className="fw-semibold fs-7 mb-1">Applied</h6>
-                            <p className="mb-0 fs-7 text-muted">
-                              {formatDate(applicant.createdAt)}
-                            </p>
-                          </div>
-                          <div className="col-12 col-md-3">
-                            <h6 className="fw-semibold fs-7 mb-1">Status</h6>
-                            <p
-                              className={`mb-0 fs-7 ${
-                                applicant.status
-                                  ? "text-success"
-                                  : "text-danger"
-                              }`}
-                            >
-                              {applicant.status ? "Active" : "Inactive"}
+                        <div className="col">
+                          <div className="applicant-info">
+                            <h5 className="mb-1 fs-6 fw-semibold">
+                              {applicant.name || "Applicant"}
+                            </h5>
+                            <p className="text-muted fs-7 mb-0">
+                              <i className="bi bi-briefcase me-1"></i>
+                              {applicant.workStatus ||
+                                "No experience specified"}
+                              {applicant.city && (
+                                <>
+                                  <span className="mx-2">•</span>
+                                  <i className="bi bi-geo-alt me-1"></i>
+                                  {applicant.city}
+                                </>
+                              )}
+                              <span className="mx-2">•</span>
+                              <i className="bi bi-calendar me-1"></i>
+                              Applied {getTimeAgo(applicant.createdAt)}
                             </p>
                           </div>
                         </div>
+                        <div className="col-auto ms-auto">
+                          {getStatusBadge(applicantStatus)}
+                        </div>
+                      </div>
 
-                        <div className="row justify-content-between align-items-center mt-3">
-                          <div className="col-12 text-md-end d-flex flex-wrap justify-content-center justify-content-md-end">
+                      <div className="row justify-content-end align-items-center mt-3">
+                        <div className="col-12 text-end d-flex flex-wrap justify-content-end gap-2">
+                          <button
+                            className="btn btn-outline-primary btn-sm"
+                            onClick={() =>
+                              router.push(
+                                `/employers/application-details?id=${applicant._id}`
+                              )
+                            }
+                          >
+                            <i className="bi bi-eye me-1"></i> View Details
+                          </button>
+
+                          {/* Dynamic Status Buttons */}
+                          {applicantStatus === "pending" && (
                             <button
-                              className="btn btn-outline-primary btn-sm me-2 mt-2 mt-md-0"
+                              className="btn btn-success btn-sm"
                               onClick={() =>
-                                router.push(
-                                  `/employers/application-details?id=${applicant._id}`
+                                handleApplicationStatus(
+                                  applicant._id,
+                                  "accepted"
                                 )
                               }
                             >
-                              <i className="bi bi-eye me-1"></i> View
+                              <i className="bi bi-check-circle me-1"></i> Accept
                             </button>
-                            <button className="btn btn-outline-secondary btn-sm me-2 mt-2 mt-md-0">
-                              <i className="bi bi-chat me-1"></i> Message
+                          )}
+
+                          {applicantStatus === "accepted" && (
+                            <button
+                              className="btn btn-info btn-sm"
+                              onClick={() =>
+                                handleApplicationStatus(
+                                  applicant._id,
+                                  "interviewing"
+                                )
+                              }
+                            >
+                              <i className="bi bi-calendar-check me-1"></i>{" "}
+                              Schedule Interview
                             </button>
+                          )}
 
-                            {/* Dynamic Status Buttons */}
-                            {applicantStatus === "pending" && (
-                              <>
-                                <button
-                                  className="btn btn-success btn-sm me-2 mt-2 mt-md-0"
-                                  onClick={() =>
-                                    handleApplicationStatus(
-                                      applicant._id,
-                                      "accepted"
-                                    )
-                                  }
-                                >
-                                  <i className="bi bi-check-circle me-1"></i>{" "}
-                                  Accept
-                                </button>
-                              </>
-                            )}
+                          {applicantStatus === "interviewing" && (
+                            <button
+                              className="btn btn-warning btn-sm"
+                              onClick={() =>
+                                handleApplicationStatus(
+                                  applicant._id,
+                                  "negotiation"
+                                )
+                              }
+                            >
+                              <i className="bi bi-currency-exchange me-1"></i>{" "}
+                              Move to Negotiation
+                            </button>
+                          )}
 
-                            {applicantStatus === "accepted" && (
+                          {applicantStatus === "negotiation" && (
+                            <button
+                              className="btn btn-success btn-sm"
+                              onClick={() =>
+                                handleApplicationStatus(applicant._id, "hired")
+                              }
+                            >
+                              <i className="bi bi-award me-1"></i> Hire
+                            </button>
+                          )}
+
+                          {/* Reject button */}
+                          {applicantStatus !== "rejected" &&
+                            applicantStatus !== "hired" && (
                               <button
-                                className="btn btn-info btn-sm me-2 mt-2 mt-md-0"
+                                className="btn btn-danger btn-sm"
                                 onClick={() =>
                                   handleApplicationStatus(
                                     applicant._id,
-                                    "interviewing"
+                                    "rejected"
                                   )
                                 }
                               >
-                                <i className="bi bi-calendar-check me-1"></i>{" "}
-                                Schedule Interview
+                                <i className="bi bi-x-circle me-1"></i> Reject
                               </button>
                             )}
 
-                            {applicantStatus === "interviewing" && (
-                              <button
-                                className="btn btn-warning btn-sm me-2 mt-2 mt-md-0"
-                                onClick={() =>
-                                  handleApplicationStatus(
-                                    applicant._id,
-                                    "negotiation"
-                                  )
-                                }
-                              >
-                                <i className="bi bi-currency-exchange me-1"></i>{" "}
-                                Move to Negotiation
-                              </button>
-                            )}
+                          {/* Status messages */}
+                          {applicantStatus === "hired" && (
+                            <span className="d-flex align-items-center text-success fw-semibold">
+                              <i className="bi bi-check-circle me-1"></i>{" "}
+                              Successfully Hired
+                            </span>
+                          )}
 
-                            {applicantStatus === "negotiation" && (
-                              <button
-                                className="btn btn-success btn-sm me-2 mt-2 mt-md-0"
-                                onClick={() =>
-                                  handleApplicationStatus(
-                                    applicant._id,
-                                    "hired"
-                                  )
-                                }
-                              >
-                                <i className="bi bi-award me-1"></i> Hire
-                              </button>
-                            )}
-
-                            {/* Reject button */}
-                            {applicantStatus !== "rejected" &&
-                              applicantStatus !== "hired" && (
-                                <button
-                                  className="btn btn-danger btn-sm mt-2 mt-md-0"
-                                  onClick={() =>
-                                    handleApplicationStatus(
-                                      applicant._id,
-                                      "rejected"
-                                    )
-                                  }
-                                >
-                                  <i className="bi bi-x-circle me-1"></i> Reject
-                                </button>
-                              )}
-
-                            {/* Status messages */}
-                            {applicantStatus === "hired" && (
-                              <span className="d-flex align-items-center text-success fw-semibold mt-2 mt-md-0">
-                                <i className="bi bi-check-circle me-1"></i>{" "}
-                                Successfully Hired
-                              </span>
-                            )}
-
-                            {applicantStatus === "rejected" && (
-                              <span className="d-flex align-items-center text-danger fw-semibold mt-2 mt-md-0">
-                                <i className="bi bi-x-circle me-1"></i>{" "}
-                                Application Rejected
-                              </span>
-                            )}
-                          </div>
+                          {applicantStatus === "rejected" && (
+                            <span className="d-flex align-items-center text-danger fw-semibold">
+                              <i className="bi bi-x-circle me-1"></i>{" "}
+                              Application Rejected
+                            </span>
+                          )}
                         </div>
                       </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-4">
-                    <i
-                      className="bi bi-people text-muted"
-                      style={{ fontSize: "3rem" }}
-                    ></i>
-                    <p className="text-muted mt-3">
-                      No applicants found for the selected filter.
-                    </p>
-                  </div>
-                )}
-              </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-4">
+                  <i
+                    className="bi bi-filter text-muted"
+                    style={{ fontSize: "3rem" }}
+                  ></i>
+                  <p className="text-muted mt-3">
+                    No applicants found for the selected filter.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </Layout>

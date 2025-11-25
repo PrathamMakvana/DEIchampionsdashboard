@@ -168,6 +168,36 @@ const ApplicationDetails = () => {
       : "N/A",
   };
 
+
+  const handleResumeDownload = async () => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resume}`,
+      {
+        method: "GET",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to download file");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = resume?.split("/").pop() || "resume.pdf"; // filename only
+    link.click();
+
+    // Clean memory
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Download error:", error);
+  }
+};
+
+
   return (
     <Layout>
       <div className="appView-container">
@@ -292,91 +322,98 @@ const ApplicationDetails = () => {
               )}
 
               {/* Job Preferences */}
-{preferences && (
-  <div className="appView-section">
-    <h3 className="appView-section-title">
-      <FaBriefcase /> Job Preferences
-    </h3>
+              {preferences && (
+                <div className="appView-section">
+                  <h3 className="appView-section-title">
+                    <FaBriefcase /> Job Preferences
+                  </h3>
 
-    <div className="row g-3">
+                  <div className="row g-3">
+                    {/* Salary Range */}
+                    <div className="col-md-6">
+                      <div
+                        style={{
+                          background: "#fff",
+                          borderRadius: "10px",
+                          border: "1px solid #e3e6ea",
+                          minHeight: "120px",
+                          padding: "16px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <strong
+                          style={{ fontSize: "1rem", marginBottom: "8px" }}
+                        >
+                          Salary Range
+                        </strong>
+                        <span style={{ fontSize: "1.2rem", color: "#6c757d" }}>
+                          {preferences.salary_range?.range || "N/A"}
+                        </span>
+                      </div>
+                    </div>
 
-      {/* Salary Range */}
-      <div className="col-md-6">
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: "10px",
-            border: "1px solid #e3e6ea",
-            minHeight: "120px",
-            padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
-          <strong style={{ fontSize: "1rem", marginBottom: "8px" }}>
-            Salary Range
-          </strong>
-          <span style={{ fontSize: "1.2rem", color: "#6c757d" }}>
-            {preferences.salary_range?.range || "N/A"}
-          </span>
-        </div>
-      </div>
+                    {/* Preferred Locations */}
+                    <div className="col-md-6">
+                      <div
+                        style={{
+                          background: "#fff",
+                          borderRadius: "10px",
+                          border: "1px solid #e3e6ea",
+                          minHeight: "120px",
+                          padding: "16px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <strong
+                          style={{ fontSize: "1rem", marginBottom: "8px" }}
+                        >
+                          Preferred Locations
+                        </strong>
 
-      {/* Preferred Locations */}
-      <div className="col-md-6">
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: "10px",
-            border: "1px solid #e3e6ea",
-            minHeight: "120px",
-            padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
-          <strong style={{ fontSize: "1rem", marginBottom: "8px" }}>
-            Preferred Locations
-          </strong>
-
-          {preferences.preffered_locations?.length > 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "8px",
-                marginTop: "2px",
-              }}
-            >
-              {preferences.preffered_locations.map((loc, index) => (
-                <span
-                  key={index}
-                  style={{
-                    background: "#eef3ff",
-                    color: "#1a3fa8",
-                    padding: "4px 8px",
-                    borderRadius: "6px",
-                    fontSize: "0.9rem",
-                    lineHeight: "1.2",
-                    display: "inline-block",
-                  }}
-                >
-                  {loc}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <span style={{ fontSize: "0.9rem", color: "#6c757d" }}>N/A</span>
-          )}
-        </div>
-      </div>
-
-    </div>
-  </div>
-)}
-
+                        {preferences.preffered_locations?.length > 0 ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "8px",
+                              marginTop: "2px",
+                            }}
+                          >
+                            {preferences.preffered_locations.map(
+                              (loc, index) => (
+                                <span
+                                  key={index}
+                                  style={{
+                                    background: "#eef3ff",
+                                    color: "#1a3fa8",
+                                    padding: "4px 8px",
+                                    borderRadius: "6px",
+                                    fontSize: "0.9rem",
+                                    lineHeight: "1.2",
+                                    display: "inline-block",
+                                  }}
+                                >
+                                  {loc}
+                                </span>
+                              )
+                            )}
+                          </div>
+                        ) : (
+                          <span
+                            style={{ fontSize: "0.9rem", color: "#6c757d" }}
+                          >
+                            N/A
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Education */}
               {education?.length > 0 && (
@@ -427,29 +464,30 @@ const ApplicationDetails = () => {
               )}
 
               {/* Documents */}
-              {resume && (
-                <div className="appView-section">
-                  <h3 className="appView-section-title">
-                    <FaFilePdf /> Documents
-                  </h3>
-                  <div className="d-flex align-items-center">
-                    <FaFilePdf className="text-danger me-3 fs-3" />
-                    <div>
-                      <h5 className="mb-0">Resume</h5>
-                      <p className="mb-0 text-muted">{resume}</p>
-                    </div>
-                    <a
-                      href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${resume}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn appView-btn-outline ms-auto"
-                    >
-                      <FaDownload className="me-2" />
-                      Download
-                    </a>
-                  </div>
-                </div>
-              )}
+            {resume && (
+  <div className="appView-section">
+    <h3 className="appView-section-title">
+      <FaFilePdf /> Documents
+    </h3>
+
+    <div className="d-flex align-items-center">
+      <FaFilePdf className="text-danger me-3 fs-3" />
+      <div>
+        <h5 className="mb-0">Resume</h5>
+        <p className="mb-0 text-muted">{resume}</p>
+      </div>
+
+      <button
+        onClick={handleResumeDownload}
+        className="btn appView-btn-outline ms-auto"
+      >
+        <FaDownload className="me-2" />
+        Download
+      </button>
+    </div>
+  </div>
+)}
+
             </div>
           </div>
         </div>
