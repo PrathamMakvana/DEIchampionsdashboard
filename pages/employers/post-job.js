@@ -52,7 +52,9 @@ const validationSchema = Yup.object({
   ),
   genderPreference: Yup.string().required("Gender preference is required"),
   candidateIndustry: Yup.string().required("Candidate industry is required"),
-  languages: Yup.string().required("Languages are required"),
+  languages: Yup.string(),
+  contactPerson: Yup.string().required("Contact person is required"),
+  contactPhone: Yup.string().required("Contact phone is required"),
 });
 
 export default function Home() {
@@ -81,6 +83,11 @@ export default function Home() {
     genderPreference: "",
     candidateIndustry: "",
     languages: "",
+    contactPerson: "",
+    contactPhone: "",
+    allowDirectCall: false,
+    callFrom: "09:30 am",
+    callTo: "06:00 pm",
   });
 
   const {
@@ -127,6 +134,11 @@ export default function Home() {
         languages: Array.isArray(currentJob.languages)
           ? currentJob.languages.join(", ")
           : "",
+        contactPerson: currentJob.contactPerson || "",
+        contactPhone: currentJob.contactPhone || "",
+        allowDirectCall: currentJob.allowDirectCall || false,
+        callFrom: currentJob.callFrom || "09:30 am",
+        callTo: currentJob.callTo || "06:00 pm",
       };
 
       setInitialValues(values);
@@ -544,28 +556,140 @@ export default function Home() {
                               </div>
                             </div>
 
-                            {/* Location - Area */}
-                            {/* <div className="col-lg-6 col-md-6">
+                            {/* Communication Preferences */}
+                            <div className="col-lg-12">
                               <div className="form-group mb-30">
                                 <label className="font-sm color-text-mutted mb-10">
-                                  Area *
+                                  Allow candidates to call you directly?
+                                </label>
+                                <div className="d-flex gap-3">
+                                  <label className="radio-btn">
+                                    <input
+                                      type="radio"
+                                      name="allowDirectCall"
+                                      value="true"
+                                      checked={
+                                        formik.values.allowDirectCall === true
+                                      }
+                                      onChange={() =>
+                                        formik.setFieldValue(
+                                          "allowDirectCall",
+                                          true
+                                        )
+                                      }
+                                    />
+                                    Yes
+                                  </label>
+                                  <label className="radio-btn">
+                                    <input
+                                      type="radio"
+                                      name="allowDirectCall"
+                                      value="false"
+                                      checked={
+                                        formik.values.allowDirectCall === false
+                                      }
+                                      onChange={() =>
+                                        formik.setFieldValue(
+                                          "allowDirectCall",
+                                          false
+                                        )
+                                      }
+                                    />
+                                    No
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Contact Person */}
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Contact person for calls *
                                 </label>
                                 <input
                                   type="text"
-                                  name="area"
+                                  name="contactPerson"
                                   className="form-control"
-                                  placeholder="Area"
-                                  value={formik.values.area}
+                                  placeholder="Recruiter name"
+                                  value={formik.values.contactPerson}
                                   onChange={formik.handleChange}
                                   onBlur={formik.handleBlur}
                                 />
-                                {formik.touched.area && formik.errors.area && (
-                                  <p className="text-danger">
-                                    {formik.errors.area}
-                                  </p>
-                                )}
+                                {formik.touched.contactPerson &&
+                                  formik.errors.contactPerson && (
+                                    <p className="text-danger">
+                                      {formik.errors.contactPerson}
+                                    </p>
+                                  )}
                               </div>
-                            </div> */}
+                            </div>
+
+                            {/* Contact Phone */}
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Contact phone *
+                                </label>
+                                <input
+                                  type="tel"
+                                  name="contactPhone"
+                                  className="form-control"
+                                  placeholder="+91 98765 43210"
+                                  value={formik.values.contactPhone}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                />
+                                {formik.touched.contactPhone &&
+                                  formik.errors.contactPhone && (
+                                    <p className="text-danger">
+                                      {formik.errors.contactPhone}
+                                    </p>
+                                  )}
+                              </div>
+                            </div>
+
+                            {/* Call Timing */}
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  Receive calls between
+                                </label>
+                                <div className="row">
+                                  <div className="col-6">
+                                    <select
+                                      name="callFrom"
+                                      className="form-control"
+                                      value={formik.values.callFrom}
+                                      onChange={formik.handleChange}
+                                      onBlur={formik.handleBlur}
+                                    >
+                                      <option value="09:30 am">09:30 am</option>
+                                      <option value="10:00 am">10:00 am</option>
+                                      <option value="10:30 am">10:30 am</option>
+                                      <option value="11:00 am">11:00 am</option>
+                                      <option value="11:30 am">11:30 am</option>
+                                      <option value="12:00 pm">12:00 pm</option>
+                                    </select>
+                                  </div>
+                                  <div className="col-6">
+                                    <select
+                                      name="callTo"
+                                      className="form-control"
+                                      value={formik.values.callTo}
+                                      onChange={formik.handleChange}
+                                      onBlur={formik.handleBlur}
+                                    >
+                                      <option value="06:00 pm">06:00 pm</option>
+                                      <option value="06:30 pm">06:30 pm</option>
+                                      <option value="07:00 pm">07:00 pm</option>
+                                      <option value="07:30 pm">07:30 pm</option>
+                                      <option value="08:00 pm">08:00 pm</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
 
                             {/* Location - State */}
                             <div className="col-lg-6 col-md-6">
@@ -641,30 +765,6 @@ export default function Home() {
                                 )}
                               </div>
                             </div>
-
-                            {/* Location - Country */}
-                            {/* <div className="col-lg-6 col-md-6">
-                              <div className="form-group mb-30">
-                                <label className="font-sm color-text-mutted mb-10">
-                                  Country *
-                                </label>
-                                <input
-                                  type="text"
-                                  name="country"
-                                  className="form-control"
-                                  placeholder="Country"
-                                  value={formik.values.country}
-                                  onChange={formik.handleChange}
-                                  onBlur={formik.handleBlur}
-                                />
-                                {formik.touched.country &&
-                                  formik.errors.country && (
-                                    <p className="text-danger">
-                                      {formik.errors.country}
-                                    </p>
-                                  )}
-                              </div>
-                            </div> */}
 
                             {/* Status */}
                             {isEditMode && (
