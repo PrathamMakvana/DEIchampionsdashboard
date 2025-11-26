@@ -382,7 +382,16 @@ export default function Home() {
                           className="form-check-label small"
                         >
                           Send me important updates & promotions via SMS, email,
-                          and WhatsApp
+                          and WhatsApp. By continuing, you agree to our{" "}
+                          <a
+                            href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/terms-conditions`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary text-decoration-underline"
+                          >
+                            Terms & Conditions
+                          </a>
+                          .
                         </label>
                       </div>
                     </div>
@@ -423,22 +432,35 @@ export default function Home() {
         {/* Footer */}
         <div className="mt-4 text-center small footer-links">
           <div className="d-flex flex-wrap justify-content-center gap-3 mb-2">
-            <Link href="#" className="text-muted">
+            <Link
+              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/about-us`}
+              className="text-muted"
+            >
               About Us
             </Link>
-            <Link href="#" className="text-muted">
+            <Link
+              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/contact`}
+              className="text-muted"
+            >
               Contact Us
             </Link>
-            <Link href="#" className="text-muted">
+            <Link
+              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/faq`}
+              className="text-muted"
+            >
               FAQs
             </Link>
-            <Link href="#" className="text-muted">
+            <Link
+              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/terms-conditions`}
+              className="text-muted"
+            >
               Terms and Conditions
             </Link>
-            <Link href="#" className="text-muted">
-              Report a Problem
-            </Link>
-            <Link href="#" className="text-muted">
+
+            <Link
+              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/privacy-policy`}
+              className="text-muted"
+            >
               Privacy Policy
             </Link>
           </div>

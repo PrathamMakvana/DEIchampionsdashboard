@@ -214,7 +214,11 @@ const LoginPage = () => {
                   <div className="text-center mt-3">
                     <p>
                       New to Dei Champions?{" "}
-                      <Link href="/employers/register" className="rt-link">
+                      <Link
+                        href="/employers/register"
+                        className="rt-link"
+                        style={{ fontWeight: "bold" }}
+                      >
                         Create recruiter account
                       </Link>
                     </p>
