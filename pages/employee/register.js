@@ -381,8 +381,7 @@ export default function Home() {
                           htmlFor="acceptTerms"
                           className="form-check-label small"
                         >
-                          Send me important updates & promotions via SMS, email,
-                          and WhatsApp. By continuing, you agree to our{" "}
+                          By clicking Register, you agree to the{" "}
                           <a
                             href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/terms-conditions`}
                             target="_blank"
@@ -390,8 +389,17 @@ export default function Home() {
                             className="text-primary text-decoration-underline"
                           >
                             Terms & Conditions
-                          </a>
-                          .
+                          </a>{" "}
+                          &
+                          <a
+                            href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/privacy-policy`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary text-decoration-underline"
+                          >
+                            Privacy Policy
+                          </a>{" "}
+                          of DEI champions. .
                         </label>
                       </div>
                     </div>
