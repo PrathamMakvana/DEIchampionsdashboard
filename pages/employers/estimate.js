@@ -1,95 +1,53 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getUserInquiries,
-  getAllEstimates,
-  updateInquiryStatus,
-} from "@/api/inquiryApi";
-import { getuser } from "@/api/auth";
 import Layout from "@/components/layout/Layout";
+import { useDispatch, useSelector } from "react-redux";
+import { getuser } from "@/api/auth";
+import {
+  getUserEstimates,
+  updateEstimateStatus,
+  downloadEstimatePDF,
+} from "@/api/estimateApi";
 import Swal from "sweetalert2";
 
 const Estimate = () => {
   const dispatch = useDispatch();
-  const { inquiries, estimates, loading } = useSelector((state) => state.inquiry);
   const { user } = useSelector((state) => state.auth);
+  const { userEstimates, loading } = useSelector((state) => state.estimate);
 
-  const [selectedEstimate, setSelectedEstimate] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedEstimate, setSelectedEstimate] = useState(null);
 
+  // Load logged-in user
   useEffect(() => {
-    if (!user) dispatch(getuser());
+    if (!user) {
+      dispatch(getuser());
+    }
   }, [dispatch, user]);
 
+  // Load user estimates
   useEffect(() => {
     if (user?.email) {
-      dispatch(getUserInquiries(user.email));
-      dispatch(getAllEstimates());
+      dispatch(getUserEstimates(user.email));
     }
   }, [dispatch, user?.email]);
 
-  const handleStatusChange = (inquiryId, action) => {
+  const handleStatusUpdate = (estimateId, action) => {
     const newStatus = action === "accept" ? "Approved" : "Rejected";
+    const actionText = action === "accept" ? "accept" : "reject";
+
     Swal.fire({
-      title: `Are you sure you want to ${action} this estimate?`,
+      title: `Are you sure you want to ${actionText} this estimate?`,
+      text: "This action cannot be undone.",
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: `Yes, ${action}`,
-    }).then((res) => {
-      if (res.isConfirmed) {
-       dispatch(updateInquiryStatus(inquiryId, newStatus, user.email));
-
+      confirmButtonColor: action === "accept" ? "#28a745" : "#d33",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: `Yes, ${actionText}`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(updateEstimateStatus(estimateId, newStatus, user.email));
       }
     });
-  };
-
-  const getEstimateForInquiry = (inquiryId) => {
-    return estimates.find((est) => est.inquiry?._id === inquiryId);
-  };
-
-  const formatStatusLabel = (status) => {
-    switch (status) {
-      case "Pending":
-        return "Inquiry Pending";
-      case "Sent":
-        return "Estimate Received";
-      case "Approved":
-        return "Estimate Approved";
-      case "Rejected":
-        return "Estimate Rejected";
-      default:
-        return "Unknown Status";
-    }
-  };
-
-  const downloadEstimatePDF = (pdfUrl, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    fetch(pdfUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = pdfUrl.split("/").pop() || "estimate.pdf";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      })
-      .catch(error => {
-        console.error("Download failed:", error);
-        // Fallback method
-        const link = document.createElement("a");
-        link.href = pdfUrl;
-        link.download = pdfUrl.split("/").pop() || "estimate.pdf";
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
   };
 
   const openModal = (estimate) => {
@@ -98,8 +56,33 @@ const Estimate = () => {
   };
 
   const closeModal = () => {
-    setShowModal(false);
     setSelectedEstimate(null);
+    setShowModal(false);
+  };
+
+  // Only show received estimates
+  const receivedEstimates = userEstimates || [];
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "Approved":
+        return "bg-success";
+      case "Rejected":
+        return "bg-danger";
+      case "Sent":
+        return "bg-primary";
+      default:
+        return "bg-secondary";
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
 
   return (
@@ -109,108 +92,119 @@ const Estimate = () => {
           <div className="card shadow-sm border-0">
             <div className="card-header bg-white border-bottom">
               <h4 className="mb-0 fw-bold text-primary">
-                <i className="bi bi-envelope-paper me-2"></i> My Inquiries
+                <i className="bi bi-file-earmark-text me-2"></i> Received
+                Estimates
               </h4>
+              <p className="text-muted mb-0 mt-1">
+                View and manage estimates sent to you
+              </p>
             </div>
 
             <div className="card-body">
-              {loading && <div className="text-center py-3">Loading inquiries...</div>}
-
-              {!loading && inquiries.length === 0 && (
-                <div className="text-center py-3 text-muted">No inquiries found.</div>
+              {loading && (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary"></div>
+                  <p className="mt-2 text-muted">Loading your estimates...</p>
+                </div>
               )}
 
-              {!loading && inquiries.length > 0 && (
+              {!loading && receivedEstimates.length === 0 && (
+                <div className="text-center py-5 text-muted">
+                  <i className="bi bi-inbox display-4 d-block mb-3"></i>
+                  <h5>No estimates received yet</h5>
+                </div>
+              )}
+
+              {!loading && receivedEstimates.length > 0 && (
                 <div className="table-responsive">
-                  <table className="table table-bordered align-middle">
+                  <table className="table table-hover align-middle">
                     <thead className="table-light">
                       <tr>
-                        <th>Inquiry Name</th>
-                        <th>Email</th>
-                        <th>Mobile</th>
+                        <th>Estimate No.</th>
+                        <th>Valid Until</th>
+                        <th>Grand Total</th>
                         <th>Status</th>
-                        <th>Estimate</th>
+                        <th>PDF</th>
+                        <th>View</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
+
                     <tbody>
-                      {inquiries.map((inquiry) => {
-                        const estimate = getEstimateForInquiry(inquiry._id);
-                        const formattedStatus = formatStatusLabel(inquiry.status);
+                      {receivedEstimates.map((estimate) => (
+                        <tr key={estimate._id}>
+                          <td>
+                            <strong className="text-primary">
+                              {estimate.estimateNumber}
+                            </strong>
+                          </td>
 
-                        return (
-                          <tr key={inquiry._id}>
-                            <td>{inquiry.name}</td>
-                            <td>{inquiry.email}</td>
-                            <td>{inquiry.mobile_number}</td>
-                            <td>
-                              <span
-                                className={`badge px-3 py-2 ${
-                                  inquiry.status === "Approved"
-                                    ? "bg-success"
-                                    : inquiry.status === "Rejected"
-                                    ? "bg-danger"
-                                    : inquiry.status === "Sent"
-                                    ? "bg-info text-dark"
-                                    : "bg-warning text-dark"
-                                }`}
+                          <td>{formatDate(estimate.validUntil)}</td>
+
+                          <td>
+                            <strong>
+                              ₹{estimate.grandTotal?.toLocaleString()}
+                            </strong>
+                          </td>
+
+                          <td>
+                            <span
+                              className={`badge px-2 py-1 ${getStatusBadgeClass(
+                                estimate.estimateStatus
+                              )}`}
+                            >
+                              {estimate.estimateStatus}
+                            </span>
+                          </td>
+
+                          <td>
+                            <button
+                              className="btn btn-outline-secondary btn-sm px-2 py-1"
+                              onClick={(e) =>
+                                downloadEstimatePDF(estimate.pdfUrl, e)
+                              }
+                            >
+                              <i className="bi bi-download me-1"></i> Download
+                            </button>
+                          </td>
+
+                          <td>
+                            <button
+                              className="btn btn-outline-primary btn-sm px-2 py-1"
+                              onClick={() => openModal(estimate)}
+                            >
+                              <i className="bi bi-eye me-1"></i> View
+                            </button>
+                          </td>
+
+                          <td>
+                            <div className="d-flex  gap-2">
+                              <button
+                                className="btn btn-success btn-sm px-2 py-1"
+                                disabled={estimate.estimateStatus !== "Sent"} // ⛔ Disable if not Sent
+                                onClick={() =>
+                                  estimate.estimateStatus === "Sent" &&
+                                  handleStatusUpdate(estimate._id, "accept")
+                                }
                               >
-                                {formattedStatus}
-                              </span>
-                            </td>
+                                <i className="bi bi-check-circle me-1"></i>{" "}
+                                Accept
+                              </button>
 
-                            <td>
-                              {estimate ? (
-                                <div className="d-flex flex-wrap gap-1">
-                                  <button
-                                    className="btn btn-outline-primary"
-                                    style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
-                                    onClick={() => openModal(estimate)}
-                                  >
-                                    <i className="bi bi-eye me-1"></i> View
-                                  </button>
-                                  <button
-                                    className="btn btn-outline-success"
-                                    style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
-                                    onClick={(e) => downloadEstimatePDF(estimate.pdfUrl, e)}
-                                  >
-                                    <i className="bi bi-download me-1"></i> PDF
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-muted">Estimate Pending</span>
-                              )}
-                            </td>
-
-                            <td>
-                              {estimate ? (
-                                inquiry.status === "Sent" ? (
-                                  <div className="d-flex flex-wrap gap-1">
-                                    <button
-                                      className="btn btn-success"
-                                      style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
-                                      onClick={() => handleStatusChange(inquiry._id, "accept")}
-                                    >
-                                      <i className="bi bi-check-circle me-1"></i> Accept
-                                    </button>
-                                    <button
-                                      className="btn btn-danger"
-                                      style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
-                                      onClick={() => handleStatusChange(inquiry._id, "reject")}
-                                    >
-                                      <i className="bi bi-x-circle me-1"></i> Reject
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <span className="text-muted">{formattedStatus}</span>
-                                )
-                              ) : (
-                                <span className="text-muted">Awaiting Estimate</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                              <button
+                                className="btn btn-danger btn-sm px-2 py-1"
+                                disabled={estimate.estimateStatus !== "Sent"} // ⛔ Disable if not Sent
+                                onClick={() =>
+                                  estimate.estimateStatus === "Sent" &&
+                                  handleStatusUpdate(estimate._id, "reject")
+                                }
+                              >
+                                <i className="bi bi-x-circle me-1"></i> Reject
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -220,144 +214,118 @@ const Estimate = () => {
         </div>
       </div>
 
-      {/* ===== Estimate Modal (React State Based) ===== */}
-      {showModal && (
+      {/* ---------- MODAL ---------- */}
+      {showModal && selectedEstimate && (
         <div
           className="modal fade show"
-          style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.6)' }}
+          style={{ display: "block", background: "rgba(0,0,0,0.55)" }}
           onClick={closeModal}
         >
-          <div 
-            className="modal-dialog modal-dialog-centered"
-            style={{ maxWidth: '900px' }}
+          <div
+            className="modal-dialog modal-lg modal-dialog-centered"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-content shadow-lg border-0">
+            <div className="modal-content">
               <div className="modal-header bg-primary text-white">
                 <h5 className="modal-title">
-                  <i className="bi bi-file-text me-2"></i> Estimate Details
+                  Estimate #{selectedEstimate.estimateNumber}
                 </h5>
                 <button
-                  type="button"
                   className="btn-close btn-close-white"
                   onClick={closeModal}
-                  aria-label="Close"
                 ></button>
               </div>
 
-              <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-                {selectedEstimate ? (
-                  <>
-                    <div className="row g-3 mb-4 p-3 bg-light rounded">
-                      <div className="col-md-3 col-6">
-                        <small className="text-muted d-block mb-1">Estimate No.</small>
-                        <strong className="text-primary">{selectedEstimate.estimateNumber}</strong>
-                      </div>
-                      <div className="col-md-4 col-6">
-                        <small className="text-muted d-block mb-1">Company</small>
-                        <strong>
-                          {selectedEstimate.company?.companyName ||
-                            selectedEstimate.company?.name}
-                        </strong>
-                      </div>
-                      <div className="col-md-3 col-6">
-                        <small className="text-muted d-block mb-1">Inquiry By</small>
-                        <strong>{selectedEstimate.inquiry?.name}</strong>
-                      </div>
-                      <div className="col-md-2 col-6">
-                        <small className="text-muted d-block mb-1">Date</small>
-                        <strong>
-                          {new Date(selectedEstimate.estimateDate).toLocaleDateString()}
-                        </strong>
-                      </div>
-                    </div>
-
-                    <div className="mb-4">
-                      <h6 className="text-secondary mb-3">
-                        <i className="bi bi-list-ul me-2"></i>Service Items
-                      </h6>
-                      <div className="table-responsive">
-                        <table className="table table-hover table-bordered align-middle">
-                          <thead className="table-primary">
-                            <tr>
-                              <th style={{ width: '30%' }}>Service</th>
-                              <th style={{ width: '15%' }}>Type</th>
-                              <th className="text-end" style={{ width: '18%' }}>Price (w/o GST)</th>
-                              <th className="text-center" style={{ width: '12%' }}>GST %</th>
-                              <th className="text-end" style={{ width: '25%' }}>Price (with GST)</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {selectedEstimate.items.map((item, i) => (
-                              <tr key={i}>
-                                <td className="fw-medium">{item.service?.name}</td>
-                                <td>
-                                  <span className="badge bg-secondary">{item.type}</span>
-                                </td>
-                                <td className="text-end">
-                                  ₹{item.priceWithoutGst.toLocaleString()}
-                                </td>
-                                <td className="text-center">
-                                  <span className="badge bg-info">{item.gstPercent}%</span>
-                                </td>
-                                <td className="text-end fw-bold text-success">
-                                  ₹{item.priceWithGst.toLocaleString()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    <div className="d-flex justify-content-end">
-                      <div style={{ minWidth: '350px' }}>
-                        <div className="card border-0 bg-light">
-                          <div className="card-body">
-                            <div className="d-flex justify-content-between mb-2 pb-2 border-bottom">
-                              <span className="text-muted">Subtotal:</span>
-                              <strong>₹{selectedEstimate.subTotal.toLocaleString()}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between mb-3 pb-2 border-bottom">
-                              <span className="text-muted">GST Total:</span>
-                              <strong className="text-info">₹{selectedEstimate.gstTotal.toLocaleString()}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between align-items-center bg-primary bg-opacity-10 p-3 rounded">
-                              <span className="fw-bold text-primary fs-5">Grand Total:</span>
-                              <h5 className="fw-bold text-primary mb-0">
-                                ₹{selectedEstimate.grandTotal.toLocaleString()}
-                              </h5>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center py-5 text-muted">
-                    <i className="bi bi-file-x fs-1 d-block mb-3"></i>
-                    <p>No estimate selected</p>
+              <div className="modal-body">
+                <div className="row mb-4">
+                  <div className="col-md-6">
+                    <h6 className="fw-bold">Company Details</h6>
+                    <p className="mb-1">
+                      <strong>Name:</strong>{" "}
+                      {selectedEstimate.company?.companyName}
+                    </p>
+                    <p className="mb-0">
+                      <strong>Email:</strong> {selectedEstimate.company?.email}
+                    </p>
                   </div>
-                )}
+
+                  <div className="col-md-6">
+                    <h6 className="fw-bold">Estimate Info</h6>
+                    <p className="mb-1">
+                      <strong>Date:</strong>{" "}
+                      {formatDate(selectedEstimate.estimateDate)}
+                    </p>
+                    <p className="mb-0">
+                      <strong>Valid Until:</strong>{" "}
+                      {formatDate(selectedEstimate.validUntil)}
+                    </p>
+                  </div>
+                </div>
+
+                <h6 className="fw-bold mb-3">Service Items</h6>
+
+                <div className="table-responsive">
+                  <table className="table table-bordered table-sm">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Service</th>
+                        <th>Type</th>
+                        <th>Price (excl. GST)</th>
+                        <th>GST %</th>
+                        <th>Price (incl. GST)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedEstimate.items.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.service?.name}</td>
+                          <td>
+                            <span
+                              className={`badge ${
+                                item.type === "recurring"
+                                  ? "bg-info"
+                                  : "bg-secondary"
+                              }`}
+                            >
+                              {item.type}
+                            </span>
+                          </td>
+                          <td>₹{item.priceWithoutGst}</td>
+                          <td>{item.gstPercent}%</td>
+                          <td>₹{item.priceWithGst}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="row mt-4">
+                  <div className="col-md-6 offset-md-6">
+                    <div className="border-top pt-3">
+                      <div className="d-flex justify-content-between mb-2">
+                        <strong>Subtotal:</strong>
+                        <span>₹{selectedEstimate.subTotal}</span>
+                      </div>
+                      <div className="d-flex justify-content-between mb-2">
+                        <strong>GST Total:</strong>
+                        <span>₹{selectedEstimate.gstTotal}</span>
+                      </div>
+                      <div className="d-flex justify-content-between fs-5 text-primary">
+                        <strong>Grand Total:</strong>
+                        <strong>₹{selectedEstimate.grandTotal}</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="modal-footer bg-light">
+              <div className="modal-footer">
                 <button
-                  type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary btn-sm"
                   onClick={closeModal}
                 >
-                  <i className="bi bi-x-circle me-2"></i> Close
+                  Close
                 </button>
-                {selectedEstimate && (
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={(e) => downloadEstimatePDF(selectedEstimate.pdfUrl, e)}
-                  >
-                    <i className="bi bi-download me-2"></i> Download PDF
-                  </button>
-                )}
               </div>
             </div>
           </div>

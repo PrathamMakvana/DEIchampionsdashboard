@@ -7,7 +7,7 @@ import authReducer from "./slice/authSlice";
 import jobReducer from "./slice/jobSlice";
 import gallery from "./slice/imageGallerySlice";
 import notificationReducer from "./slice/notificationSlice";
-import inquiryReducer from "./slice/inquirySlice";
+import estimateReducer from "./slice/estimateSlice"
 import userSettingsReducer from "./slice/userSettingSlice";
 
 const authPersistConfig = {
@@ -21,7 +21,7 @@ const rootReducer = combineReducers({
   job: jobReducer,
   gallery: gallery,
   notification: notificationReducer,
-  inquiry: inquiryReducer,
+  estimate: estimateReducer,
   userSettings: userSettingsReducer,
 });
 
