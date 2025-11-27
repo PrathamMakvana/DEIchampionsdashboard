@@ -519,7 +519,7 @@ export default function Home() {
 
                             {/* Candidate Industry */}
                             <div className="col-lg-6 col-md-6">
-                              <div className="form-group mb-30">
+                              {/* <div className="form-group mb-30">
                                 <label className="font-sm color-text-mutted mb-10">
                                   Candidate Industry You Want to Hire From *
                                 </label>
@@ -538,7 +538,16 @@ export default function Home() {
                                       {formik.errors.candidateIndustry}
                                     </p>
                                   )}
-                              </div>
+                              </div> */}
+                              <DynamicSelect
+                                label="Candidate Industry You Want to Hire From *"
+                                name="candidateIndustry"
+                                formik={formik}
+                                options={departments}
+                                valueKey="name"
+                                labelKey="name"
+                                placeholder="Select Candidate Industry"
+                              />
                             </div>
 
                             {/* Languages */}
@@ -819,8 +828,8 @@ export default function Home() {
                                       ? "Updating..."
                                       : "Posting..."
                                     : isEditMode
-                                    ? "Update Job"
-                                    : "Post New Job"}
+                                      ? "Update Job"
+                                      : "Post New Job"}
                                 </button>
                               </div>
                             </div>

@@ -61,25 +61,25 @@ export default function JobPosterRegistration() {
 
     email: Yup.string()
       .email("Invalid email address")
-      .test("is-company-email", "Only company email is allowed", (value) => {
-        if (!value) return false;
+      // .test("is-company-email", "Only company email is allowed", (value) => {
+      //   if (!value) return false;
 
-        // Block list (public domains)
-        const publicDomains = [
-          "gmail.com",
-          "yahoo.com",
-          "hotmail.com",
-          "outlook.com",
-          "live.com",
-          "icloud.com",
-          "aol.com",
-          "protonmail.com",
-          "zoho.com",
-        ];
+      //   // Block list (public domains)
+      //   const publicDomains = [
+      //     "gmail.com",
+      //     "yahoo.com",
+      //     "hotmail.com",
+      //     "outlook.com",
+      //     "live.com",
+      //     "icloud.com",
+      //     "aol.com",
+      //     "protonmail.com",
+      //     "zoho.com",
+      //   ];
 
-        const domain = value.split("@")[1];
-        return domain && !publicDomains.includes(domain.toLowerCase());
-      })
+      //   const domain = value.split("@")[1];
+      //   return domain && !publicDomains.includes(domain.toLowerCase());
+      // })
       .required("Email is required"),
 
     password: Yup.string()
@@ -240,9 +240,8 @@ export default function JobPosterRegistration() {
         </label>
         <div className="status-cards">
           <label
-            className={`status-card ${
-              values.companyAccountType === "company" ? "active" : ""
-            }`}
+            className={`status-card ${values.companyAccountType === "company" ? "active" : ""
+              }`}
           >
             <Field
               type="radio"
@@ -258,9 +257,8 @@ export default function JobPosterRegistration() {
           </label>
 
           <label
-            className={`status-card ${
-              values.companyAccountType === "individual" ? "active" : ""
-            }`}
+            className={`status-card ${values.companyAccountType === "individual" ? "active" : ""
+              }`}
           >
             <Field
               type="radio"
@@ -359,9 +357,8 @@ export default function JobPosterRegistration() {
             onClick={() => setShowPassword(!showPassword)}
           >
             <i
-              className={`bi ${
-                showPassword ? "bi-eye-slash" : "bi-eye"
-              } text-muted`}
+              className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"
+                } text-muted`}
             ></i>
           </span>
         </div>
