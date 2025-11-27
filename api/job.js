@@ -9,6 +9,7 @@ import {
   setMySavedJobs,
   setSalaryRanges,
   setRecommendedJobs,
+  setEducations
 } from "@/store/slice/jobSlice";
 import {
   fetcher,
@@ -40,6 +41,21 @@ export const getJobTypes = () => async (dispatch) => {
     return res;
   } catch (error) {
     console.error("Error fetching job types:", error);
+    dispatch(setLoading(false));
+    return null;
+  }
+};
+
+
+export const getEducations = () => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const data = await fetcher("/education/get-all"); 
+    dispatch(setEducations(data));
+    dispatch(setLoading(false));
+    return data;
+  } catch (error) {
+    console.error("Error fetching educations:", error);
     dispatch(setLoading(false));
     return null;
   }

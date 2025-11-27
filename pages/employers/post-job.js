@@ -14,10 +14,22 @@ import { useFormik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
-import cityStateData from "@/utils/cityState.json";
+import cityStateData from "@/utils/countriesStatesCities.json";
 import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
+
+
+const indiaData = cityStateData.find(
+  (country) => country.name.toLowerCase() === "india"
+);
+
+// Sort states alphabetically
+const indiaStates = indiaData?.states
+  ?.map((st) => st.name)
+  ?.sort((a, b) => a.localeCompare(b)) || [];
+
+
 
 const CKEditor = dynamic(
   async () => {
@@ -692,79 +704,78 @@ export default function Home() {
                             </div>
 
                             {/* Location - State */}
-                            <div className="col-lg-6 col-md-6">
-                              <div className="form-group mb-30">
-                                <label className="font-sm color-text-mutted mb-10">
-                                  State *
-                                </label>
-                                <select
-                                  name="state"
-                                  className="form-control"
-                                  value={formik.values.state}
-                                  onChange={(e) => {
-                                    const stateValue = e.target.value;
-                                    formik.setFieldValue("state", stateValue);
+<div className="col-lg-6 col-md-6">
+  <div className="form-group mb-30">
+    <label className="font-sm color-text-mutted mb-10">State *</label>
 
-                                    // Update city dropdown options dynamically
-                                    if (stateValue) {
-                                      const selected = cityStateData.data.find(
-                                        (item) => item.state === stateValue
-                                      );
-                                      setCities(
-                                        selected ? selected.cities : []
-                                      );
-                                      // Clear city if state changes
-                                      formik.setFieldValue("city", "");
-                                    } else {
-                                      setCities([]);
-                                      formik.setFieldValue("city", "");
-                                    }
-                                  }}
-                                  onBlur={formik.handleBlur}
-                                >
-                                  <option value="">Select State</option>
-                                  {cityStateData.data.map((item) => (
-                                    <option key={item.state} value={item.state}>
-                                      {item.state}
-                                    </option>
-                                  ))}
-                                </select>
-                                {formik.touched.state &&
-                                  formik.errors.state && (
-                                    <p className="text-danger">
-                                      {formik.errors.state}
-                                    </p>
-                                  )}
-                              </div>
-                            </div>
+    <select
+      name="state"
+      className="form-control"
+      value={formik.values.state}
+      onChange={(e) => {
+        const stateValue = e.target.value;
+        formik.setFieldValue("state", stateValue);
+
+        // Find selected state from India
+        const selectedState = indiaData.states.find(
+          (st) => st.name === stateValue
+        );
+
+        // Set sorted cities
+        setCities(
+          selectedState
+            ? [...selectedState.cities]
+                .map((c) => c.name)
+                .sort((a, b) => a.localeCompare(b))
+            : []
+        );
+
+        formik.setFieldValue("city", "");
+      }}
+      onBlur={formik.handleBlur}
+    >
+      <option value="">Select State</option>
+
+      {indiaStates.map((state) => (
+        <option key={state} value={state}>
+          {state}
+        </option>
+      ))}
+    </select>
+
+    {formik.touched.state && formik.errors.state && (
+      <p className="text-danger">{formik.errors.state}</p>
+    )}
+  </div>
+</div>
+
 
                             {/* Location - City */}
-                            <div className="col-lg-6 col-md-6">
-                              <div className="form-group mb-30">
-                                <label className="font-sm color-text-mutted mb-10">
-                                  City *
-                                </label>
-                                <select
-                                  name="city"
-                                  className="form-control"
-                                  value={formik.values.city}
-                                  onChange={formik.handleChange}
-                                  onBlur={formik.handleBlur}
-                                >
-                                  <option value="">Select City</option>
-                                  {cities.map((city) => (
-                                    <option key={city} value={city}>
-                                      {city}
-                                    </option>
-                                  ))}
-                                </select>
-                                {formik.touched.city && formik.errors.city && (
-                                  <p className="text-danger">
-                                    {formik.errors.city}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
+<div className="col-lg-6 col-md-6">
+  <div className="form-group mb-30">
+    <label className="font-sm color-text-mutted mb-10">City *</label>
+
+    <select
+      name="city"
+      className="form-control"
+      value={formik.values.city}
+      onChange={formik.handleChange}
+      onBlur={formik.handleBlur}
+    >
+      <option value="">Select City</option>
+
+      {cities.map((city) => (
+        <option key={city} value={city}>
+          {city}
+        </option>
+      ))}
+    </select>
+
+    {formik.touched.city && formik.errors.city && (
+      <p className="text-danger">{formik.errors.city}</p>
+    )}
+  </div>
+</div>
 
                             {/* Status */}
                             {isEditMode && (

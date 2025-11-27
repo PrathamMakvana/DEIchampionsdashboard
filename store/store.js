@@ -9,6 +9,7 @@ import gallery from "./slice/imageGallerySlice";
 import notificationReducer from "./slice/notificationSlice";
 import estimateReducer from "./slice/estimateSlice"
 import userSettingsReducer from "./slice/userSettingSlice";
+import termsReducer from "./slice/termsSlice";
 
 const authPersistConfig = {
   key: "auth",
@@ -17,12 +18,13 @@ const authPersistConfig = {
 };
 
 const rootReducer = combineReducers({
-  auth: persistReducer(authPersistConfig, authReducer), // persist only auth with blacklist
+  auth: persistReducer(authPersistConfig, authReducer), 
   job: jobReducer,
   gallery: gallery,
   notification: notificationReducer,
   estimate: estimateReducer,
   userSettings: userSettingsReducer,
+  terms: termsReducer,
 });
 
 const persistConfig = {

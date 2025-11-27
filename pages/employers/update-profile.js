@@ -9,9 +9,13 @@ import Swal from "sweetalert2";
 import DynamicSelect from "@/components/elements/DynamicSelect";
 import { getJobCategories, getDepartments } from "@/api/job";
 import * as Yup from "yup";
-import cityStateData from "@/utils/cityState.json";
+import cityStateData from "@/utils/countriesStatesCities.json";
 
-const states = cityStateData.data.map((item) => item.state);
+const indiaData = cityStateData.find((c) => c.name === "India");
+
+const indianStates = indiaData.states
+  .map((s) => s.name)
+  .sort();
 
 const companyTypes = [
   "Private Limited",
@@ -158,17 +162,24 @@ export default function CompanyProfileUpdate() {
   });
 
   // When state changes (Formik-controlled), update cities
-  useEffect(() => {
-    const selectedState = formik.values.state;
-    if (selectedState) {
-      const selected = cityStateData.data.find(
-        (item) => item.state === selectedState
-      );
-      setCities(selected ? selected.cities : []);
-    } else {
-      setCities([]);
-    }
-  }, [formik.values.state]);
+ useEffect(() => {
+  const selectedState = formik.values.state;
+
+  if (selectedState) {
+    const stateObj = indiaData.states.find(
+      (s) => s.name === selectedState
+    );
+
+    const sortedCities = stateObj
+      ? stateObj.cities.map((city) => city.name).sort()
+      : [];
+
+    setCities(sortedCities);
+  } else {
+    setCities([]);
+  }
+}, [formik.values.state]);
+
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
@@ -660,76 +671,77 @@ export default function CompanyProfileUpdate() {
                     )}
                   </div>
 
-                  <div className="col-md-3 upd-pro-form-group">
-                    <label className="upd-pro-form-label">State *</label>
-                    <select
-                      name="state"
-                      className={`form-control upd-pro-form-control ${
-                        formik.touched.state && formik.errors.state
-                          ? "is-invalid"
-                          : ""
-                      }`}
-                      value={formik.values.state}
-                      onChange={(e) => {
-                        formik.handleChange(e); // update Formik value
-                        const stateValue = e.target.value;
+               <div className="col-md-3 upd-pro-form-group">
+  <label className="upd-pro-form-label">State *</label>
 
-                        if (stateValue) {
-                          const selected = cityStateData.data.find(
-                            (item) => item.state === stateValue
-                          );
-                          setCities(selected ? selected.cities : []);
-                          formik.setFieldValue("city", ""); // reset city
-                        } else {
-                          setCities([]);
-                          formik.setFieldValue("city", "");
-                        }
-                      }}
-                      onBlur={formik.handleBlur}
-                      required
-                    >
-                      <option value="">Select State</option>
-                      {states.map((state) => (
-                        <option key={state} value={state}>
-                          {state}
-                        </option>
-                      ))}
-                    </select>
-                    {formik.touched.state && formik.errors.state && (
-                      <div className="invalid-feedback">
-                        {formik.errors.state}
-                      </div>
-                    )}
-                  </div>
+  <select
+    name="state"
+    className={`form-control upd-pro-form-control ${
+      formik.touched.state && formik.errors.state ? "is-invalid" : ""
+    }`}
+    value={formik.values.state}
+    onChange={(e) => {
+      const selectedState = e.target.value;
+      formik.setFieldValue("state", selectedState);
+
+      // When state changes → reset city
+      formik.setFieldValue("city", "");
+
+      // Update city list
+      const stateObj = indiaData.states.find(
+        (s) => s.name === selectedState
+      );
+      const sortedCities = stateObj
+        ? stateObj.cities.map((city) => city.name).sort()
+        : [];
+      setCities(sortedCities);
+    }}
+    onBlur={formik.handleBlur}
+  >
+    <option value="">Select State</option>
+
+    {indianStates.map((state) => (
+      <option key={state} value={state}>
+        {state}
+      </option>
+    ))}
+  </select>
+
+  {formik.touched.state && formik.errors.state && (
+    <div className="invalid-feedback">{formik.errors.state}</div>
+  )}
+</div>
+
 
                   {/* City Dropdown */}
-                  <div className="col-md-3 upd-pro-form-group">
-                    <label className="upd-pro-form-label">City *</label>
-                    <select
-                      name="city"
-                      className={`form-control upd-pro-form-control ${
-                        formik.touched.city && formik.errors.city
-                          ? "is-invalid"
-                          : ""
-                      }`}
-                      value={formik.values.city}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      required
-                    >
-                      <option value="">Select City</option>
-                      {cities.map((city) => (
-                        <option key={city} value={city}>
-                          {city}
-                        </option>
-                      ))}
-                    </select>
-                    {formik.touched.city && formik.errors.city && (
-                      <div className="invalid-feedback">
-                        {formik.errors.city}
-                      </div>
-                    )}
-                  </div>
+               <div className="col-md-3 upd-pro-form-group">
+  <label className="upd-pro-form-label">City *</label>
+
+  <select
+    name="city"
+    className={`form-control upd-pro-form-control ${
+      formik.touched.city && formik.errors.city ? "is-invalid" : ""
+    }`}
+    value={formik.values.city}
+    onChange={formik.handleChange}
+    onBlur={formik.handleBlur}
+  >
+    <option value="">Select City</option>
+
+    {cities.map((city) => (
+      <option key={city} value={city}>
+        {city}
+      </option>
+    ))}
+  </select>
+
+  {formik.touched.city && formik.errors.city && (
+    <div className="invalid-feedback">{formik.errors.city}</div>
+  )}
+</div>
+
+
+
                   <div className="col-md-3 upd-pro-form-group">
                     <label className="upd-pro-form-label">Pincode *</label>
                     <input

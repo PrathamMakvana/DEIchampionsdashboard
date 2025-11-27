@@ -11,7 +11,8 @@ const jobSlice = createSlice({
     currentJob: null,
     myApplications: [],
     mySavedJobs: [],
-    recommendedJobs: [], // Add this line
+    recommendedJobs: [],
+    educations: [], 
     loading: false,
   },
   reducers: {
@@ -43,8 +44,10 @@ const jobSlice = createSlice({
       state.salaryRanges = action.payload || [];
     },
     setRecommendedJobs: (state, action) => {
-      // Add this reducer
       state.recommendedJobs = action.payload || [];
+    },
+    setEducations: (state, action) => {
+      state.educations = action.payload || []; 
     },
   },
 });
@@ -59,7 +62,8 @@ export const {
   setMyApplications,
   setMySavedJobs,
   setSalaryRanges,
-  setRecommendedJobs, // Export this
+  setRecommendedJobs,
+  setEducations,
 } = jobSlice.actions;
 
 export default jobSlice.reducer;
