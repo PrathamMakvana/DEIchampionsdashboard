@@ -19,17 +19,14 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 
-
 const indiaData = cityStateData.find(
   (country) => country.name.toLowerCase() === "india"
 );
 
 // Sort states alphabetically
-const indiaStates = indiaData?.states
-  ?.map((st) => st.name)
-  ?.sort((a, b) => a.localeCompare(b)) || [];
-
-
+const indiaStates =
+  indiaData?.states?.map((st) => st.name)?.sort((a, b) => a.localeCompare(b)) ||
+  [];
 
 const CKEditor = dynamic(
   async () => {
@@ -245,7 +242,7 @@ if (currentJob.state) {
 
         if (data) {
           resetForm();
-          setCities([]); // Clear cities after successful submission
+          setCities([]);
         }
       }
     },
@@ -724,78 +721,85 @@ if (currentJob.state) {
                             </div>
 
                             {/* Location - State */}
-<div className="col-lg-6 col-md-6">
-  <div className="form-group mb-30">
-    <label className="font-sm color-text-mutted mb-10">State *</label>
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  State *
+                                </label>
 
-    <select
-      name="state"
-      className="form-control"
-      value={formik.values.state}
-      onChange={(e) => {
-        const stateValue = e.target.value;
-        formik.setFieldValue("state", stateValue);
+                                <select
+                                  name="state"
+                                  className="form-control"
+                                  value={formik.values.state}
+                                  onChange={(e) => {
+                                    const stateValue = e.target.value;
+                                    formik.setFieldValue("state", stateValue);
 
-        // Find selected state from India
-        const selectedState = indiaData.states.find(
-          (st) => st.name === stateValue
-        );
+                                    const selectedState = indiaData.states.find(
+                                      (st) => st.name === stateValue
+                                    );
 
-        // Set sorted cities
-        setCities(
-          selectedState
-            ? [...selectedState.cities]
-                .map((c) => c.name)
-                .sort((a, b) => a.localeCompare(b))
-            : []
-        );
+                                    // Set sorted cities
+                                    setCities(
+                                      selectedState
+                                        ? [...selectedState.cities]
+                                            .map((c) => c.name)
+                                            .sort((a, b) => a.localeCompare(b))
+                                        : []
+                                    );
 
-        formik.setFieldValue("city", "");
-      }}
-      onBlur={formik.handleBlur}
-    >
-      <option value="">Select State</option>
+                                    formik.setFieldValue("city", "");
+                                  }}
+                                  onBlur={formik.handleBlur}
+                                >
+                                  <option value="">Select State</option>
 
-      {indiaStates.map((state) => (
-        <option key={state} value={state}>
-          {state}
-        </option>
-      ))}
-    </select>
+                                  {indiaStates.map((state) => (
+                                    <option key={state} value={state}>
+                                      {state}
+                                    </option>
+                                  ))}
+                                </select>
 
-    {formik.touched.state && formik.errors.state && (
-      <p className="text-danger">{formik.errors.state}</p>
-    )}
-  </div>
-</div>
-
+                                {formik.touched.state &&
+                                  formik.errors.state && (
+                                    <p className="text-danger">
+                                      {formik.errors.state}
+                                    </p>
+                                  )}
+                              </div>
+                            </div>
 
                             {/* Location - City */}
-<div className="col-lg-6 col-md-6">
-  <div className="form-group mb-30">
-    <label className="font-sm color-text-mutted mb-10">City *</label>
+                            <div className="col-lg-6 col-md-6">
+                              <div className="form-group mb-30">
+                                <label className="font-sm color-text-mutted mb-10">
+                                  City *
+                                </label>
 
-    <select
-      name="city"
-      className="form-control"
-      value={formik.values.city}
-      onChange={formik.handleChange}
-      onBlur={formik.handleBlur}
-    >
-      <option value="">Select City</option>
+                                <select
+                                  name="city"
+                                  className="form-control"
+                                  value={formik.values.city}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                >
+                                  <option value="">Select City</option>
 
-      {cities.map((city) => (
-        <option key={city} value={city}>
-          {city}
-        </option>
-      ))}
-    </select>
+                                  {cities.map((city) => (
+                                    <option key={city} value={city}>
+                                      {city}
+                                    </option>
+                                  ))}
+                                </select>
 
-    {formik.touched.city && formik.errors.city && (
-      <p className="text-danger">{formik.errors.city}</p>
-    )}
-  </div>
-</div>
+                                {formik.touched.city && formik.errors.city && (
+                                  <p className="text-danger">
+                                    {formik.errors.city}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
 
                             {/* Status */}
                             {isEditMode && (
@@ -839,8 +843,8 @@ if (currentJob.state) {
                                       ? "Updating..."
                                       : "Posting..."
                                     : isEditMode
-                                      ? "Update Job"
-                                      : "Post New Job"}
+                                    ? "Update Job"
+                                    : "Post New Job"}
                                 </button>
                               </div>
                             </div>

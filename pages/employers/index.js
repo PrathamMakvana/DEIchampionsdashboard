@@ -32,7 +32,11 @@ export default function EmployerDashboard() {
   const [agree, setAgree] = useState(false);
   const [hasCheckedAcceptance, setHasCheckedAcceptance] = useState(false);
 
-  const { termsData, accepted, loading: termsLoading } = useSelector((state) => state.terms);
+  const {
+    termsData,
+    accepted,
+    loading: termsLoading,
+  } = useSelector((state) => state.terms);
 
   // Fetch jobs
   useEffect(() => {
@@ -47,17 +51,17 @@ export default function EmployerDashboard() {
         try {
           // Fetch terms content
           await dispatch(getTermsAndConditions());
-          
+
           // Fetch user's acceptance status
           await dispatch(getUserTermsAcceptance(user._id));
-          
+
           setHasCheckedAcceptance(true);
         } catch (error) {
           console.error("Error fetching terms data:", error);
           setHasCheckedAcceptance(true);
         }
       };
-      
+
       fetchTermsData();
     }
   }, [user, dispatch]);
@@ -438,9 +442,9 @@ export default function EmployerDashboard() {
                           You haven't added any services yet. Start showcasing
                           your company's offerings to attract more candidates.
                         </p>
-                        <button className="dash-services-empty-btn">
+                        {/* <button className="dash-services-empty-btn">
                           Add Your First Service
-                        </button>
+                        </button> */}
                       </div>
                     )}
                   </div>
