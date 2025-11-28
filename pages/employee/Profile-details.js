@@ -90,6 +90,36 @@ const JobSeekerProfile = () => {
     return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resumePath}`;
   };
 
+  const handleResumeDownload = async () => {
+    if (!user.resume) return;
+
+    const resumePath = user.resume.replace(/^src[\\/]/, "");
+    const fileUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resumePath}`;
+
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Extract filename OR fallback
+      const fileName = user.resume.split("/").pop() || "resume.pdf";
+      link.download = fileName;
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
+
   // Helper function to safely get industries
   const getIndustries = () => {
     if (!user.industry || !Array.isArray(user.industry)) return [];
@@ -526,16 +556,13 @@ const JobSeekerProfile = () => {
                         </div>
                       </div>
 
-                      <div className=" me-4" style={{ marginTop: "3rem" }}>
-                        <a
-                          href={getResumeUrl()}
-                          download
-                          target="_blank"
-                          rel="noopener noreferrer"
+                      <div className="me-4" style={{ marginTop: "3rem" }}>
+                        <button
+                          onClick={handleResumeDownload}
                           className="btn-primary"
                         >
-                          <i className="bi bi-eye me-2"></i>View Resume
-                        </a>
+                          <i className="bi bi-download me-2"></i>Download Resume
+                        </button>
                       </div>
                     </div>
                   )}

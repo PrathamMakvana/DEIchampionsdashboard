@@ -614,22 +614,45 @@ export default function UserProfileUpdate() {
   };
 
   // Download resume function
-  const downloadResume = () => {
-    if (user?.resume) {
-      const resumeUrl = `${
-        process.env.NEXT_PUBLIC_BACKEND_URL
-      }/${user.resume.replace(/^src[\\/]/, "")}`;
+const downloadResume = async () => {
+  if (!user?.resume) return;
 
-      // Create a temporary anchor element to trigger download
-      const link = document.createElement("a");
-      link.href = resumeUrl;
-      link.download =
-        resumeFileName || user.resume.split("/").pop().replace(/^\d+-/, "");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+  const resumePath = user.resume.replace(/^src[\\/]/, "");
+  const resumeUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resumePath}`;
+
+  try {
+    const response = await fetch(resumeUrl);
+
+    if (!response.ok) {
+      console.error("Failed to fetch resume file.");
+      return;
     }
-  };
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Determine final filename
+    const fileName =
+      resumeFileName ||
+      user.resume.split("/").pop().replace(/^\d+-/, "") ||
+      "resume.pdf";
+
+    link.download = fileName;
+
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error downloading resume:", error);
+  }
+};
+
 
   const addSkill = () => {
     const skillInput = document.getElementById("skillInput");
