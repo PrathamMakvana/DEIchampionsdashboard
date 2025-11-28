@@ -157,12 +157,23 @@ export default function Home() {
       formik.setValues(values);
 
       // Set cities based on state
-      if (currentJob.state) {
-        const selected = cityStateData.data.find(
-          (item) => item.state === currentJob.state
-        );
-        setCities(selected ? selected.cities : []);
-      }
+if (currentJob.state) {
+  const india = cityStateData.find(
+    (country) => country.name?.toLowerCase() === "india"
+  );
+
+  const selected = india?.states?.find(
+    (st) => st.name === currentJob.state
+  );
+
+  setCities(
+    selected?.cities
+      ? selected.cities.map((c) => c.name).sort((a, b) => a.localeCompare(b))
+      : []
+  );
+}
+
+
     }
   }, [currentJob, isEditMode]);
 

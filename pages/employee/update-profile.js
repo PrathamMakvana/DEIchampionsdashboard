@@ -39,55 +39,73 @@ const totalExperienceOptions = [
 ];
 
 const validationSchema = Yup.object().shape({
-  name: Yup.string().optional(),
-  email: Yup.string().email("Invalid email").optional(),
+  name: Yup.string().nullable().notRequired(),
+  email: Yup.string().email("Invalid email").nullable().notRequired(),
   mobile: Yup.string()
     .matches(/^[0-9]{10}$/, "Mobile must be 10 digits")
-    .optional(),
-  workStatus: Yup.string().optional(),
-  address: Yup.string().optional(),
-  city: Yup.string().optional(),
-  state: Yup.string().optional(),
-  country: Yup.string().optional(),
+    .nullable()
+    .notRequired(),
+  workStatus: Yup.string().nullable().notRequired(),
+  address: Yup.string().nullable().notRequired(),
+  city: Yup.string().nullable().notRequired(),
+  state: Yup.string().nullable().notRequired(),
+  country: Yup.string().nullable().notRequired(),
+
   dateOfBirth: Yup.date()
     .nullable()
-    .max(new Date(), "Date of birth cannot be in the future"),
-  pincode: Yup.string()
-    .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
-    .optional(),
-  employeeDescription: Yup.string().optional(),
-  gender: Yup.string().optional(),
-  totalWorkExperience: Yup.string().optional(),
-  noticePeriod: Yup.string().optional(),
-  currentSalary: Yup.string().nullable().optional(),
-  department: Yup.array().of(Yup.string().optional()),
-  industry: Yup.array().of(Yup.string().optional()),
-education: Yup.array().of(
-  Yup.object().shape({
-    degree: Yup.string().optional(),
-    institution: Yup.string().optional(),
-    graduationYear: Yup.number()
-      .nullable()
-      .transform((value, originalValue) =>
-        originalValue === "" ? null : value
-      )
-      .typeError("Graduation year must be a number")
-      .min(1950, "Year must be >= 1950")
-      .max(2030, "Year must be <= 2030")
-      .optional(),
-  })
-),
+    .transform((v, o) => (o === "" ? null : v))
+    .max(new Date(), "Date of birth cannot be in the future")
+    .notRequired(),
 
-  experience: Yup.array().of(
-    Yup.object().shape({
-      companyName: Yup.string().optional(),
-      position: Yup.string().optional(),
-      startDate: Yup.date().optional(),
-      endDate: Yup.date().nullable(),
-      currentJob: Yup.boolean(),
-      description: Yup.string().nullable(),
-    })
-  ),
+  pincode: Yup.string()
+    .matches(/^$|^[0-9]{6}$/, "Pincode must be 6 digits") // Allow empty string
+    .nullable()
+    .notRequired(),
+
+  employeeDescription: Yup.string().nullable().notRequired(),
+  gender: Yup.string().nullable().notRequired(),
+  totalWorkExperience: Yup.string().nullable().notRequired(),
+  noticePeriod: Yup.string().nullable().notRequired(),
+  currentSalary: Yup.string().nullable().notRequired(),
+
+  department: Yup.array().of(Yup.string().nullable()).nullable().notRequired(),
+  industry: Yup.array().of(Yup.string().nullable()).nullable().notRequired(),
+
+  education: Yup.array()
+    .of(
+      Yup.object().shape({
+        degree: Yup.string().nullable().notRequired(),
+        institution: Yup.string().nullable().notRequired(),
+        graduationYear: Yup.number()
+          .nullable()
+          .transform((v, o) => (o === "" ? null : v))
+          .min(1950, "Year must be >= 1950")
+          .max(2030, "Year must be <= 2030")
+          .notRequired(),
+      })
+    )
+    .nullable()
+    .notRequired(),
+
+  experience: Yup.array()
+    .of(
+      Yup.object().shape({
+        companyName: Yup.string().nullable().notRequired(),
+        position: Yup.string().nullable().notRequired(),
+        startDate: Yup.date()
+          .nullable()
+          .transform((v, o) => (o === "" ? null : v))
+          .notRequired(),
+        endDate: Yup.date()
+          .nullable()
+          .transform((v, o) => (o === "" ? null : v))
+          .notRequired(),
+        currentJob: Yup.boolean().notRequired(),
+        description: Yup.string().nullable().notRequired(),
+      })
+    )
+    .nullable()
+    .notRequired(),
 });
 
 export default function UserProfileUpdate() {
@@ -180,47 +198,50 @@ export default function UserProfileUpdate() {
   }, []);
 
   const defaultInitialValues = {
-    name: "",
-    email: "",
-    mobile: "",
-    dateOfBirth: null,
-    employeeDescription: "",
-    gender: "",
-    workStatus: "unemployed",
-    address: "",
-    city: "",
-    state: "",
-    country: "India", // Set India as default
-    pincode: "",
-    currentPassword: "",
-    newPassword: "",
-    jobType: "",
-    department: [],
-    category: "",
-    salaryRange: "",
-    industry: [],
-    totalWorkExperience: "",
-    noticePeriod: "",
-    currentSalary: "",
-    preferredLocations: "",
-    education: [
-      {
-        degree: "",
-        institution: "",
-        graduationYear: "",
-      },
-    ],
-    experience: [
-      {
-        companyName: "",
-        position: "",
-        startDate: "",
-        endDate: "",
-        currentJob: false,
-        description: "",
-      },
-    ],
-  };
+  name: "",
+  email: "",
+  mobile: "",
+  dateOfBirth: null,
+  employeeDescription: "",
+  gender: "",
+  workStatus: "unemployed",
+  address: "",
+  city: "",
+  state: "",
+  country: "India",
+  pincode: "",
+  currentPassword: "",
+  newPassword: "",
+  jobType: "",
+  department: [],
+  category: "",
+  salaryRange: "",
+  industry: [],
+  totalWorkExperience: "",
+  noticePeriod: "",
+  currentSalary: "",
+  preferredLocations: [],   
+
+  education: [
+    {
+      degree: "",
+      institution: "",
+      graduationYear: null, 
+    },
+  ],
+
+  experience: [
+    {
+      companyName: "",
+      position: "",
+      startDate: null,     
+      endDate: null,      
+      currentJob: false,
+      description: "",
+    },
+  ],
+};
+
 
   // function useScrollToError(errors, touched) {
   //   useEffect(() => {
@@ -1122,7 +1143,6 @@ export default function UserProfileUpdate() {
                         value={formik.values.pincode}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        required
                       />
                       {formik.touched.pincode && formik.errors.pincode && (
                         <div className="text-danger">
@@ -1683,7 +1703,6 @@ export default function UserProfileUpdate() {
                                   }
                                   onChange={formik.handleChange}
                                   onBlur={formik.handleBlur}
-                                  required
                                 >
                                   <option value="">Select Position</option>
 
@@ -1717,7 +1736,6 @@ export default function UserProfileUpdate() {
                                   value={moment(
                                     formik.values.experience[index].startDate
                                   ).format("YYYY-MM-DD")}
-                                  required
                                 />
                                 {formik.touched.experience?.[index]
                                   ?.startDate &&
