@@ -15,7 +15,9 @@ export default function Login() {
   const navigate = useRouter();
   const loading = useSelector((state) => state.auth.loading);
   const user = useSelector((state) => state.auth.user);
-  const profileCompletionData = useSelector((state) => state.auth.profileCompletion);
+  const profileCompletionData = useSelector(
+    (state) => state.auth.profileCompletion
+  );
   const [showPassword, setShowPassword] = useState(false);
 
   // Check profile completion and redirect if not 100%
@@ -24,9 +26,12 @@ export default function Login() {
       if (user) {
         // Dispatch to get latest profile completion data
         await dispatch(getuserProfileCompletionData());
-        
+
         // Check if profile completion exists and is less than 100%
-        if (profileCompletionData && profileCompletionData.profileCompletion < 100) {
+        if (
+          profileCompletionData &&
+          profileCompletionData.profileCompletion < 100
+        ) {
           navigate.push("/employee/Profile-details");
         }
       }
@@ -44,7 +49,7 @@ export default function Login() {
   const loginValidationSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
+      .min(8, "Password must be at least 8 characters")
       .required("Password is required"),
   });
 
@@ -74,7 +79,7 @@ export default function Login() {
       if (data?.success) {
         // After successful login, check profile completion
         const profileData = await dispatch(getuserProfileCompletionData());
-        
+
         // Redirect based on profile completion
         if (profileData?.profileCompletion < 100) {
           navigate.push("/employee/Profile-details");

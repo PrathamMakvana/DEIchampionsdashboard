@@ -249,3 +249,77 @@ export const getResendVerifyEmail = async () => {
     return null;
   }
 };
+
+//forgot password
+
+export const forgotPassword = async (formData, { showSuccess, showError }) => {
+  try {
+    console.log("🚀formData --->", formData);
+    const response = await fetcherPost(["/users/forgot-password", formData]);
+
+    if (response && response.success) {
+      showSuccess(
+        response.message || "Password reset link has been sent to your email"
+      );
+      return response;
+    } else {
+      showError(response?.message || "Failed to send reset link");
+      return response;
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Network error. Please check your connection and try again.";
+
+    showError(errorMessage);
+    throw error;
+  }
+};
+
+export const resetPassword = async (formData, { showSuccess, showError }) => {
+  try {
+    console.log("🚀formData --->", formData);
+    const response = await fetcherPost(["/users/reset-password", formData]);
+
+    if (response && response.success) {
+      showSuccess(response.message || "Password has been reset successfully");
+      return response;
+    } else {
+      showError(response?.message || "Failed to reset password");
+      return response;
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Network error. Please check your connection and try again.";
+
+    showError(errorMessage);
+    throw error;
+  }
+};
+
+// API function for updating password
+export const updatePassword = async (formData, { showSuccess, showError }) => {
+  try {
+    console.log("🚀 formData --->", formData);
+    const response = await fetcherPost(["/users/change-password", formData]);
+
+    if (response && response.success) {
+      showSuccess(response.message || "Password has been changed successfully");
+      return response;
+    } else {
+      showError(response?.message || "Failed to change password");
+      return response;
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Network error. Please check your connection and try again.";
+
+    showError(errorMessage);
+    throw error;
+  }
+};

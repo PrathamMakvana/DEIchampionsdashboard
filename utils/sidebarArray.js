@@ -148,10 +148,15 @@ export const employersLinks = [
     icon: "bi-person", // Profile
   },
 
-   {
+  {
     path: "/employers/estimate",
     label: "My Estimates",
-    icon: "bi-envelope-paper", 
+    icon: "bi-envelope-paper",
+  },
+  {
+    path: "/employers/settings",
+    label: "Settings",
+    icon: "bi-gear",
   },
   // {
   //   path: "/employers/update-profile",
@@ -194,7 +199,7 @@ export const employeeLinks = [
   // {
   //   path: "/employee/recommended-jobs",
   //   label: "Recommended Job",
-  //   icon: "bi-people", 
+  //   icon: "bi-people",
   // },
   {
     path: "/employee/Profile-details",
@@ -252,8 +257,8 @@ export const mobileLinks = [
     icon: "recruiters.svg",
   },
   {
-    path: "/employee/recommended-jobs",
-    label: "Recommended Job",
+    path: "/employee/settings",
+    label: "Settings",
     icon: "settings.svg", // Recruiters
   },
   // { path: "/employee/settings", label: "Settings", icon: "tasks.svg" },
@@ -284,7 +289,7 @@ export const postermobileLinks = [
   // { path: "/employee/settings", label: "Settings", icon: "tasks.svg" },
   { path: "/employers/profile", label: "My Profile", icon: "profiles.svg" },
   // { path: "/my-resume", label: "CV Manage", icon: "cv-manage.svg" },
-  // { path: "/settings", label: "Setting", icon: "settings.svg" },
+  { path: "/employers/settings", label: "Setting", icon: "settings.svg" },
   // {
   //   path: "/authentication",
   //   label: "Authentication",

@@ -30,7 +30,11 @@ export default function Home() {
       .email("Invalid email address")
       .required("Email is required"),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
+      .min(8, "Password must be at least 8 characters")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      )
       .required("Password is required"),
     mobile: Yup.string()
       .matches(/^[0-9]{10}$/, "Invalid phone number")

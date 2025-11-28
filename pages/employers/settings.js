@@ -1,10 +1,11 @@
+import ChangePasswordForm from "@/components/ChangePassword";
 import Layout from "@/components/layout/Layout";
 
 export default function Home() {
   return (
     <>
       <Layout breadcrumbTitle="Setting" breadcrumbActive="Setting">
-        <div className="row">
+        {/* <div className="row">
           <div className="col-xxl-9 col-xl-8 col-lg-8">
             <div className="section-box">
               <div className="container">
@@ -366,7 +367,8 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
+        <ChangePasswordForm />
       </Layout>
     </>
   );
