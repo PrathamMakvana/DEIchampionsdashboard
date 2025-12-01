@@ -1245,7 +1245,7 @@ const downloadResume = async () => {
                     {/* Department - Multiple Select with Dropdown like Skills */}
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
-                        Department *
+                        Industry *
                       </label>
                       <div
                         className="user-upt-profile-skill-input-container justify-content-between department-dropdown-container"
@@ -1254,7 +1254,7 @@ const downloadResume = async () => {
                         <input
                           type="text"
                           className="form-control user-upt-profile-form-control"
-                          placeholder="Search for a department..."
+                          placeholder="Search for a industry..."
                           value={departmentSearch}
                           onChange={(e) => setDepartmentSearch(e.target.value)}
                           onFocus={() => setShowDepartmentDropdown(true)}
@@ -1312,7 +1312,7 @@ const downloadResume = async () => {
                                   color: "#6c757d",
                                 }}
                               >
-                                No departments found
+                                No industries found
                               </div>
                             )}
                           </div>
@@ -1347,7 +1347,7 @@ const downloadResume = async () => {
                     {/* Industry - Multiple Select with Dropdown like Skills */}
                     <div className="col-md-6 user-upt-profile-form-group">
                       <label className="user-upt-profile-form-label">
-                        Which Community you prefered *
+                        Which Category you prefered *
                       </label>
                       <div
                         className="user-upt-profile-skill-input-container justify-content-between industry-dropdown-container"
@@ -1356,7 +1356,7 @@ const downloadResume = async () => {
                         <input
                           type="text"
                           className="form-control user-upt-profile-form-control"
-                          placeholder="Search for a Community..."
+                          placeholder="Search for a Category..."
                           value={industrySearch}
                           onChange={(e) => setIndustrySearch(e.target.value)}
                           onFocus={() => setShowIndustryDropdown(true)}

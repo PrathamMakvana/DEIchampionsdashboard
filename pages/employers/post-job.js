@@ -53,7 +53,7 @@ const validationSchema = Yup.object({
   category: Yup.string().required("Category is required"),
   tags: Yup.string(),
   jobType: Yup.string().required("Job type is required"),
-  department: Yup.string().required("Department is required"),
+  department: Yup.string().required("Industry is required"),
   jobLocation: Yup.string().required("Job location is required"),
   workExperience: Yup.string().required("Work experience is required"),
   candidateQualification: Yup.string().required(
@@ -329,13 +329,13 @@ if (currentJob.state) {
                             {/* Department */}
                             <div className="col-lg-6 col-md-6">
                               <DynamicSelect
-                                label="Department"
+                                label="Industry"
                                 name="department"
                                 formik={formik}
                                 options={departments}
                                 valueKey="_id"
                                 labelKey="name"
-                                placeholder="Select Department"
+                                placeholder="Select Industry"
                               />
                             </div>
 

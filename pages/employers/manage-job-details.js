@@ -327,7 +327,7 @@ const JobDetailsPage = () => {
 
                     {
                       icon: "bi-building",
-                      label: "Department",
+                      label: "Industry",
                       value: currentJob.department?.name || "N/A",
                     },
                     {
