@@ -52,11 +52,11 @@ const LoginPage = () => {
     try {
       const data = await dispatch(
         loginEmployer(values, {
-          showSuccess: () =>
+          showSuccess: (msg) =>
             Swal.fire({
               icon: "success",
-              title: "Login Successful!",
-              text: "Welcome back 👋",
+              title: "Success!",
+              text: msg || "Welcome back 👋",
               timer: 2000,
               showConfirmButton: false,
             }),
@@ -72,6 +72,26 @@ const LoginPage = () => {
       console.log("🚀data 222--->", data);
 
       if (data?.success) {
+        // NEW: Check if OTP verification is required (inactive user)
+        if (data?.data?.requiresOtpVerification) {
+          // Show info message about OTP sent
+          Swal.fire({
+            icon: "info",
+            title: "Verification Required",
+            text: "OTP has been sent to your registered email and mobile number. Please verify to activate your account.",
+            timer: 3000,
+            showConfirmButton: false,
+          });
+
+          // Redirect to OTP verification page
+          navigate.push({
+            pathname: "/employers/otp-verify",
+            query: { userId: data.data.userId, roleId: data.data.roleId },
+          });
+          return;
+        }
+
+        // Active user - proceed with normal login flow
         navigate.push("/employers");
       }
     } catch (error) {

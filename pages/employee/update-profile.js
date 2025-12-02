@@ -198,50 +198,49 @@ export default function UserProfileUpdate() {
   }, []);
 
   const defaultInitialValues = {
-  name: "",
-  email: "",
-  mobile: "",
-  dateOfBirth: null,
-  employeeDescription: "",
-  gender: "",
-  workStatus: "unemployed",
-  address: "",
-  city: "",
-  state: "",
-  country: "India",
-  pincode: "",
-  currentPassword: "",
-  newPassword: "",
-  jobType: "",
-  department: [],
-  category: "",
-  salaryRange: "",
-  industry: [],
-  totalWorkExperience: "",
-  noticePeriod: "",
-  currentSalary: "",
-  preferredLocations: [],   
+    name: "",
+    email: "",
+    mobile: "",
+    dateOfBirth: null,
+    employeeDescription: "",
+    gender: "",
+    workStatus: "unemployed",
+    address: "",
+    city: "",
+    state: "",
+    country: "India",
+    pincode: "",
+    currentPassword: "",
+    newPassword: "",
+    jobType: "",
+    department: [],
+    category: "",
+    salaryRange: "",
+    industry: [],
+    totalWorkExperience: "",
+    noticePeriod: "",
+    currentSalary: "",
+    preferredLocations: [],
 
-  education: [
-    {
-      degree: "",
-      institution: "",
-      graduationYear: null, 
-    },
-  ],
+    education: [
+      {
+        degree: "",
+        institution: "",
+        graduationYear: null,
+      },
+    ],
 
-  experience: [
-    {
-      companyName: "",
-      position: "",
-      startDate: null,     
-      endDate: null,      
-      currentJob: false,
-      description: "",
-    },
-  ],
-};
-
+    experience: [
+      {
+        companyName: "",
+        position: "",
+        startDate: null,
+        endDate: null,
+        currentJob: false,
+        description: "",
+      },
+    ],
+  };
 
   // function useScrollToError(errors, touched) {
   //   useEffect(() => {
@@ -614,45 +613,44 @@ export default function UserProfileUpdate() {
   };
 
   // Download resume function
-const downloadResume = async () => {
-  if (!user?.resume) return;
+  const downloadResume = async () => {
+    if (!user?.resume) return;
 
-  const resumePath = user.resume.replace(/^src[\\/]/, "");
-  const resumeUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resumePath}`;
+    const resumePath = user.resume.replace(/^src[\\/]/, "");
+    const resumeUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resumePath}`;
 
-  try {
-    const response = await fetch(resumeUrl);
+    try {
+      const response = await fetch(resumeUrl);
 
-    if (!response.ok) {
-      console.error("Failed to fetch resume file.");
-      return;
+      if (!response.ok) {
+        console.error("Failed to fetch resume file.");
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Determine final filename
+      const fileName =
+        resumeFileName ||
+        user.resume.split("/").pop().replace(/^\d+-/, "") ||
+        "resume.pdf";
+
+      link.download = fileName;
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading resume:", error);
     }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-
-    // Determine final filename
-    const fileName =
-      resumeFileName ||
-      user.resume.split("/").pop().replace(/^\d+-/, "") ||
-      "resume.pdf";
-
-    link.download = fileName;
-
-    document.body.appendChild(link);
-    link.click();
-
-    // Cleanup
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Error downloading resume:", error);
-  }
-};
-
+  };
 
   const addSkill = () => {
     const skillInput = document.getElementById("skillInput");
@@ -764,286 +762,319 @@ const downloadResume = async () => {
           <FormikProvider value={formik}>
             <form onSubmit={formik.handleSubmit}>
               {/* Basic Information Card */}
-             <div className="user-upt-profile-card">
-  <div className="user-upt-profile-card-header">
-    <i className="bi bi-person me-2"></i> Basic Information
-  </div>
-  <div className="user-upt-profile-card-body">
-    <div className="row">
-      <div className="col-md-4 text-center">
-        <div style={{ position: 'relative', display: 'inline-block' }}>
-          <div
-            style={{
-              position: 'relative',
-              width: '120px',
-              height: '120px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              cursor: 'pointer',
-              border: '3px solid #e9ecef',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#007bff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#e9ecef';
-            }}
-            onClick={() => fileInputRef.current.click()}
-          >
-            {photoPreview ? (
-              <>
-                <img
-                  src={photoPreview}
-                  alt="Profile Photo"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    background: 'rgba(0, 0, 0, 0.7)',
-                    color: 'white',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                    borderRadius: '50%'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = 1;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = 0;
-                  }}
-                >
-                  <i className="bi bi-camera" style={{ fontSize: '24px', marginBottom: '5px' }}></i>
-                  <span style={{ fontSize: '12px', textAlign: 'center' }}>Change Photo</span>
+              <div className="user-upt-profile-card">
+                <div className="user-upt-profile-card-header">
+                  <i className="bi bi-person me-2"></i> Basic Information
                 </div>
-              </>
-            ) : (
-              <>
-                <span
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    height: '100%',
-                    background: '#007bff',
-                    color: 'white',
-                    fontSize: '48px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-                </span>
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    background: 'rgba(0, 0, 0, 0.7)',
-                    color: 'white',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                    borderRadius: '50%'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = 1;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = 0;
-                  }}
-                >
-                  <i className="bi bi-camera" style={{ fontSize: '24px', marginBottom: '5px' }}></i>
-                  <span style={{ fontSize: '12px', textAlign: 'center' }}>Add Photo</span>
-                </div>
-              </>
-            )}
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handlePhotoUpload}
-            />
-          </div>
-        </div>
-        <div className="mb-3">
-          <span className="user-upt-profile-status-badge">
-            {user?.status ? "Active" : "Inactive"}
-          </span>
-        </div>
-        <div className="user-upt-profile-work-status">
-          {formik.values.workStatus === "unemployed"
-            ? "Looking for job"
-            : "Employed"}
-        </div>
-      </div>
-      <div className="col-md-8">
-        <div className="row">
-          <div className="col-md-6 user-upt-profile-form-group">
-            <label className="user-upt-profile-form-label">
-              Full Name
-            </label>
-            <input
-              type="text"
-              className="form-control user-upt-profile-form-control"
-              name="name"
-              placeholder="Enter your full name"
-              value={formik.values.name}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
-            {formik.touched.name && formik.errors.name && (
-              <div className="text-danger">
-                {formik.errors.name}
-              </div>
-            )}
-          </div>
-          <div className="col-md-6 user-upt-profile-form-group">
-            <label className="user-upt-profile-form-label">
-              Email Address
-            </label>
-            <input
-              type="email"
-              className="form-control user-upt-profile-form-control"
-              name="email"
-              value={formik.values.email}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              disabled
-            />
-            {formik.touched.email && formik.errors.email && (
-              <div className="text-danger">
-                {formik.errors.email}
-              </div>
-            )}
-          </div>
-          <div className="col-md-6 user-upt-profile-form-group">
-            <label className="user-upt-profile-form-label">
-              Mobile Number
-            </label>
-            <input
-              type="tel"
-              className="form-control user-upt-profile-form-control"
-              name="mobile"
-              placeholder="Enter your mobile number"
-              value={formik.values.mobile}
-              disabled
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
-            {formik.touched.mobile && formik.errors.mobile && (
-              <div className="text-danger">
-                {formik.errors.mobile}
-              </div>
-            )}
-          </div>
-          <div className="col-md-6 user-upt-profile-form-group">
-            <label className="user-upt-profile-form-label">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              className="form-control user-upt-profile-form-control"
-              placeholder="YYYY-MM-DD"
-              name="dateOfBirth"
-              value={formik.values.dateOfBirth || ""}
-              onChange={formik.handleChange}
-            />
-          </div>
-          <div className="col-md-6 user-upt-profile-form-group">
-            <label className="user-upt-profile-form-label">
-              Gender
-            </label>
-            <select
-              className="form-select user-upt-profile-form-control"
-              name="gender"
-              value={formik.values.gender}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-              <option value="prefer-not-to-say">
-                Prefer not to say
-              </option>
-            </select>
-            {formik.touched.gender && formik.errors.gender && (
-              <div className="text-danger">
-                {formik.errors.gender}
-              </div>
-            )}
-          </div>
-          <div className="col-md-6 user-upt-profile-form-group">
-            <label className="user-upt-profile-form-label">
-              Work Status
-            </label>
-            <select
-              className="form-select user-upt-profile-form-control"
-              name="workStatus"
-              value={formik.values.workStatus}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            >
-              <option value="">Select Status</option>
-              <option value="employed">Employed</option>
-              <option value="unemployed">Unemployed</option>
-              <option value="student">Student</option>
-              <option value="self-employed">Self-Employed</option>
-            </select>
-            {formik.touched.workStatus &&
-              formik.errors.workStatus && (
-                <div className="text-danger">
-                  {formik.errors.workStatus}
-                </div>
-              )}
-          </div>
-        </div>
+                <div className="user-upt-profile-card-body">
+                  <div className="row">
+                    <div className="col-md-4 text-center">
+                      <div
+                        style={{
+                          position: "relative",
+                          display: "inline-block",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "relative",
+                            width: "120px",
+                            height: "120px",
+                            borderRadius: "50%",
+                            overflow: "hidden",
+                            cursor: "pointer",
+                            border: "3px solid #e9ecef",
+                            transition: "all 0.3s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "#007bff";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "#e9ecef";
+                          }}
+                          onClick={() => fileInputRef.current.click()}
+                        >
+                          {photoPreview ? (
+                            <>
+                              <img
+                                src={photoPreview}
+                                alt="Profile Photo"
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
+                              />
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: 0,
+                                  left: 0,
+                                  width: "100%",
+                                  height: "100%",
+                                  background: "rgba(0, 0, 0, 0.7)",
+                                  color: "white",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  opacity: 0,
+                                  transition: "opacity 0.3s ease",
+                                  borderRadius: "50%",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.opacity = 1;
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.opacity = 0;
+                                }}
+                              >
+                                <i
+                                  className="bi bi-camera"
+                                  style={{
+                                    fontSize: "24px",
+                                    marginBottom: "5px",
+                                  }}
+                                ></i>
+                                <span
+                                  style={{
+                                    fontSize: "12px",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  Change Photo
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <span
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  width: "100%",
+                                  height: "100%",
+                                  background: "#007bff",
+                                  color: "white",
+                                  fontSize: "48px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {user?.name
+                                  ? user.name.charAt(0).toUpperCase()
+                                  : "U"}
+                              </span>
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: 0,
+                                  left: 0,
+                                  width: "100%",
+                                  height: "100%",
+                                  background: "rgba(0, 0, 0, 0.7)",
+                                  color: "white",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  opacity: 0,
+                                  transition: "opacity 0.3s ease",
+                                  borderRadius: "50%",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.opacity = 1;
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.opacity = 0;
+                                }}
+                              >
+                                <i
+                                  className="bi bi-camera"
+                                  style={{
+                                    fontSize: "24px",
+                                    marginBottom: "5px",
+                                  }}
+                                ></i>
+                                <span
+                                  style={{
+                                    fontSize: "12px",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  Add Photo
+                                </span>
+                              </div>
+                            </>
+                          )}
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            onChange={handlePhotoUpload}
+                          />
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        <span className="user-upt-profile-status-badge">
+                          {user?.status ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <div className="user-upt-profile-work-status">
+                        {formik.values.workStatus === "unemployed"
+                          ? "Looking for job"
+                          : "Employed"}
+                      </div>
+                    </div>
+                    <div className="col-md-8">
+                      <div className="row">
+                        <div className="col-md-6 user-upt-profile-form-group">
+                          <label className="user-upt-profile-form-label">
+                            Full Name
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control user-upt-profile-form-control"
+                            name="name"
+                            placeholder="Enter your full name"
+                            value={formik.values.name}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                          />
+                          {formik.touched.name && formik.errors.name && (
+                            <div className="text-danger">
+                              {formik.errors.name}
+                            </div>
+                          )}
+                        </div>
+                        <div className="col-md-6 user-upt-profile-form-group">
+                          <label className="user-upt-profile-form-label">
+                            Email Address
+                          </label>
+                          <input
+                            type="email"
+                            className="form-control user-upt-profile-form-control"
+                            name="email"
+                            value={formik.values.email}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            disabled
+                          />
+                          {formik.touched.email && formik.errors.email && (
+                            <div className="text-danger">
+                              {formik.errors.email}
+                            </div>
+                          )}
+                        </div>
+                        <div className="col-md-6 user-upt-profile-form-group">
+                          <label className="user-upt-profile-form-label">
+                            Mobile Number
+                          </label>
+                          <input
+                            type="tel"
+                            className="form-control user-upt-profile-form-control"
+                            name="mobile"
+                            placeholder="Enter your mobile number"
+                            value={formik.values.mobile}
+                            disabled
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                          />
+                          {formik.touched.mobile && formik.errors.mobile && (
+                            <div className="text-danger">
+                              {formik.errors.mobile}
+                            </div>
+                          )}
+                        </div>
+                        <div className="col-md-6 user-upt-profile-form-group">
+                          <label className="user-upt-profile-form-label">
+                            Date of Birth
+                          </label>
+                          <input
+                            type="date"
+                            className="form-control user-upt-profile-form-control"
+                            placeholder="YYYY-MM-DD"
+                            name="dateOfBirth"
+                            value={formik.values.dateOfBirth || ""}
+                            onChange={formik.handleChange}
+                          />
+                        </div>
+                        <div className="col-md-6 user-upt-profile-form-group">
+                          <label className="user-upt-profile-form-label">
+                            Gender
+                          </label>
+                          <select
+                            className="form-select user-upt-profile-form-control"
+                            name="gender"
+                            value={formik.values.gender}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                          >
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer-not-to-say">
+                              Prefer not to say
+                            </option>
+                          </select>
+                          {formik.touched.gender && formik.errors.gender && (
+                            <div className="text-danger">
+                              {formik.errors.gender}
+                            </div>
+                          )}
+                        </div>
+                        <div className="col-md-6 user-upt-profile-form-group">
+                          <label className="user-upt-profile-form-label">
+                            Work Status
+                          </label>
+                          <select
+                            className="form-select user-upt-profile-form-control"
+                            name="workStatus"
+                            value={formik.values.workStatus}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                          >
+                            <option value="">Select Status</option>
+                            <option value="employed">Employed</option>
+                            <option value="unemployed">Unemployed</option>
+                            <option value="student">Student</option>
+                            <option value="self-employed">Self-Employed</option>
+                          </select>
+                          {formik.touched.workStatus &&
+                            formik.errors.workStatus && (
+                              <div className="text-danger">
+                                {formik.errors.workStatus}
+                              </div>
+                            )}
+                        </div>
+                      </div>
 
-        <div className="col-md-12 user-upt-profile-form-group">
-          <label className="user-upt-profile-form-label">
-            Description
-          </label>
-          <textarea
-            className="form-control user-upt-profile-form-control"
-            name="employeeDescription"
-            placeholder="Write a short description about yourself"
-            rows="4"
-            value={formik.values.employeeDescription}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-          />
-          {formik.touched.employeeDescription &&
-            formik.errors.employeeDescription && (
-              <div className="text-danger">
-                {formik.errors.employeeDescription}
+                      <div className="col-md-12 user-upt-profile-form-group">
+                        <label className="user-upt-profile-form-label">
+                          Description
+                        </label>
+                        <textarea
+                          className="form-control user-upt-profile-form-control"
+                          name="employeeDescription"
+                          placeholder="Write a short description about yourself"
+                          rows="4"
+                          value={formik.values.employeeDescription}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                        />
+                        {formik.touched.employeeDescription &&
+                          formik.errors.employeeDescription && (
+                            <div className="text-danger">
+                              {formik.errors.employeeDescription}
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
               {/* Location Information Card */}
               <div className="user-upt-profile-card">
@@ -1538,7 +1569,7 @@ const downloadResume = async () => {
                             <div className="row">
                               <div className="col-md-6 user-upt-profile-form-group">
                                 <label className="user-upt-profile-form-label">
-                                  Degree *
+                                  Highest Degree *
                                 </label>
                                 <select
                                   name={`education[${index}].degree`}

@@ -351,7 +351,7 @@ const JobSeekerProfile = () => {
                 {getIndustries().length > 0 && (
                   <div className="jobseeker-industries-container">
                     <h6 className="jobseeker-industries-title">
-                      <i className="bi bi-building me-2"></i>Communities
+                      <i className="bi bi-building me-2"></i>Category
                     </h6>
                     <div className="jobseeker-industries-list">
                       {getIndustries().map((industry, index) => (

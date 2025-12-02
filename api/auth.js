@@ -34,17 +34,25 @@ export const loginEmployer =
       const data = await fetcherPost(["/users/employee/login", formData]);
       console.log("🚀 Employer Login API response --->", data);
 
-      if (data?.data?.serviceToken) {
+      // Only set token and user if it's a full login (not OTP verification required)
+      if (data?.data?.serviceToken && !data?.data?.requiresOtpVerification) {
         localStorage.setItem("jobportaltoken", data.data.serviceToken);
       }
 
-      if (data?.data?.user) {
+      if (data?.data?.user && !data?.data?.requiresOtpVerification) {
         dispatch(setUser(data.data.user));
         localStorage.setItem("userRole", data.data.user.roleId);
       }
 
       dispatch(setLoading(false));
-      showSuccess(data?.message || "Login successful!");
+
+      // Pass appropriate message based on whether OTP is required
+      if (data?.data?.requiresOtpVerification) {
+        showSuccess(data?.message || "OTP sent for verification!");
+      } else {
+        showSuccess(data?.message || "Login successful!");
+      }
+
       return data;
     } catch (error) {
       dispatch(setLoading(false));

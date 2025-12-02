@@ -57,11 +57,11 @@ export default function Login() {
     try {
       const data = await dispatch(
         loginEmployer(values, {
-          showSuccess: () =>
+          showSuccess: (msg) =>
             Swal.fire({
               icon: "success",
-              title: "Login Successful!",
-              text: "Welcome back 👋",
+              title: "Success!",
+              text: msg || "Welcome back 👋",
               timer: 2000,
               showConfirmButton: false,
             }),
@@ -77,7 +77,39 @@ export default function Login() {
       console.log("🚀data 222--->", data);
 
       if (data?.success) {
-        // After successful login, check profile completion
+        // NEW: Check if OTP verification is required (inactive user)
+        if (data?.data?.requiresOtpVerification) {
+          // Show info message about OTP sent
+          Swal.fire({
+            icon: "info",
+            title: "Verification Required",
+            text: "OTP has been sent to your registered mobile number. Please verify to activate your account.",
+            timer: 3000,
+            showConfirmButton: false,
+          });
+
+          // Redirect to OTP verification page based on roleId
+          const roleId = data.data.roleId;
+          const userId = data.data.userId;
+
+          if (roleId === 2) {
+            // Employer
+            navigate.push({
+              pathname: "/employers/otp-verify",
+              query: { userId: userId, roleId: roleId },
+            });
+          } else if (roleId === 3) {
+            // Employee
+            navigate.push({
+              pathname: "/employee/otp-verify",
+              query: { userId: userId, roleId: roleId },
+            });
+          }
+          return;
+        }
+
+        // Active user - proceed with normal login flow
+        // After successful login, check profile completion (for employees)
         const profileData = await dispatch(getuserProfileCompletionData());
 
         // Redirect based on profile completion
