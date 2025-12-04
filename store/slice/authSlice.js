@@ -1,4 +1,3 @@
-// src/redux/slices/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -22,8 +21,19 @@ const authSlice = createSlice({
     },
     logout: (state) => {
       state.user = null;
+      state.loading = false;
       localStorage.removeItem("jobportaltoken");
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase("persist/REHYDRATE", (state, action) => {
+      if (action.payload && action.payload.auth) {
+        state.loading = false;
+        if (!action.payload.auth.user) {
+          state.profileCompletion = {};
+        }
+      }
+    });
   },
 });
 

@@ -8,6 +8,7 @@ import { registerUser } from "@/api/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import PageHead from "@/components/layout/PageHead";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -77,411 +78,412 @@ export default function Home() {
   };
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
-      <div
-        className="row justify-content-center w-100"
-        style={{ marginTop: "2rem" }}
-      >
-        {/* Left Info Section */}
-        <div className="col-lg-5 mb-4 mb-lg-0">
-          <div className="info-card h-100">
-            <div className="card-body text-center d-flex flex-column">
-              <div className="decorative-shape">
-                <div className="shape-circle"></div>
-              </div>
+    <>
+      <PageHead headTitle="Employee Register - DEI Champions Job Portal" />
+      <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
+        <div
+          className="row justify-content-center w-100"
+          style={{ marginTop: "2rem" }}
+        >
+          {/* Left Info Section */}
+          <div className="col-lg-5 mb-4 mb-lg-0">
+            <div className="info-card h-100">
+              <div className="card-body text-center d-flex flex-column">
+                <div className="decorative-shape">
+                  <div className="shape-circle"></div>
+                </div>
 
-              <div className="mt-5 pt-4">
-                <h3 className="mb-4 text-gradient">Unlock Your Potential</h3>
-                <ul className="list-unstyled text-start ps-0">
-                  <li className="mb-3 d-flex align-items-start">
-                    <div className="icon-badge bg-primary me-3">
-                      <i className="bi bi-check-circle-fill"></i>
-                    </div>
-                    <div>
-                      <h5 className="mb-1">Build Your Profile</h5>
-                      <p className="mb-0 small">
-                        Let recruiters find you based on your skills and
-                        experience
-                      </p>
-                    </div>
-                  </li>
+                <div className="mt-5 pt-4">
+                  <h3 className="mb-4 text-gradient">
+                    Unlock Your Next Career Opportunity
+                  </h3>
+                  <ul className="list-unstyled text-start ps-0">
+                    <li className="mb-3 d-flex align-items-start">
+                      <div className="icon-badge bg-primary me-3">
+                        <i className="bi bi-check-circle-fill"></i>
+                      </div>
+                      <div>
+                        <h5 className="mb-1">Upload Your Profile</h5>
+                        <p className="mb-0 small">
+                          get discovered by recruiters committed to Diversity,
+                          Equity and Inclusion.
+                        </p>
+                      </div>
+                    </li>
 
-                  <li className="mb-3 d-flex align-items-start">
-                    <div className="icon-badge bg-info me-3">
-                      <i className="bi bi-envelope-fill"></i>
-                    </div>
-                    <div>
-                      <h5 className="mb-1">Job Alerts</h5>
-                      <p className="mb-0 small">
-                        Get personalized job recommendations delivered to your
-                        inbox
-                      </p>
-                    </div>
-                  </li>
+                    <li className="mb-3 d-flex align-items-start">
+                      <div className="icon-badge bg-info me-3">
+                        <i className="bi bi-envelope-fill"></i>
+                      </div>
+                      <div>
+                        <h5 className="mb-1">Job Alerts</h5>
+                        <p className="mb-0 small">
+                          Get personalized job recommendations delivered to your
+                          inbox
+                        </p>
+                      </div>
+                    </li>
 
-                  <li className="d-flex align-items-start">
-                    <div className="icon-badge bg-success me-3">
-                      <i className="bi bi-emoji-smile-fill"></i>
-                    </div>
-                    <div>
-                      <h5 className="mb-1">Career Growth</h5>
-                      <p className="mb-0 small">
-                        Find opportunities that match your skills and career
-                        goals
-                      </p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+                    <li className="d-flex align-items-start">
+                      <div className="icon-badge bg-success me-3">
+                        <i className="bi bi-emoji-smile-fill"></i>
+                      </div>
+                      <div>
+                        <h5 className="mb-1">Career Growth</h5>
+                        <p className="mb-0 small">
+                          we welcome talented job seekers from all background.
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
 
-              <div className="mt-auto pt-4">
-                <div className="testimonial-card p-3 rounded">
-                  <div className="d-flex align-items-center">
-                    <div className="avatar me-3">
+                <div className="mt-auto pt-4">
+                  <div className="testimonial-card p-3 rounded">
+                    <div className="d-flex align-items-center">
+                      {/* <div className="avatar me-3">
                       <div
                         className="bg-light text-dark rounded-circle d-flex align-items-center justify-content-center"
                         style={{ width: "50px", height: "50px" }}
                       >
                         <i className="bi bi-person-fill fs-4"></i>
                       </div>
-                    </div>
-                    <div>
-                      <p className="mb-0 fst-italic text-white">
-                        "DEI Champions helped me find my dream job in just 2
-                        weeks!"
-                      </p>
-                      <p className="mb-0 small mt-1 text-white">
-                        - Priya Sharma, Product Designer
-                      </p>
+                    </div> */}
+                      <div>
+                        <p className="mb-0 fst-italic text-white">
+                          "Stand out. Be seen. Get hired."
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Form Section */}
-        <div className="col-lg-6">
-          <div className="card register-form-card border-0 mx-auto">
-            <div className="card-body" style={{ padding: "3rem" }}>
-              <div className="text-center mb-4">
-                <div className="header-logo">
-                  <div className="d-flex justify-content-center">
-                    <img
-                      alt="jobBox"
-                      src="../assets/imgs/page/dashboard/logo2.png"
-                      style={{ width: "75%", height: "auto" }}
-                    />
+          {/* Right Form Section */}
+          <div className="col-lg-6">
+            <div className="card register-form-card border-0 mx-auto">
+              <div className="card-body" style={{ padding: "3rem" }}>
+                <div className="text-center mb-4">
+                  <div className="header-logo">
+                    <div className="d-flex justify-content-center">
+                      <img
+                        alt="jobBox"
+                        src="../assets/imgs/page/dashboard/logo2.png"
+                        style={{ width: "75%", height: "auto" }}
+                      />
+                    </div>
                   </div>
-                </div>
-                {/* <p className="mb-0">
+                  {/* <p className="mb-0">
                   Create your profile and start your journey today
                 </p> */}
-                <div className="divider-line my-3 mx-auto"></div>
-              </div>
+                  <div className="divider-line my-3 mx-auto"></div>
+                </div>
 
-              <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-              >
-                {({ values }) => (
-                  <Form>
-                    {/* Full Name */}
-                    <div className="mb-3">
-                      <label
-                        htmlFor="nameField"
-                        className="form-label fw-medium"
-                      >
-                        Full name<span className="text-danger">*</span>
-                      </label>
-                      <div className="input-group">
-                        <span className="input-group-text bg-light border-end-0">
-                          <i className="bi bi-person text-primary"></i>
-                        </span>
-                        <Field
-                          type="text"
+                <Formik
+                  initialValues={initialValues}
+                  validationSchema={validationSchema}
+                  onSubmit={handleSubmit}
+                >
+                  {({ values }) => (
+                    <Form>
+                      {/* Full Name */}
+                      <div className="mb-3">
+                        <label
+                          htmlFor="nameField"
+                          className="form-label fw-medium"
+                        >
+                          Full name<span className="text-danger">*</span>
+                        </label>
+                        <div className="input-group">
+                          <span className="input-group-text bg-light border-end-0">
+                            <i className="bi bi-person text-primary"></i>
+                          </span>
+                          <Field
+                            type="text"
+                            name="name"
+                            className="form-control form-control-lg border-start-0"
+                            placeholder="Enter your full name"
+                            id="nameField"
+                          />
+                        </div>
+                        <ErrorMessage
                           name="name"
-                          className="form-control form-control-lg border-start-0"
-                          placeholder="Enter your full name"
-                          id="nameField"
+                          component="div"
+                          className="text-danger small mt-1"
                         />
                       </div>
-                      <ErrorMessage
-                        name="name"
-                        component="div"
-                        className="text-danger small mt-1"
-                      />
-                    </div>
 
-                    {/* Email */}
-                    <div className="mb-3">
-                      <label
-                        htmlFor="emailField"
-                        className="form-label fw-medium"
-                      >
-                        Email ID<span className="text-danger">*</span>
-                      </label>
-                      <div className="input-group">
-                        <span className="input-group-text bg-light border-end-0">
-                          <i className="bi bi-envelope text-primary"></i>
-                        </span>
-                        <Field
-                          type="email"
+                      {/* Email */}
+                      <div className="mb-3">
+                        <label
+                          htmlFor="emailField"
+                          className="form-label fw-medium"
+                        >
+                          Email ID<span className="text-danger">*</span>
+                        </label>
+                        <div className="input-group">
+                          <span className="input-group-text bg-light border-end-0">
+                            <i className="bi bi-envelope text-primary"></i>
+                          </span>
+                          <Field
+                            type="email"
+                            name="email"
+                            className="form-control form-control-lg border-start-0"
+                            placeholder="Enter your email address"
+                            id="emailField"
+                          />
+                        </div>
+                        <div className="form-text small">
+                          We'll send relevant jobs and updates to this email
+                        </div>
+                        <ErrorMessage
                           name="email"
-                          className="form-control form-control-lg border-start-0"
-                          placeholder="Enter your email address"
-                          id="emailField"
+                          component="div"
+                          className="text-danger small mt-1"
                         />
                       </div>
-                      <div className="form-text small">
-                        We'll send relevant jobs and updates to this email
-                      </div>
-                      <ErrorMessage
-                        name="email"
-                        component="div"
-                        className="text-danger small mt-1"
-                      />
-                    </div>
 
-                    {/* Password */}
-                    <div className="mb-3">
-                      <label
-                        htmlFor="passwordField"
-                        className="form-label fw-medium"
-                      >
-                        Password<span className="text-danger">*</span>
-                      </label>
-                      <div className="input-group">
-                        <span className="input-group-text bg-light border-end-0">
-                          <i className="bi bi-lock text-primary"></i>
-                        </span>
-                        <Field
-                          type={showPassword ? "text" : "password"}
-                          name="password"
-                          className="form-control form-control-lg border-start-0"
-                          placeholder="Create a strong password"
-                          id="passwordField"
-                        />
-                        <span
-                          className="input-group-text bg-light border-start-0 password-toggle"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          <i
-                            className={`bi ${
-                              showPassword ? "bi-eye-slash" : "bi-eye"
-                            } text-muted`}
-                          ></i>
-                        </span>
-                      </div>
-                      <div className="form-text small">
-                        This helps your account stay protected
-                      </div>
-                      <ErrorMessage
-                        name="password"
-                        component="div"
-                        className="text-danger small mt-1"
-                      />
-                    </div>
-
-                    {/* Phone */}
-                    <div className="mb-3">
-                      <label
-                        htmlFor="phoneField"
-                        className="form-label fw-medium"
-                      >
-                        Mobile number<span className="text-danger">*</span>
-                      </label>
-                      <div className="input-group">
-                        <span className="input-group-text bg-light border-end-0">
-                          <i className="bi bi-phone text-primary"></i>
-                        </span>
-                        <span className="input-group-text bg-light border-end-0 border-start-0 country-code">
-                          +91
-                        </span>
-                        <Field
-                          type="tel"
-                          name="mobile"
-                          className="form-control form-control-lg border-start-0"
-                          placeholder="Enter 10-digit mobile number"
-                          id="phoneField"
-                          maxLength="10"
-                        />
-                      </div>
-                      <div className="form-text small">
-                        Recruiters will contact you on this number
-                      </div>
-                      <ErrorMessage
-                        name="mobile"
-                        component="div"
-                        className="text-danger small mt-1"
-                      />
-                    </div>
-
-                    {/* Work Status */}
-                    <div className="mb-4">
-                      <label className="form-label fw-medium d-block mb-3">
-                        Work status<span className="text-danger">*</span>
-                      </label>
-                      <div className="d-flex gap-3 status-cards">
+                      {/* Password */}
+                      <div className="mb-3">
                         <label
-                          className={`status-card ${
-                            values.workStatus === "experienced" ? "active" : ""
-                          }`}
+                          htmlFor="passwordField"
+                          className="form-label fw-medium"
                         >
+                          Password<span className="text-danger">*</span>
+                        </label>
+                        <div className="input-group">
+                          <span className="input-group-text bg-light border-end-0">
+                            <i className="bi bi-lock text-primary"></i>
+                          </span>
                           <Field
-                            type="radio"
-                            name="workStatus"
-                            value="experienced"
-                            className="d-none"
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            className="form-control form-control-lg border-start-0"
+                            placeholder="Create a strong password"
+                            id="passwordField"
                           />
-                          <div className="card-icon">
-                            <i className="bi bi-briefcase-fill"></i>
-                          </div>
-                          <div className="fw-medium">I'm experienced</div>
-                          <div className="small text-muted">
-                            I have work experience (excluding internships)
-                          </div>
-                        </label>
-
-                        <label
-                          className={`status-card ${
-                            values.workStatus === "fresher" ? "active" : ""
-                          }`}
-                        >
-                          <Field
-                            type="radio"
-                            name="workStatus"
-                            value="fresher"
-                            className="d-none"
-                          />
-                          <div className="card-icon">
-                            <i className="bi bi-mortarboard-fill"></i>
-                          </div>
-                          <div className="fw-medium">I'm a fresher</div>
-                          <div className="small text-muted">
-                            I am a student/Haven't worked after graduation
-                          </div>
-                        </label>
-                      </div>
-                      <ErrorMessage
-                        name="workStatus"
-                        component="div"
-                        className="text-danger small mt-1"
-                      />
-                    </div>
-
-                    {/* Updates Checkbox */}
-                    <div className="mb-4">
-                      <div className="form-check">
-                        <Field
-                          type="checkbox"
-                          name="acceptTerms"
-                          className="form-check-input"
-                          id="acceptTerms"
-                        />
-                        <label
-                          htmlFor="acceptTerms"
-                          className="form-check-label small"
-                        >
-                          By clicking Register, you agree to the{" "}
-                          <a
-                            href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/terms-conditions`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary text-decoration-underline"
-                          >
-                            Terms & Conditions
-                          </a>{" "}
-                          &
-                          <a
-                            href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/privacy-policy`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary text-decoration-underline"
-                          >
-                            Privacy Policy
-                          </a>{" "}
-                          of DEI champions. .
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Submit */}
-                    <button
-                      className="btn btn-primary w-100 btn-lg fw-bold register-btn"
-                      type="submit"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
                           <span
-                            className="spinner-border spinner-border-sm me-2"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                          Registering...
-                        </>
-                      ) : (
-                        "Register now"
-                      )}
-                    </button>
-                  </Form>
-                )}
-              </Formik>
+                            className="input-group-text bg-light border-start-0 password-toggle"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            <i
+                              className={`bi ${
+                                showPassword ? "bi-eye-slash" : "bi-eye"
+                              } text-muted`}
+                            ></i>
+                          </span>
+                        </div>
+                        <div className="form-text small">
+                          This helps your account stay protected
+                        </div>
+                        <ErrorMessage
+                          name="password"
+                          component="div"
+                          className="text-danger small mt-1"
+                        />
+                      </div>
 
-              {/* Terms */}
-              <div className="mt-4 text-center small terms-text">
-                <div className="form-footer" style={{ background: "none" }}>
-                  Already have an account?{" "}
-                  <Link href="/employee/login">Sign In</Link>
+                      {/* Phone */}
+                      <div className="mb-3">
+                        <label
+                          htmlFor="phoneField"
+                          className="form-label fw-medium"
+                        >
+                          Mobile number<span className="text-danger">*</span>
+                        </label>
+                        <div className="input-group">
+                          <span className="input-group-text bg-light border-end-0">
+                            <i className="bi bi-phone text-primary"></i>
+                          </span>
+                          <span className="input-group-text bg-light border-end-0 border-start-0 country-code">
+                            +91
+                          </span>
+                          <Field
+                            type="tel"
+                            name="mobile"
+                            className="form-control form-control-lg border-start-0"
+                            placeholder="Enter 10-digit mobile number"
+                            id="phoneField"
+                            maxLength="10"
+                          />
+                        </div>
+                        <div className="form-text small">
+                          Recruiters will contact you on this number
+                        </div>
+                        <ErrorMessage
+                          name="mobile"
+                          component="div"
+                          className="text-danger small mt-1"
+                        />
+                      </div>
+
+                      {/* Work Status */}
+                      <div className="mb-4">
+                        <label className="form-label fw-medium d-block mb-3">
+                          Work status<span className="text-danger">*</span>
+                        </label>
+                        <div className="d-flex gap-3 status-cards">
+                          <label
+                            className={`status-card ${
+                              values.workStatus === "experienced"
+                                ? "active"
+                                : ""
+                            }`}
+                          >
+                            <Field
+                              type="radio"
+                              name="workStatus"
+                              value="experienced"
+                              className="d-none"
+                            />
+                            <div className="card-icon">
+                              <i className="bi bi-briefcase-fill"></i>
+                            </div>
+                            <div className="fw-medium">I'm experienced</div>
+                            <div className="small text-muted">
+                              I have work experience (excluding internships)
+                            </div>
+                          </label>
+
+                          <label
+                            className={`status-card ${
+                              values.workStatus === "fresher" ? "active" : ""
+                            }`}
+                          >
+                            <Field
+                              type="radio"
+                              name="workStatus"
+                              value="fresher"
+                              className="d-none"
+                            />
+                            <div className="card-icon">
+                              <i className="bi bi-mortarboard-fill"></i>
+                            </div>
+                            <div className="fw-medium">I'm a fresher</div>
+                            <div className="small text-muted">
+                              I am a student/Haven't worked after graduation
+                            </div>
+                          </label>
+                        </div>
+                        <ErrorMessage
+                          name="workStatus"
+                          component="div"
+                          className="text-danger small mt-1"
+                        />
+                      </div>
+
+                      {/* Updates Checkbox */}
+                      <div className="mb-4">
+                        <div className="form-check">
+                          <Field
+                            type="checkbox"
+                            name="acceptTerms"
+                            className="form-check-input"
+                            id="acceptTerms"
+                          />
+                          <label
+                            htmlFor="acceptTerms"
+                            className="form-check-label small"
+                          >
+                            By clicking Register, you agree to the{" "}
+                            <a
+                              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/terms-conditions`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary text-decoration-underline"
+                            >
+                              Terms & Conditions
+                            </a>{" "}
+                            &
+                            <a
+                              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/privacy-policy`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary text-decoration-underline"
+                            >
+                              Privacy Policy
+                            </a>{" "}
+                            of DEI champions. .
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Submit */}
+                      <button
+                        className="btn btn-primary w-100 btn-lg fw-bold register-btn"
+                        type="submit"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                            Registering...
+                          </>
+                        ) : (
+                          "Register now"
+                        )}
+                      </button>
+                    </Form>
+                  )}
+                </Formik>
+
+                {/* Terms */}
+                <div className="mt-4 text-center small terms-text">
+                  <div className="form-footer" style={{ background: "none" }}>
+                    Already have an account?{" "}
+                    <Link href="/employee/login">Sign In</Link>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        {/* Footer */}
-        <div className="mt-4 text-center small footer-links">
-          <div className="d-flex flex-wrap justify-content-center gap-3 mb-2">
-            <Link
-              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/about-us`}
-              className="text-muted"
-            >
-              About Us
-            </Link>
-            <Link
-              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/contact`}
-              className="text-muted"
-            >
-              Contact Us
-            </Link>
-            <Link
-              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/faq`}
-              className="text-muted"
-            >
-              FAQs
-            </Link>
-            <Link
-              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/terms-conditions`}
-              className="text-muted"
-            >
-              Terms and Conditions
-            </Link>
+          {/* Footer */}
+          <div className="mt-4 text-center small footer-links">
+            <div className="d-flex flex-wrap justify-content-center gap-3 mb-2">
+              <Link
+                href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/about-us`}
+                className="text-muted"
+              >
+                About Us
+              </Link>
+              <Link
+                href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/contact`}
+                className="text-muted"
+              >
+                Contact Us
+              </Link>
+              <Link
+                href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/faq`}
+                className="text-muted"
+              >
+                FAQs
+              </Link>
+              <Link
+                href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/terms-conditions`}
+                className="text-muted"
+              >
+                Terms and Conditions
+              </Link>
 
-            <Link
-              href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/privacy-policy`}
-              className="text-muted"
-            >
-              Privacy Policy
-            </Link>
-          </div>
-          <div className="text-muted">
-            All rights reserved © {new Date().getFullYear()} Info Edge India
-            Ltd.
+              <Link
+                href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/privacy-policy`}
+                className="text-muted"
+              >
+                Privacy Policy
+              </Link>
+            </div>
+            <div className="text-muted">
+              All rights reserved © {new Date().getFullYear()} DEI CHAMPIONS.
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

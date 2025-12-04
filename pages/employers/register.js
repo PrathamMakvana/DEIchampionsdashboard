@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import cityStateData from "@/utils/cityState.json";
 import { getDepartments } from "@/api/job";
+import PageHead from "@/components/layout/PageHead";
 
 export default function JobPosterRegistration() {
   const dispatch = useDispatch();
@@ -736,112 +737,115 @@ export default function JobPosterRegistration() {
   );
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
-      <div className="container">
-        <div
-          className="row justify-content-center"
-          style={{
-            marginLeft: "0px",
-            marginRight: "0px",
-          }}
-        >
-          <div className="col-lg-8">
-            <div className="register-form-card">
-              <div className="form-header">
-                <div className="logo-container text-center mb-4">
-                  <div className="header-logo">
-                    <div className="d-flex justify-content-center">
-                      <img
-                        alt="jobBox"
-                        src="../assets/imgs/page/dashboard/logo2.png"
-                        style={{ width: "60%", height: "auto" }}
-                      />
+    <>
+      <PageHead headTitle="Employers Register - DEI Champions Job Portal" />
+      <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
+        <div className="container">
+          <div
+            className="row justify-content-center"
+            style={{
+              marginLeft: "0px",
+              marginRight: "0px",
+            }}
+          >
+            <div className="col-lg-8">
+              <div className="register-form-card">
+                <div className="form-header">
+                  <div className="logo-container text-center mb-4">
+                    <div className="header-logo">
+                      <div className="d-flex justify-content-center">
+                        <img
+                          alt="jobBox"
+                          src="../assets/imgs/page/dashboard/logo2.png"
+                          style={{ width: "60%", height: "auto" }}
+                        />
+                      </div>
                     </div>
                   </div>
+                  <h1 className="form-title">Create Account as Job Poster</h1>
+                  <p className="form-subtitle">
+                    Register to post jobs and find the best talent for your
+                    organization
+                  </p>
+                  {renderProgressBar()}
                 </div>
-                <h1 className="form-title">Create Account as Job Poster</h1>
-                <p className="form-subtitle">
-                  Register to post jobs and find the best talent for your
-                  organization
-                </p>
-                {renderProgressBar()}
-              </div>
 
-              <div className="form-body">
-                <Formik
-                  initialValues={initialValues}
-                  validationSchema={getValidationSchema()}
-                  onSubmit={handleSubmit}
-                  enableReinitialize
-                  validateOnBlur={true}
-                  validateOnChange={false}
-                >
-                  {({
-                    values,
-                    setFieldValue,
-                    setFieldTouched,
-                    errors,
-                    touched,
-                  }) => (
-                    <Form>
-                      {currentStep === 1 && renderStep1(values)}
-                      {currentStep === 2 && renderStep2()}
-                      {currentStep === 3 &&
-                        renderStep3({ errors, touched, setFieldTouched })}
-                      {currentStep === 4 &&
-                        renderStep4(values, setFieldValue, setFieldTouched)}
+                <div className="form-body">
+                  <Formik
+                    initialValues={initialValues}
+                    validationSchema={getValidationSchema()}
+                    onSubmit={handleSubmit}
+                    enableReinitialize
+                    validateOnBlur={true}
+                    validateOnChange={false}
+                  >
+                    {({
+                      values,
+                      setFieldValue,
+                      setFieldTouched,
+                      errors,
+                      touched,
+                    }) => (
+                      <Form>
+                        {currentStep === 1 && renderStep1(values)}
+                        {currentStep === 2 && renderStep2()}
+                        {currentStep === 3 &&
+                          renderStep3({ errors, touched, setFieldTouched })}
+                        {currentStep === 4 &&
+                          renderStep4(values, setFieldValue, setFieldTouched)}
 
-                      <div className="d-flex justify-content-between">
-                        {currentStep > 1 && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary"
-                            onClick={() => setCurrentStep(currentStep - 1)}
-                          >
-                            <i className="bi bi-arrow-left me-2"></i>
-                            Previous
-                          </button>
-                        )}
-
-                        <button
-                          type="submit"
-                          className="btn btn-primary register-btn ms-auto"
-                          disabled={loading}
-                          style={{
-                            width: currentStep === 1 ? "100%" : "auto",
-                          }}
-                        >
-                          {loading ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-2"></span>
-                              Processing...
-                            </>
-                          ) : currentStep === 4 ? (
-                            <>
-                              <i className="bi bi-check-circle me-2"></i>
-                              Create Account
-                            </>
-                          ) : (
-                            <>
-                              Continue
-                              <i className="bi bi-arrow-right ms-2"></i>
-                            </>
+                        <div className="d-flex justify-content-between">
+                          {currentStep > 1 && (
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary"
+                              onClick={() => setCurrentStep(currentStep - 1)}
+                            >
+                              <i className="bi bi-arrow-left me-2"></i>
+                              Previous
+                            </button>
                           )}
-                        </button>
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
-              </div>
 
-              <div className="form-footer">
-                Already have an account?{" "}
-                <Link href="/employers/login">Sign In</Link>
+                          <button
+                            type="submit"
+                            className="btn btn-primary register-btn ms-auto"
+                            disabled={loading}
+                            style={{
+                              width: currentStep === 1 ? "100%" : "auto",
+                            }}
+                          >
+                            {loading ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                Processing...
+                              </>
+                            ) : currentStep === 4 ? (
+                              <>
+                                <i className="bi bi-check-circle me-2"></i>
+                                Create Account
+                              </>
+                            ) : (
+                              <>
+                                Continue
+                                <i className="bi bi-arrow-right ms-2"></i>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </Form>
+                    )}
+                  </Formik>
+                </div>
+
+                <div className="form-footer">
+                  Already have an account?{" "}
+                  <Link href="/employers/login">Sign In</Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

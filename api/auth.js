@@ -99,7 +99,6 @@ export const verifyOtpUser =
       return null;
     }
   };
-
 export const registerJobPoster =
   (formData, { showSuccess, showError }) =>
   async (dispatch) => {
@@ -232,7 +231,6 @@ export const getVerifyEmail = async (token) => {
     return null;
   }
 };
-
 export const getuserProfileCompletionData = () => async (dispatch) => {
   try {
     dispatch(setLoading(true));

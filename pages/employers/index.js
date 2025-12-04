@@ -15,13 +15,16 @@ import {
   FaUserTie,
   FaCog,
   FaBriefcase,
+  FaExclamationTriangle,
+  FaPaperPlane,
 } from "react-icons/fa";
-import { getAuthUser } from "@/api/auth";
+import { getAuthUser, getResendVerifyEmail, getuser } from "@/api/auth";
 import {
   getTermsAndConditions,
   acceptTerms,
   getUserTermsAcceptance,
 } from "@/api/termsApi";
+import Swal from "sweetalert2";
 
 export default function EmployerDashboard() {
   const dispatch = useDispatch();
@@ -176,6 +179,41 @@ export default function EmployerDashboard() {
     const text = html.replace(/<[^>]*>/g, "");
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
+  };
+
+  const isEmailNotVerified = useMemo(() => {
+    return user && !user.emailVerified;
+  }, [user]);
+
+  const handleResendVerification = async () => {
+    try {
+      const res = await getResendVerifyEmail();
+      if (res.success) {
+        console.log("222 --->", res);
+        dispatch(getuser());
+        Swal.fire({
+          icon: "success",
+          title: "Email Sent!",
+          text: "Verification email resent! Please check your inbox.",
+          confirmButtonColor: "#007bff",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: "Failed to resend verification email. Please try again.",
+          confirmButtonColor: "#dc3545",
+        });
+      }
+    } catch (error) {
+      console.error("Error resending verification email:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred. Please try again later.",
+        confirmButtonColor: "#dc3545",
+      });
+    }
   };
 
   const handleAcceptTerms = async () => {
@@ -368,6 +406,38 @@ export default function EmployerDashboard() {
 
   return (
     <Layout breadcrumbTitle="Dashboard" breadcrumbActive="Dashboard">
+      {isEmailNotVerified && (
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="dash-email-verify-alert alert alert-warning border-0 shadow-lg rounded-3">
+              <div className="d-flex align-items-center justify-content-between flex-column flex-md-row">
+                <div className="d-flex align-items-center text-center text-md-start mb-3 mb-md-0">
+                  <div className="dash-email-verify-icon me-3">
+                    <FaExclamationTriangle size={32} className="text-warning" />
+                  </div>
+                  <div className="dash-email-verify-content">
+                    <h4 className="dash-email-verify-title mb-1 fw-bold text-dark">
+                      Verify Your Email Address
+                    </h4>
+                    <p className="dash-email-verify-text mb-0 text-dark">
+                      Your email address <strong>{user.email}</strong> is not
+                      verified. Please verify your email to access all features
+                      and receive important notifications.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  className="dash-email-verify-btn btn btn-warning btn-lg px-4 py-2 fw-semibold"
+                  onClick={handleResendVerification}
+                >
+                  <FaPaperPlane className="me-2" />
+                  Verify Email
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="col-xxl-12 col-xl-12 col-lg-12">
         <div className="section-box">
           {loading && (

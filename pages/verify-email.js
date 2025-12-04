@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { getVerifyEmail } from "@/api/auth";
+import { useSelector } from "react-redux";
 
 export default function VerifyEmail() {
   const router = useRouter();
+  const user = useSelector((state) => state.auth.user);
+  console.log("🚀user --->", user);
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -404,13 +407,15 @@ export default function VerifyEmail() {
                     </div>
                   </div>
 
-                  <button
-                    className="verify-e-btn btn text-white verify-e-animation"
-                    onClick={handleGoToDashboard}
-                  >
-                    <i className="bi bi-speedometer2 me-2"></i>
-                    Go to Dashboard
-                  </button>
+                  {user && (
+                    <button
+                      className="verify-e-btn btn text-white verify-e-animation"
+                      onClick={handleGoToDashboard}
+                    >
+                      <i className="bi bi-speedometer2 me-2"></i>
+                      Go to Dashboard
+                    </button>
+                  )}
                 </div>
               )}
 
