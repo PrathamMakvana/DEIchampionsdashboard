@@ -1,6 +1,6 @@
-// src/utils/utils-firebase.js
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getMessaging, getToken, isSupported, onMessage } from "firebase/messaging";
+import { getFirestore } from "firebase/firestore"; 
 
 // ✅ Your Firebase configuration
 const firebaseConfig = {
@@ -15,6 +15,9 @@ const firebaseConfig = {
 
 // ✅ Initialize app safely (prevent multiple in Next.js hot reloads)
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// ✅ Export Firestore (for notifications)
+export const webFirestore = getFirestore(app);
 
 // ✅ Export messaging safely (only if supported and on client)
 export let messaging = null;
@@ -70,8 +73,6 @@ export const requestForToken = async () => {
     return null;
   }
 };
-
-
 
 export const onMessageListener = () =>
   new Promise((resolve) => {

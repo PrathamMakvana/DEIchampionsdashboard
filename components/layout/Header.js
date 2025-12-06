@@ -5,67 +5,25 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export default function Header() {
   const [scroll, setScroll] = useState(0);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "New Job Application",
-      message: "John Doe applied for Senior Developer position",
-      time: "2 minutes ago",
-      isRead: false,
-      type: "application",
-      icon: "📄",
-      color: "#3b82f6",
-    },
-    {
-      id: 2,
-      title: "Interview Scheduled",
-      message: "Your interview is scheduled for tomorrow at 10:00 AM",
-      time: "1 hour ago",
-      isRead: false,
-      type: "interview",
-      icon: "📅",
-      color: "#f59e0b",
-    },
-    {
-      id: 3,
-      title: "New Message",
-      message: "You have a new message from ABC Corporation",
-      time: "3 hours ago",
-      isRead: true,
-      type: "message",
-      icon: "💬",
-      color: "#8b5cf6",
-    },
-    {
-      id: 4,
-      title: "Job Posted Successfully",
-      message: "Your job posting for Full Stack Developer is now live",
-      time: "1 day ago",
-      isRead: true,
-      type: "success",
-      icon: "✅",
-      color: "#10b981",
-    },
-    {
-      id: 5,
-      title: "Profile View",
-      message: "5 employers viewed your profile this week",
-      time: "2 days ago",
-      isRead: true,
-      type: "info",
-      icon: "👁️",
-      color: "#6366f1",
-    },
-  ]);
-
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  // ✅ Use Firebase notifications hook
+  const {
+    notifications,
+    loading,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    getNotificationIcon,
+    getNotificationColor,
+    getTimeAgo,
+  } = useNotifications();
 
   useEffect(() => {
     document.addEventListener("scroll", () => {
@@ -78,18 +36,10 @@ export default function Header() {
 
   const employee = router.pathname.includes("employee");
 
-  const markAsRead = (id) => {
-    setNotifications(
-      notifications.map((notif) =>
-        notif.id === id ? { ...notif, isRead: true } : notif
-      )
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(
-      notifications.map((notif) => ({ ...notif, isRead: true }))
-    );
+  const handleMarkAsReadClick = (notificationId, e) => {
+    // Prevent event bubbling
+    e.stopPropagation();
+    markAsRead(notificationId);
   };
 
   const handleLogout = () => {
@@ -127,7 +77,6 @@ export default function Header() {
                     src="/assets/imgs/page/dashboard/logo2.png"
                     style={{ width: "160px", height: "33px" }}
                     onError={(e) => {
-                      // Fallback if image doesn't load
                       e.target.style.display = "none";
                       e.target.parentElement.innerHTML =
                         '<span style="font-size: 24px; font-weight: 700; color: #3b82f6;">JobPortal</span>';
@@ -137,7 +86,6 @@ export default function Header() {
               </div>
             </div>
             <div className="header-search d-flex align-items-center gap-3">
-              {/* Back Arrow (visible only on large screens) */}
               <div
                 className="back-arrow d-none d-lg-block"
                 onClick={() => router.back()}
@@ -162,7 +110,7 @@ export default function Header() {
                   href={process.env.NEXT_PUBLIC_FRONTEND_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                   style={{ color: "white" }}
+                  style={{ color: "white" }}
                 >
                   Home
                 </Link>
@@ -175,6 +123,8 @@ export default function Header() {
                     Post Job
                   </Link>
                 )}
+
+                {/* ✅ Notification Dropdown with Firebase data */}
                 <Menu as="div" className="dropdown d-inline-block">
                   <Menu.Button
                     as="a"
@@ -202,7 +152,7 @@ export default function Header() {
                           animation: "pulse 2s infinite",
                         }}
                       >
-                        {unreadCount}
+                        {unreadCount > 99 ? "99+" : unreadCount}
                       </span>
                     )}
                   </Menu.Button>
@@ -213,13 +163,15 @@ export default function Header() {
                       right: "0",
                       left: "auto",
                       width: "400px",
-                      maxHeight: "480px",
-                      overflowY: "auto",
+                      maxHeight: "500px",
+                      overflowY: "hidden",
                       padding: "0",
                       boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
                       border: "1px solid #e5e7eb",
                       borderRadius: "12px",
                       marginTop: "8px",
+                      display: "flex",
+                      flexDirection: "column",
                     }}
                   >
                     {/* Header */}
@@ -228,9 +180,7 @@ export default function Header() {
                         padding: "20px 24px 16px",
                         borderBottom: "1px solid #e5e7eb",
                         backgroundColor: "#ffffff",
-                        position: "sticky",
-                        top: "0",
-                        zIndex: "10",
+                        flexShrink: 0,
                         borderTopLeftRadius: "12px",
                         borderTopRightRadius: "12px",
                       }}
@@ -261,8 +211,11 @@ export default function Header() {
                               color: "#6b7280",
                             }}
                           >
-                            You have {unreadCount} unread notification
-                            {unreadCount !== 1 ? "s" : ""}
+                            {loading
+                              ? "Loading..."
+                              : `You have ${unreadCount} unread notification${
+                                  unreadCount !== 1 ? "s" : ""
+                                }`}
                           </p>
                         </div>
                         {unreadCount > 0 && (
@@ -299,224 +252,240 @@ export default function Header() {
                       </div>
                     </div>
 
-                    {/* Notifications List */}
-                    {notifications.length === 0 ? (
-                      <div
-                        style={{
-                          padding: "60px 24px",
-                          textAlign: "center",
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: "48px",
-                            marginBottom: "16px",
-                            opacity: "0.5",
-                          }}
-                        >
-                          🔔
-                        </div>
-                        <p
-                          style={{
-                            margin: "0",
-                            color: "#6b7280",
-                            fontSize: "15px",
-                          }}
-                        >
-                          No notifications yet
-                        </p>
-                      </div>
-                    ) : (
-                      <div style={{ padding: "8px 0" }}>
-                        {notifications.map((notification, index) => (
-                          <div
-                            key={notification.id}
-                            onClick={() => markAsRead(notification.id)}
-                            style={{
-                              padding: "14px 24px",
-                              cursor: "pointer",
-                              backgroundColor: notification.isRead
-                                ? "transparent"
-                                : "#f0f9ff",
-                              transition: "all 0.2s ease",
-                              position: "relative",
-                              borderLeft: notification.isRead
-                                ? "none"
-                                : `3px solid ${notification.color}`,
-                              borderBottom:
-                                index !== notifications.length - 1
-                                  ? "1px solid #f3f4f6"
-                                  : "none",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                notification.isRead ? "#f9fafb" : "#e0f2fe";
-                              e.currentTarget.style.paddingLeft = "28px";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                notification.isRead ? "transparent" : "#f0f9ff";
-                              e.currentTarget.style.paddingLeft = "24px";
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: "14px",
-                                alignItems: "flex-start",
-                              }}
-                            >
-                              {/* Icon Container */}
-                              <div
-                                style={{
-                                  flexShrink: "0",
-                                  width: "44px",
-                                  height: "44px",
-                                  borderRadius: "10px",
-                                  background: `linear-gradient(135deg, ${notification.color}15 0%, ${notification.color}30 100%)`,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  fontSize: "20px",
-                                  border: `2px solid ${notification.color}20`,
-                                }}
-                              >
-                                {notification.icon}
-                              </div>
-
-                              {/* Content */}
-                              <div style={{ flex: "1", minWidth: "0" }}>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "flex-start",
-                                    marginBottom: "6px",
-                                    gap: "12px",
-                                  }}
-                                >
-                                  <h6
-                                    style={{
-                                      margin: "0",
-                                      fontSize: "15px",
-                                      fontWeight: "600",
-                                      color: "#111827",
-                                      lineHeight: "1.4",
-                                    }}
-                                  >
-                                    {notification.title}
-                                  </h6>
-                                  {!notification.isRead && (
-                                    <span
-                                      style={{
-                                        width: "10px",
-                                        height: "10px",
-                                        backgroundColor: notification.color,
-                                        borderRadius: "50%",
-                                        flexShrink: "0",
-                                        marginTop: "4px",
-                                        boxShadow: `0 0 0 3px ${notification.color}20`,
-                                      }}
-                                    />
-                                  )}
-                                </div>
-                                <p
-                                  style={{
-                                    margin: "0 0 8px 0",
-                                    fontSize: "14px",
-                                    color: "#4b5563",
-                                    lineHeight: "1.5",
-                                  }}
-                                >
-                                  {notification.message}
-                                </p>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "6px",
-                                  }}
-                                >
-                                  <svg
-                                    style={{
-                                      width: "14px",
-                                      height: "14px",
-                                      fill: "#9ca3af",
-                                    }}
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                  <span
-                                    style={{
-                                      fontSize: "13px",
-                                      color: "#9ca3af",
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    {notification.time}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Footer */}
+                    {/* Notifications List with Scrollbar */}
                     <div
                       style={{
-                        padding: "16px 24px",
-                        textAlign: "center",
-                        borderTop: "1px solid #e5e7eb",
-                        backgroundColor: "#f9fafb",
-                        borderBottomLeftRadius: "12px",
-                        borderBottomRightRadius: "12px",
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                        flexGrow: 1,
+                        maxHeight: "400px",
                       }}
+                      className="notifications-scrollbar"
                     >
-                      <Link
-                        href="#"
-                        style={{
-                          color: "#3b82f6",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                          textDecoration: "none",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          transition: "all 0.2s",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.color = "#2563eb";
-                          e.currentTarget.style.gap = "8px";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.color = "#3b82f6";
-                          e.currentTarget.style.gap = "6px";
-                        }}
-                      >
-                        View all notifications
-                        <svg
+                      {loading ? (
+                        <div
                           style={{
-                            width: "16px",
-                            height: "16px",
-                            fill: "currentColor",
+                            padding: "40px 24px",
+                            textAlign: "center",
                           }}
-                          viewBox="0 0 20 20"
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </Link>
+                          <div
+                            className="spinner-border text-primary"
+                            role="status"
+                            style={{ width: "2rem", height: "2rem" }}
+                          >
+                            <span className="visually-hidden">Loading...</span>
+                          </div>
+                          <p style={{ marginTop: "12px", color: "#6b7280" }}>
+                            Loading notifications...
+                          </p>
+                        </div>
+                      ) : notifications.length === 0 ? (
+                        <div
+                          style={{
+                            padding: "60px 24px",
+                            textAlign: "center",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: "48px",
+                              marginBottom: "16px",
+                              opacity: "0.5",
+                            }}
+                          >
+                            🔔
+                          </div>
+                          <p
+                            style={{
+                              margin: "0",
+                              color: "#6b7280",
+                              fontSize: "15px",
+                            }}
+                          >
+                            No notifications yet
+                          </p>
+                        </div>
+                      ) : (
+                        <div style={{ padding: "8px 0" }}>
+                          {notifications.map((notification, index) => {
+                            const icon = getNotificationIcon(notification.type);
+                            const color = getNotificationColor(notification.type);
+                            const timeAgo = getTimeAgo(notification.createdAt);
+
+                            return (
+                              <div
+                                key={notification.id}
+                                style={{
+                                  padding: "14px 24px",
+                                  backgroundColor: notification.isRead
+                                    ? "transparent"
+                                    : "#f0f9ff",
+                                  transition: "all 0.2s ease",
+                                  position: "relative",
+                                  borderLeft: notification.isRead
+                                    ? "none"
+                                    : `3px solid ${color}`,
+                                  borderBottom:
+                                    index !== notifications.length - 1
+                                      ? "1px solid #f3f4f6"
+                                      : "none",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    notification.isRead ? "#f9fafb" : "#e0f2fe";
+                                  e.currentTarget.style.paddingLeft = "28px";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    notification.isRead ? "transparent" : "#f0f9ff";
+                                  e.currentTarget.style.paddingLeft = "24px";
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    gap: "14px",
+                                    alignItems: "flex-start",
+                                  }}
+                                >
+                                  {/* Icon Container */}
+                                  <div
+                                    style={{
+                                      flexShrink: "0",
+                                      width: "44px",
+                                      height: "44px",
+                                      borderRadius: "10px",
+                                      background: `linear-gradient(135deg, ${color}15 0%, ${color}30 100%)`,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontSize: "20px",
+                                      border: `2px solid ${color}20`,
+                                    }}
+                                  >
+                                    {icon}
+                                  </div>
+
+                                  {/* Content */}
+                                  <div style={{ flex: "1", minWidth: "0" }}>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "flex-start",
+                                        marginBottom: "6px",
+                                        gap: "12px",
+                                      }}
+                                    >
+                                      <h6
+                                        style={{
+                                          margin: "0",
+                                          fontSize: "15px",
+                                          fontWeight: "600",
+                                          color: "#111827",
+                                          lineHeight: "1.4",
+                                        }}
+                                      >
+                                        {notification.title}
+                                      </h6>
+                                      
+                                      {/* Mark as read button for individual notification */}
+                                      {!notification.isRead ? (
+                                        <button
+                                          onClick={(e) => handleMarkAsReadClick(notification.id, e)}
+                                          style={{
+                                            background: "transparent",
+                                            border: `1px solid ${color}40`,
+                                            color: color,
+                                            fontSize: "11px",
+                                            fontWeight: "600",
+                                            cursor: "pointer",
+                                            padding: "4px 10px",
+                                            borderRadius: "4px",
+                                            transition: "all 0.2s",
+                                            flexShrink: 0,
+                                            whiteSpace: "nowrap",
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = color;
+                                            e.currentTarget.style.color = "white";
+                                            e.currentTarget.style.borderColor = color;
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = "transparent";
+                                            e.currentTarget.style.color = color;
+                                            e.currentTarget.style.borderColor = `${color}40`;
+                                          }}
+                                        >
+                                          Mark read
+                                        </button>
+                                      ) : (
+                                        <span
+                                          style={{
+                                            width: "10px",
+                                            height: "10px",
+                                            backgroundColor: "#10b981",
+                                            borderRadius: "50%",
+                                            flexShrink: "0",
+                                            marginTop: "4px",
+                                            boxShadow: "0 0 0 3px #10b98120",
+                                          }}
+                                          title="Read"
+                                        />
+                                      )}
+                                    </div>
+                                    <p
+                                      style={{
+                                        margin: "0 0 8px 0",
+                                        fontSize: "14px",
+                                        color: "#4b5563",
+                                        lineHeight: "1.5",
+                                      }}
+                                    >
+                                      {notification.message}
+                                    </p>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                      }}
+                                    >
+                                      <svg
+                                        style={{
+                                          width: "14px",
+                                          height: "14px",
+                                          fill: "#9ca3af",
+                                        }}
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                      <span
+                                        style={{
+                                          fontSize: "13px",
+                                          color: "#9ca3af",
+                                          fontWeight: "500",
+                                        }}
+                                      >
+                                        {timeAgo}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
+
+                    {/* Footer - Removed "View all notifications" button */}
                   </Menu.Items>
                 </Menu>
 
@@ -598,7 +567,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Add pulse animation for badge */}
+      {/* Add pulse animation for badge and custom scrollbar styles */}
       <style jsx>{`
         @keyframes pulse {
           0%,
@@ -610,6 +579,32 @@ export default function Header() {
             transform: scale(1.1);
             opacity: 0.8;
           }
+        }
+
+        /* Custom scrollbar styles */
+        .notifications-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .notifications-scrollbar::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 10px;
+        }
+
+        .notifications-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 10px;
+          transition: background 0.2s;
+        }
+
+        .notifications-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+
+        /* Firefox scrollbar */
+        .notifications-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e1 #f1f5f9;
         }
       `}</style>
     </>
