@@ -75,8 +75,6 @@ export default function Login() {
         })
       );
 
-      console.log("🚀data 222--->", data);
-
       if (data?.success) {
         // NEW: Check if OTP verification is required (inactive user)
         if (data?.data?.requiresOtpVerification) {
