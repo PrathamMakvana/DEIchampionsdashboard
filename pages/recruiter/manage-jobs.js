@@ -19,19 +19,17 @@ const ManageJobs = () => {
     dispatch(getJobs());
   }, [dispatch]);
 
-
   // Apply filter from query parameter
-useEffect(() => {
-  if (router.query.filter) {
-    const param = router.query.filter.toLowerCase();
+  useEffect(() => {
+    if (router.query.filter) {
+      const param = router.query.filter.toLowerCase();
 
-    if (param === "open") setActiveFilter("Open");
-    else if (param === "closed") setActiveFilter("Closed");
-    else if (param === "draft") setActiveFilter("Drafts");
-    else setActiveFilter("All Jobs");
-  }
-}, [router.query.filter]);
-
+      if (param === "open") setActiveFilter("Open");
+      else if (param === "closed") setActiveFilter("Closed");
+      else if (param === "draft") setActiveFilter("Drafts");
+      else setActiveFilter("All Jobs");
+    }
+  }, [router.query.filter]);
 
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
@@ -40,9 +38,9 @@ useEffect(() => {
 
   const handleAction = (action, jobId) => {
     if (action === "View") {
-      router.push(`/employers/manage-job-details?id=${jobId}`);
+      router.push(`/recruiter/manage-job-details?id=${jobId}`);
     } else if (action === "Edit") {
-      router.push(`/employers/post-job?id=${jobId}`);
+      router.push(`/recruiter/post-job?id=${jobId}`);
     } else if (action === "Delete") {
       Swal.fire({
         title: "Are you sure?",
@@ -115,7 +113,7 @@ useEffect(() => {
               </h2>
               <button
                 className="btn-primary-custom"
-                onClick={() => router.push("/employers/post-job")}
+                onClick={() => router.push("/recruiter/post-job")}
               >
                 <i className="bi bi-plus-lg"></i> Post New Job
               </button>

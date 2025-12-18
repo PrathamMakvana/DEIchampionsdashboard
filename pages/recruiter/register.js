@@ -167,7 +167,7 @@ export default function JobPosterRegistration() {
 
     if (data?.success) {
       navigate.push({
-        pathname: "/employers/otp-verify",
+        pathname: "/recruiter/otp-verify",
         query: { userId: data.data.userId, roleId: data.data.roleId },
       });
     }
@@ -738,7 +738,7 @@ export default function JobPosterRegistration() {
 
   return (
     <>
-      <PageHead headTitle="Employers Register - DEI Champions Job Portal" />
+      <PageHead headTitle="Recruiter Register - DEI Champions Job Portal" />
       <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
         <div className="container">
           <div
@@ -839,7 +839,7 @@ export default function JobPosterRegistration() {
 
                 <div className="form-footer">
                   Already have an account?{" "}
-                  <Link href="/employers/login">Sign In</Link>
+                  <Link href="/recruiter/login">Sign In</Link>
                 </div>
               </div>
             </div>

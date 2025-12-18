@@ -329,3 +329,13 @@ export const updatePassword = async (formData, { showSuccess, showError }) => {
     throw error;
   }
 };
+
+// resend otp verification
+export const resendMobileOtp = async (formData) => {
+  try {
+    const data = await fetcherPost(["/users/resend-otp", formData]);
+    return data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+};

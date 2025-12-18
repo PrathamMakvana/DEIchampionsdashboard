@@ -169,7 +169,7 @@
 
 //       if (data?.success) {
 //         setTimeout(() => {
-//           navigate.push("/employee");
+//           navigate.push("/job-seeker");
 //         }, 2000);
 //       } else {
 //         // clear OTPs if invalid
@@ -451,7 +451,7 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { verifyOtpUser } from "@/api/auth";
+import { resendMobileOtp, verifyOtpUser } from "@/api/auth";
 import PageHead from "@/components/layout/PageHead";
 
 export default function VerifyOTP() {
@@ -592,7 +592,7 @@ export default function VerifyOTP() {
 
       if (data?.success) {
         // Redirect to employer dashboard after successful verification
-        router.push("/employers");
+        router.push("/recruiter");
       } else {
         // clear OTPs if invalid
         setMobileOtpValues(["", "", "", "", "", ""]);
@@ -660,39 +660,13 @@ export default function VerifyOTP() {
     }
   };
 
-  // Mock API functions - replace with your actual API calls
-  const verifyOtpAPI = async (userId, roleId, emailOtp, mobileOtp) => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Mock verification logic
-    if (mobileOtp === "123456") {
-      return {
-        success: true,
-        message: "OTP verified successfully",
-        token: "mock-jwt-token-here",
-      };
-    } else {
-      return {
-        success: false,
-        message: "Invalid OTP code",
-      };
-    }
-  };
-
   const resendOtpAPI = async (userId, roleId, email) => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    return {
-      success: true,
-      message: "OTP sent successfully",
-    };
+    return resendMobileOtp({ userId });
   };
 
   return (
     <>
-      <PageHead headTitle="Employers OTP Verify - DEI Champions Job Portal" />
+      <PageHead headTitle="Recruiter OTP Verify - DEI Champions Job Portal" />
       <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
         <div className="row justify-content-center w-100">
           <div className="col-lg-5 col-md-7 col-sm-9">
@@ -815,7 +789,7 @@ export default function VerifyOTP() {
                 {/* Back to login */}
                 <div className="mt-4 text-center">
                   <Link
-                    href="/employers/login"
+                    href="/recruiter/login"
                     className="btn btn-outline-secondary btn-sm"
                   >
                     <i className="bi bi-arrow-left me-1"></i>

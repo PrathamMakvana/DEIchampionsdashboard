@@ -154,23 +154,23 @@ export default function Home() {
       formik.setValues(values);
 
       // Set cities based on state
-if (currentJob.state) {
-  const india = cityStateData.find(
-    (country) => country.name?.toLowerCase() === "india"
-  );
+      if (currentJob.state) {
+        const india = cityStateData.find(
+          (country) => country.name?.toLowerCase() === "india"
+        );
 
-  const selected = india?.states?.find(
-    (st) => st.name === currentJob.state
-  );
+        const selected = india?.states?.find(
+          (st) => st.name === currentJob.state
+        );
 
-  setCities(
-    selected?.cities
-      ? selected.cities.map((c) => c.name).sort((a, b) => a.localeCompare(b))
-      : []
-  );
-}
-
-
+        setCities(
+          selected?.cities
+            ? selected.cities
+                .map((c) => c.name)
+                .sort((a, b) => a.localeCompare(b))
+            : []
+        );
+      }
     }
   }, [currentJob, isEditMode]);
 
@@ -209,7 +209,7 @@ if (currentJob.state) {
                 timer: 1500,
                 showConfirmButton: false,
               }).then(() => {
-                router.push("/employers/manage-jobs");
+                router.push("/recruiter/manage-jobs");
               }),
             showError: (msg) =>
               Swal.fire({

@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { verifyOtpUser } from "@/api/auth";
+import { resendMobileOtp, verifyOtpUser } from "@/api/auth";
 
 export default function VerifyOTP() {
   const navigate = useRouter();
@@ -138,7 +138,7 @@ export default function VerifyOTP() {
       );
 
       if (data?.success) {
-        navigate.push("/employee/update-profile");
+        navigate.push("/job-seeker/update-profile");
       } else {
         // clear OTPs if invalid
         setMobileOtpValues(["", "", "", "", "", ""]);
@@ -206,34 +206,8 @@ export default function VerifyOTP() {
     }
   };
 
-  // Mock API functions - replace with your actual API calls
-  const verifyOtpAPI = async (userId, roleId, emailOtp, mobileOtp) => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Mock verification logic
-    if (mobileOtp === "123456") {
-      return {
-        success: true,
-        message: "OTP verified successfully",
-        token: "mock-jwt-token-here",
-      };
-    } else {
-      return {
-        success: false,
-        message: "Invalid OTP code",
-      };
-    }
-  };
-
   const resendOtpAPI = async (userId, roleId, email) => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    return {
-      success: true,
-      message: "OTP sent successfully",
-    };
+    return resendMobileOtp({ userId });
   };
 
   return (

@@ -575,7 +575,7 @@ const JobDetailsPage = () => {
                                 unapplyJob(id, {
                                   showSuccess: (msg) => {
                                     Swal.fire("Success", msg, "success");
-                                    router.push("/employee/applied-jobs");
+                                    router.push("/job-seeker/applied-jobs");
                                   },
                                   showError: (msg) =>
                                     Swal.fire("Error", msg, "error"),

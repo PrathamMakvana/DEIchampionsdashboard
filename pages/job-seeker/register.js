@@ -71,7 +71,7 @@ export default function Home() {
     console.log("🚀data --->", data);
     if (data?.success) {
       navigate.push({
-        pathname: "/employee/otp-verify",
+        pathname: "/job-seeker/otp-verify",
         query: { userId: data.data.userId, roleId: data.data.roleId },
       });
     }
@@ -79,7 +79,7 @@ export default function Home() {
 
   return (
     <>
-      <PageHead headTitle="Employee Register - DEI Champions Job Portal" />
+      <PageHead headTitle="job-seeker Register - DEI Champions Job Portal" />
       <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
         <div
           className="row justify-content-center w-100"
@@ -437,7 +437,7 @@ export default function Home() {
                 <div className="mt-4 text-center small terms-text">
                   <div className="form-footer" style={{ background: "none" }}>
                     Already have an account?{" "}
-                    <Link href="/employee/login">Sign In</Link>
+                    <Link href="/job-seeker/login">Sign In</Link>
                   </div>
                 </div>
               </div>

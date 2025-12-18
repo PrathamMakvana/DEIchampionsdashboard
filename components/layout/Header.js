@@ -34,7 +34,7 @@ export default function Header() {
     });
   });
 
-  const employee = router.pathname.includes("employee");
+  const employee = router.pathname.includes("job-seeker");
 
   const handleMarkAsReadClick = (notificationId, e) => {
     // Prevent event bubbling
@@ -118,7 +118,7 @@ export default function Header() {
                 {!employee && (
                   <Link
                     className="btn btn-default icon-edit hover-up"
-                    href="employers/post-job"
+                    href="recruiter/post-job"
                   >
                     Post Job
                   </Link>
@@ -310,7 +310,9 @@ export default function Header() {
                         <div style={{ padding: "8px 0" }}>
                           {notifications.map((notification, index) => {
                             const icon = getNotificationIcon(notification.type);
-                            const color = getNotificationColor(notification.type);
+                            const color = getNotificationColor(
+                              notification.type
+                            );
                             const timeAgo = getTimeAgo(notification.createdAt);
 
                             return (
@@ -338,7 +340,9 @@ export default function Header() {
                                 }}
                                 onMouseLeave={(e) => {
                                   e.currentTarget.style.backgroundColor =
-                                    notification.isRead ? "transparent" : "#f0f9ff";
+                                    notification.isRead
+                                      ? "transparent"
+                                      : "#f0f9ff";
                                   e.currentTarget.style.paddingLeft = "24px";
                                 }}
                               >
@@ -389,11 +393,16 @@ export default function Header() {
                                       >
                                         {notification.title}
                                       </h6>
-                                      
+
                                       {/* Mark as read button for individual notification */}
                                       {!notification.isRead ? (
                                         <button
-                                          onClick={(e) => handleMarkAsReadClick(notification.id, e)}
+                                          onClick={(e) =>
+                                            handleMarkAsReadClick(
+                                              notification.id,
+                                              e
+                                            )
+                                          }
                                           style={{
                                             background: "transparent",
                                             border: `1px solid ${color}40`,
@@ -408,12 +417,16 @@ export default function Header() {
                                             whiteSpace: "nowrap",
                                           }}
                                           onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = color;
-                                            e.currentTarget.style.color = "white";
-                                            e.currentTarget.style.borderColor = color;
+                                            e.currentTarget.style.background =
+                                              color;
+                                            e.currentTarget.style.color =
+                                              "white";
+                                            e.currentTarget.style.borderColor =
+                                              color;
                                           }}
                                           onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = "transparent";
+                                            e.currentTarget.style.background =
+                                              "transparent";
                                             e.currentTarget.style.color = color;
                                             e.currentTarget.style.borderColor = `${color}40`;
                                           }}
@@ -529,8 +542,8 @@ export default function Header() {
             className="dropdown-item"
             href={
               employee
-                ? "/employee/Profile-details"
-                : "/employers/company-details"
+                ? "/job-seeker/Profile-details"
+                : "/recruiter/company-details"
             }
           >
             Profile
@@ -556,7 +569,7 @@ export default function Header() {
                       {user?.roleId === 2
                         ? "Employer"
                         : user?.roleId === 3
-                        ? "Employee"
+                        ? "job-seeker"
                         : "Admin"}
                     </span>
                   </div>

@@ -85,7 +85,7 @@ export default function VerifyEmail() {
     }
   };
   const handleGoToDashboard = () => {
-    router.push("/employee");
+    router.push("/job-seeker");
   };
 
   const handleVerifyClick = () => {

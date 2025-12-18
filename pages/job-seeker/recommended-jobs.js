@@ -242,7 +242,7 @@ export default function RecommendedJobs() {
                     <div className="job-actions flex justify-between pt-3 border-t mt-auto">
                       <Link
                         className="btn-details text-blue-600 hover:underline flex items-center text-sm"
-                        href={`/employee/job-details/${job._id}`}
+                        href={`/job-seeker/job-details/${job._id}`}
                       >
                         <i className="bi bi-eye me-1"></i> View Details
                       </Link>

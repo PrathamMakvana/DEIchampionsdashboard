@@ -501,7 +501,7 @@ const JobSeekerProfile = () => {
                         <button
                           className="edit-section-btn"
                           onClick={() =>
-                            router.push("/employee/update-profile")
+                            router.push("/job-seeker/update-profile")
                           }
                         >
                           <i className="bi bi-pencil-square"></i>
@@ -577,7 +577,7 @@ const JobSeekerProfile = () => {
                         <button
                           className="edit-section-btn"
                           onClick={() =>
-                            router.push("/employee/update-profile")
+                            router.push("/job-seeker/update-profile")
                           }
                         >
                           <i className="bi bi-pencil-square"></i>
@@ -621,7 +621,7 @@ const JobSeekerProfile = () => {
                         <button
                           className="edit-section-btn"
                           onClick={() =>
-                            router.push("/employee/update-profile")
+                            router.push("/job-seeker/update-profile")
                           }
                         >
                           <i className="bi bi-pencil-square"></i>
@@ -659,7 +659,7 @@ const JobSeekerProfile = () => {
                         <button
                           className="edit-section-btn"
                           onClick={() =>
-                            router.push("/employee/update-profile")
+                            router.push("/job-seeker/update-profile")
                           }
                         >
                           <i className="bi bi-pencil-square"></i>

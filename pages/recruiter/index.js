@@ -140,31 +140,31 @@ export default function EmployerDashboard() {
   //     title: "All Jobs",
   //     count: stats.totalJobs,
   //     icon: <FaClipboardList size={40} color={iconColor} />,
-  //     link: "/employers/manage-jobs",
+  //     link: "/recruiter/manage-jobs",
   //   },
   //   {
   //     title: "Open Jobs",
   //     count: stats.openJobs,
   //     icon: <FaCheckCircle size={40} color={iconColor} />,
-  //     link: "/employers/manage-jobs?filter=open",
+  //     link: "/recruiter/manage-jobs?filter=open",
   //   },
   //   {
   //     title: "Closed Jobs",
   //     count: stats.closedJobs,
   //     icon: <FaTimesCircle size={40} color={iconColor} />,
-  //     link: "/employers/manage-jobs?filter=closed",
+  //     link: "/recruiter/manage-jobs?filter=closed",
   //   },
   //   {
   //     title: "Draft Jobs",
   //     count: stats.draftJobs,
   //     icon: <FaClock size={40} color={iconColor} />,
-  //     link: "/employers/manage-jobs?filter=draft",
+  //     link: "/recruiter/manage-jobs?filter=draft",
   //   },
   //   {
   //     title: "Total Applicants",
   //     count: stats.totalApplicants,
   //     icon: <FaUserTie size={40} color={iconColor} />,
-  //     link: "/employers/manage-jobs",
+  //     link: "/recruiter/manage-jobs",
   //   },
   // ];
 
@@ -847,7 +847,7 @@ export default function EmployerDashboard() {
                                   }}
                                 >
                                   <Link
-                                    href={`/employers/manage-job-details?id=${job._id}`}
+                                    href={`/recruiter/manage-job-details?id=${job._id}`}
                                     style={{
                                       flex: 1,
                                       textAlign: "center",
@@ -886,7 +886,7 @@ export default function EmployerDashboard() {
                                   </Link>
 
                                   <Link
-                                    href={`/employers/post-job?id=${job._id}`}
+                                    href={`/recruiter/post-job?id=${job._id}`}
                                     style={{
                                       flex: 1,
                                       textAlign: "center",
@@ -974,7 +974,7 @@ export default function EmployerDashboard() {
                               and grow your team
                             </p>
                             <Link
-                              href="/employers/post-job"
+                              href="/recruiter/post-job"
                               style={{
                                 display: "inline-flex",
                                 alignItems: "center",
@@ -1026,7 +1026,7 @@ export default function EmployerDashboard() {
                             }}
                           >
                             <Link
-                              href="/employers/manage-jobs"
+                              href="/recruiter/manage-jobs"
                               style={{
                                 color: "#4F46E5",
                                 textDecoration: "none",

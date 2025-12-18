@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 export default function MobileMenu({ handleToggle, isToggled }) {
   const router = useRouter();
 
-  const sidebarLinks = router.pathname.includes("employee")
+  const sidebarLinks = router.pathname.includes("job-seeker")
     ? mobileLinks
     : postermobileLinks;
 

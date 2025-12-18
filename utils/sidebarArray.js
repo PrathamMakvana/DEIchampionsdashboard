@@ -1,11 +1,11 @@
 // export const employersLinks = [
 //   {
-//     path: "/employers",
+//     path: "/recruiter",
 //     label: "Dashboard",
 //     icon: "dashboard.svg",
 //   },
 //   {
-//     path: "/employers/post-job",
+//     path: "/recruiter/post-job",
 //     label: "Post Job",
 //     icon: "candidates.svg",
 //   },
@@ -54,7 +54,7 @@
 
 // export const employeeLinks = [
 //   {
-//     path: "/employee",
+//     path: "/job-seeker",
 //     label: "Dashboard",
 //     icon: "dashboard.svg",
 //   },
@@ -64,7 +64,7 @@
 //     icon: "candidates.svg",
 //   },
 //   {
-//     path: "/employee/cv-manager",
+//     path: "/job-seeker/cv-manager",
 //     label: "CV Manager",
 //     icon: "cv-manage.svg",
 //   },
@@ -118,63 +118,63 @@
 
 export const employersLinks = [
   {
-    path: "/employers",
+    path: "/recruiter",
     label: "Dashboard",
     icon: "bi-speedometer2", // Dashboard
   },
   {
-    path: "/employers/post-job",
+    path: "/recruiter/post-job",
     label: "Post Job",
     icon: "bi-clipboard-plus", // Post Job
   },
   {
-    path: "/employers/manage-jobs",
+    path: "/recruiter/manage-jobs",
     label: "Manage Job",
     icon: "bi-clipboard-plus", // Post Job
   },
   // {
-  //   path: "/employers/candidate",
+  //   path: "/recruiter/candidate",
   //   label: "Candidates",
   //   icon: "bi-list-ul", // Posted Jobs
   // },
   // {
-  //   path: "/employers/candidates",
+  //   path: "/recruiter/candidates",
   //   label: "Candidates",
   //   icon: "bi-people", // Candidates
   // },
   {
-    path: "/employers/company-details",
+    path: "/recruiter/company-details",
     label: "My Profile",
     icon: "bi-person", // Profile
   },
 
   {
-    path: "/employers/estimate",
+    path: "/recruiter/estimate",
     label: "My Estimates",
     icon: "bi-envelope-paper",
   },
   {
-    path: "/employers/settings",
+    path: "/recruiter/settings",
     label: "Settings",
     icon: "bi-gear",
   },
   // {
-  //   path: "/employers/update-profile",
+  //   path: "/recruiter/update-profile",
   //   label: "update Profile",
   //   icon: "bi-person", // Profile
   // },
   // {
-  //   path: "/employers/register",
+  //   path: "/recruiter/register",
   //   label: "Register",
   //   icon: "bi-person-plus", // Register
   // },
   // {
-  //   path: "/employers/settings",
+  //   path: "/recruiter/settings",
   //   label: "Settings",
   //   icon: "bi-gear", // Settings
   // },
   {
-    path: "/employers/login",
+    path: "/recruiter/login",
     label: "Logout",
     icon: "bi-box-arrow-right", // Logout
   },
@@ -182,86 +182,86 @@ export const employersLinks = [
 
 export const employeeLinks = [
   {
-    path: "/employee",
+    path: "/job-seeker",
     label: "Dashboard",
     icon: "bi-speedometer2", // Dashboard
   },
   {
-    path: "/employee/applied-jobs",
+    path: "/job-seeker/applied-jobs",
     label: "Applied Jobs",
     icon: "bi-briefcase", // Jobs
   },
   {
-    path: "/employee/save-jobs",
+    path: "/job-seeker/save-jobs",
     label: "Saved Jobs",
     icon: "bi-list-task", // Jobs
   },
   // {
-  //   path: "/employee/recommended-jobs",
+  //   path: "/job-seeker/recommended-jobs",
   //   label: "Recommended Job",
   //   icon: "bi-people",
   // },
   {
-    path: "/employee/Profile-details",
+    path: "/job-seeker/Profile-details",
     label: "Profile Details",
     icon: "bi-file-earmark-person", // CV Manager
   },
 
   // {
-  //   path: "/employee/cv-manager",
+  //   path: "/job-seeker/cv-manager",
   //   label: "CV Manager",
   //   icon: "bi-file-earmark-person", // CV Manager
   // },
   // {
-  //   path: "/employee/recruiters",
+  //   path: "/job-seeker/recruiters",
   //   label: "Recruiters",
   //   icon: "bi-people", // Recruiters
   // },
   // {
-  //   path: "/employee/tasks",
+  //   path: "/job-seeker/tasks",
   //   label: "Tasks List",
   //   icon: "bi-list-task", // Tasks
   // },
   // {
-  //   path: "/employee/profile",
+  //   path: "/job-seeker/profile",
   //   label: "My Profile",
   //   icon: "bi-person", // Profile
   // },
   {
-    path: "/employee/settings",
+    path: "/job-seeker/settings",
     label: "Settings",
     icon: "bi-gear", // Settings
   },
   // {
-  //   path: "/employee/register",
+  //   path: "/job-seeker/register",
   //   label: "Register",
   //   icon: "bi-person-plus", // Register
   // },
   {
-    path: "/employee/login",
+    path: "/job-seeker/login",
     label: "Logout",
     icon: "bi-box-arrow-right", // Logout
   },
 ];
 export const mobileLinks = [
-  { path: "/employee", label: "Dashboard", icon: "dashboard.svg" },
+  { path: "/job-seeker", label: "Dashboard", icon: "dashboard.svg" },
   {
-    path: "/employee/applied-jobs",
+    path: "/job-seeker/applied-jobs",
     label: "Applied Jobs",
     icon: "candidates.svg",
   },
-  { path: "/employee/save-jobs", label: "Save Jobs", icon: "tasks.svg" },
+  { path: "/job-seeker/save-jobs", label: "Save Jobs", icon: "tasks.svg" },
   {
-    path: "/employee/Profile-details",
+    path: "/job-seeker/Profile-details",
     label: "Profile Details",
     icon: "recruiters.svg",
   },
   {
-    path: "/employee/settings",
+    path: "/job-seeker/settings",
     label: "Settings",
     icon: "settings.svg", // Recruiters
   },
-  // { path: "/employee/settings", label: "Settings", icon: "tasks.svg" },
+  // { path: "/job-seeker/settings", label: "Settings", icon: "tasks.svg" },
   // { path: "/profile", label: "My Profiles", icon: "profiles.svg" },
   // { path: "/my-resume", label: "CV Manage", icon: "cv-manage.svg" },
   // { path: "/settings", label: "Setting", icon: "settings.svg" },
@@ -270,30 +270,30 @@ export const mobileLinks = [
   //   label: "Authentication",
   //   icon: "authentication.svg",
   // },
-  { path: "/employee/login", label: "Logout", icon: "logout.svg" },
+  { path: "/job-seeker/login", label: "Logout", icon: "logout.svg" },
 ];
 
 export const postermobileLinks = [
-  { path: "/employers", label: "Dashboard", icon: "dashboard.svg" },
+  { path: "/recruiter", label: "Dashboard", icon: "dashboard.svg" },
   {
-    path: "/employers/post-job",
+    path: "/recruiter/post-job",
     label: "Post Job",
     icon: "candidates.svg",
   },
-  { path: "/employers/manage-jobs", label: "Manage Job", icon: "tasks.svg" },
+  { path: "/recruiter/manage-jobs", label: "Manage Job", icon: "tasks.svg" },
   {
-    path: "/employers/candidate",
+    path: "/recruiter/candidate",
     label: "Candidates",
     icon: "recruiters.svg",
   },
-  // { path: "/employee/settings", label: "Settings", icon: "tasks.svg" },
-  { path: "/employers/profile", label: "My Profile", icon: "profiles.svg" },
+  // { path: "/job-seeker/settings", label: "Settings", icon: "tasks.svg" },
+  { path: "/recruiter/profile", label: "My Profile", icon: "profiles.svg" },
   // { path: "/my-resume", label: "CV Manage", icon: "cv-manage.svg" },
-  { path: "/employers/settings", label: "Setting", icon: "settings.svg" },
+  { path: "/recruiter/settings", label: "Setting", icon: "settings.svg" },
   // {
   //   path: "/authentication",
   //   label: "Authentication",
   //   icon: "authentication.svg",
   // },
-  { path: "/employers/login", label: "Logout", icon: "logout.svg" },
+  { path: "/recruiter/login", label: "Logout", icon: "logout.svg" },
 ];

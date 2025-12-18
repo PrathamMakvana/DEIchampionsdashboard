@@ -4,7 +4,7 @@ export default function ListView({ job }) {
   const router = useRouter();
   const handleNavigate = () => {
     // Navigate to job details page
-    router.push(`/employers/manage-job-details`); // Assuming job.id is available
+    router.push(`/recruiter/manage-job-details`); // Assuming job.id is available
   };
   return (
     <>

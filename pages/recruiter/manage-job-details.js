@@ -110,7 +110,7 @@ const JobDetailsPage = () => {
   };
 
   const handleEditJob = () => {
-    router.push(`/employers/post-job?id=${id}`);
+    router.push(`/recruiter/post-job?id=${id}`);
   };
 
   const handleDeleteJob = () => {
@@ -129,7 +129,7 @@ const JobDetailsPage = () => {
           deleteJob(id, {
             showSuccess: (msg) => {
               Swal.fire("Deleted!", msg, "success").then(() => {
-                router.push("/employers/manage-jobs");
+                router.push("/recruiter/manage-jobs");
               });
             },
             showError: (msg) => {
@@ -251,7 +251,7 @@ const JobDetailsPage = () => {
               </p>
               <button
                 className="btn btn-primary mt-3"
-                onClick={() => router.push("/employers/manage-jobs")}
+                onClick={() => router.push("/recruiter/manage-jobs")}
               >
                 Back to Job Listings
               </button>
@@ -612,7 +612,7 @@ const JobDetailsPage = () => {
                             className="btn btn-outline-primary btn-sm"
                             onClick={() =>
                               router.push(
-                                `/employers/application-details?id=${applicant._id}`
+                                `/recruiter/application-details?id=${applicant._id}`
                               )
                             }
                           >

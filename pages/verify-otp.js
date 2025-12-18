@@ -119,7 +119,7 @@ export default function VerifyOTP() {
 
       if (data?.success) {
         setTimeout(() => {
-          navigate.push("/employee");
+          navigate.push("/job-seeker");
         }, 2000);
       } else {
         // clear OTP if invalid

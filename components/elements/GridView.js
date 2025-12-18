@@ -8,7 +8,7 @@ export default function GridView({ job }) {
   const handleModal = () => setModalToggle(!modalToggle);
   const handleNavigate = () => {
     // Navigate to job details page
-    router.push(`/employers/manage-job-details`); // Assuming job.id is available
+    router.push(`/recruiter/manage-job-details`); // Assuming job.id is available
   };
 
   return (

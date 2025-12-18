@@ -48,7 +48,7 @@ export default function Home() {
     console.log("🚀data --->", data);
 
     if (data?.user?.roleId) {
-      navigate.push(data.user.roleId === 3 ? "/employee" : "/employers");
+      navigate.push(data.user.roleId === 3 ? "/job-seeker" : "/recruiter");
     }
   };
 

@@ -85,14 +85,14 @@
 
 //           // Redirect to OTP verification page
 //           navigate.push({
-//             pathname: "/employers/otp-verify",
+//             pathname: "/recruiter/otp-verify",
 //             query: { userId: data.data.userId, roleId: data.data.roleId },
 //           });
 //           return;
 //         }
 
 //         // Active user - proceed with normal login flow
-//         navigate.push("/employers");
+//         navigate.push("/recruiter");
 //       }
 //     } catch (error) {
 //       console.error("Login error:", error);
@@ -235,7 +235,7 @@
 //                     <p>
 //                       New to Dei Champions?{" "}
 //                       <Link
-//                         href="/employers/register"
+//                         href="/recruiter/register"
 //                         className="rt-link"
 //                         style={{ fontWeight: "bold" }}
 //                       >
@@ -343,7 +343,7 @@ const LoginPage = () => {
 
           // Redirect to OTP verification page
           navigate.push({
-            pathname: "/employers/otp-verify",
+            pathname: "/recruiter/otp-verify",
             query: {
               userId: data.data.userId,
               roleId: data.data.roleId,
@@ -354,7 +354,7 @@ const LoginPage = () => {
         }
 
         // Active user - proceed with normal login flow
-        navigate.push("/employers");
+        navigate.push("/recruiter");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -499,7 +499,7 @@ const LoginPage = () => {
                       <p>
                         New to Dei Champions?{" "}
                         <Link
-                          href="/employers/register"
+                          href="/recruiter/register"
                           className="rt-link"
                           style={{ fontWeight: "bold" }}
                         >

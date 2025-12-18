@@ -286,7 +286,7 @@ export default function Settings() {
               </h4>
               <p style={{ color: "#6c757d", lineHeight: 1.6 }}>
                 You are about to make your diversity information visible to all
-                employers. This means any employer on the platform will be able
+                recruiter. This means any employer on the platform will be able
                 to view your professional profile and category information.
               </p>
               <p
@@ -524,7 +524,7 @@ export default function Settings() {
                             minHeight: "50px",
                           }}
                         >
-                          Your diversity details stay hidden from all employers.
+                          Your diversity details stay hidden from all recruiter.
                         </p>
 
                         <div style={{ marginTop: "16px" }}>
@@ -634,7 +634,7 @@ export default function Settings() {
                             minHeight: "50px",
                           }}
                         >
-                          Visible only to verified inclusive employers.
+                          Visible only to verified inclusive recruiter.
                         </p>
 
                         <div style={{ marginTop: "16px" }}>
@@ -744,7 +744,7 @@ export default function Settings() {
                             minHeight: "50px",
                           }}
                         >
-                          Your diversity info is visible to all employers.
+                          Your diversity info is visible to all recruiter.
                         </p>
 
                         <div style={{ marginTop: "16px" }}>

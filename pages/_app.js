@@ -40,48 +40,48 @@ function MyApp({ Component, pageProps }) {
     const token = localStorage.getItem("jobportaltoken");
     const role = Number(localStorage.getItem("userRole"));
     const publicPaths = [
-      "/employee/login",
-      "/employee/register",
+      "/job-seeker/login",
+      "/job-seeker/register",
       "/verify-email",
       "/forgot-password",
-      "/employers/login",
-      "/employers/register",
-      "/employers/otp-verify",
-      "/employee/otp-verify",
+      "/recruiter/login",
+      "/recruiter/register",
+      "/recruiter/otp-verify",
+      "/job-seeker/otp-verify",
       "/verify-otp",
       "/reset-password",
     ];
 
     const pathIsPublic = publicPaths.includes(router.pathname);
-    const isEmployeeRoute = router.pathname.startsWith("/employee");
-    const isEmployerRoute = router.pathname.startsWith("/employers");
+    const isEmployeeRoute = router.pathname.startsWith("/job-seeker");
+    const isEmployerRoute = router.pathname.startsWith("/recruiter");
 
     // ✅ Allow public routes for everyone (logged in or not)
     if (pathIsPublic) return;
 
     // 🧩 If route is not public, apply auth checks
     if (!isEmployeeRoute && !isEmployerRoute) {
-      router.push("/employee/login");
+      router.push("/job-seeker/login");
       return;
     }
 
     if (!token) {
-      router.push("/employee/login");
+      router.push("/job-seeker/login");
       return;
     }
 
     if (role === 0 || isNaN(role)) {
-      router.push("/employee/login");
+      router.push("/job-seeker/login");
       return;
     }
 
     if (role === ROLE.JOB_SEEKER && isEmployerRoute) {
-      router.push("/employee");
+      router.push("/job-seeker");
       return;
     }
 
     if (role === ROLE.JOB_POSTER && isEmployeeRoute) {
-      router.push("/employers");
+      router.push("/recruiter");
       return;
     }
   }, [router.pathname]);

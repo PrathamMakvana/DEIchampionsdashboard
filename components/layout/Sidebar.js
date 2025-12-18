@@ -15,14 +15,14 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   const toggleTrueFalse = () => setToggled(!isToggled);
   const router = useRouter();
-  const isEmployeeRoute = router.pathname.startsWith("/employee");
+  const isEmployeeRoute = router.pathname.startsWith("/job-seeker");
   const handleLogout = () => {
     dispatch(logoutUser());
 
-    router.push(isEmployeeRoute ? "/employee/login" : "/employers/login");
+    router.push(isEmployeeRoute ? "/job-seeker/login" : "/recruiter/login");
   };
 
-  const sidebarLinks = router.pathname.includes("employee")
+  const sidebarLinks = router.pathname.includes("job-seeker")
     ? employeeLinks
     : employersLinks;
   return (

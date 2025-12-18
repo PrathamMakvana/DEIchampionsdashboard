@@ -132,7 +132,7 @@ export default function Home() {
       title: "All Applied Applications",
       count: total,
       icon: <FaClipboardList size={40} color={iconColor} />,
-      link: `/employee/applied-jobs?filter=${encodeURIComponent(
+      link: `/job-seeker/applied-jobs?filter=${encodeURIComponent(
         "All Applications"
       )}`,
     },
@@ -140,25 +140,25 @@ export default function Home() {
       title: "All Saved Jobs",
       count: savedTotal,
       icon: <FaBookmark size={40} color={iconColor} />,
-      link: `/employee/save-jobs`,
+      link: `/job-seeker/save-jobs`,
     },
     {
       title: "Pending",
       count: statusCounts.Pending,
       icon: <FaClock size={40} color={iconColor} />,
-      link: `/employee/applied-jobs?filter=${encodeURIComponent("Pending")}`,
+      link: `/job-seeker/applied-jobs?filter=${encodeURIComponent("Pending")}`,
     },
     {
       title: "Accepted",
       count: statusCounts.Accepted,
       icon: <FaCheckCircle size={40} color={iconColor} />,
-      link: `/employee/applied-jobs?filter=${encodeURIComponent("Accepted")}`,
+      link: `/job-seeker/applied-jobs?filter=${encodeURIComponent("Accepted")}`,
     },
     {
       title: "Interviewing",
       count: statusCounts.Interviewing,
       icon: <FaComments size={40} color={iconColor} />,
-      link: `/employee/applied-jobs?filter=${encodeURIComponent(
+      link: `/job-seeker/applied-jobs?filter=${encodeURIComponent(
         "Interviewing"
       )}`,
     },
@@ -166,7 +166,7 @@ export default function Home() {
       title: "Negotiation",
       count: statusCounts.Negotiation,
       icon: <FaHandshake size={40} color={iconColor} />,
-      link: `/employee/applied-jobs?filter=${encodeURIComponent(
+      link: `/job-seeker/applied-jobs?filter=${encodeURIComponent(
         "Negotiation"
       )}`,
     },
@@ -174,13 +174,13 @@ export default function Home() {
       title: "Hired",
       count: statusCounts.Hired,
       icon: <FaUserTie size={40} color={iconColor} />,
-      link: `/employee/applied-jobs?filter=${encodeURIComponent("Hired")}`,
+      link: `/job-seeker/applied-jobs?filter=${encodeURIComponent("Hired")}`,
     },
     {
       title: "Rejected",
       count: statusCounts.Rejected,
       icon: <FaTimesCircle size={40} color={iconColor} />,
-      link: `/employee/applied-jobs?filter=${encodeURIComponent("Rejected")}`,
+      link: `/job-seeker/applied-jobs?filter=${encodeURIComponent("Rejected")}`,
     },
   ];
 
@@ -501,7 +501,7 @@ export default function Home() {
                         <div className="job-actions flex justify-between pt-2 border-t mt-auto">
                           <Link
                             className="btn-details text-blue-600 hover:underline flex items-center text-xs"
-                            href={`/employee/job-details/${job._id}`}
+                            href={`/job-seeker/job-details/${job._id}`}
                           >
                             <i className="bi bi-eye me-1"></i> View Details
                           </Link>

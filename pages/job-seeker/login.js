@@ -33,7 +33,7 @@ export default function Login() {
           profileCompletionData &&
           profileCompletionData.profileCompletion < 100
         ) {
-          navigate.push("/employee/Profile-details");
+          navigate.push("/job-seeker/Profile-details");
         }
       }
     };
@@ -94,13 +94,13 @@ export default function Login() {
           if (roleId === 2) {
             // Employer
             navigate.push({
-              pathname: "/employers/otp-verify",
+              pathname: "/recruiter/otp-verify",
               query: { userId: userId, roleId: roleId },
             });
           } else if (roleId === 3) {
             // Employee
             navigate.push({
-              pathname: "/employee/otp-verify",
+              pathname: "/job-seeker/otp-verify",
               query: { userId: userId, roleId: roleId },
             });
           }
@@ -113,9 +113,9 @@ export default function Login() {
 
         // Redirect based on profile completion
         if (profileData?.profileCompletion < 100) {
-          navigate.push("/employee/Profile-details");
+          navigate.push("/job-seeker/Profile-details");
         } else {
-          navigate.push("/employee");
+          navigate.push("/job-seeker");
         }
       }
     } catch (error) {
@@ -130,7 +130,7 @@ export default function Login() {
 
   return (
     <>
-      <PageHead headTitle="Employee Login - DEI Champions Job Portal" />
+      <PageHead headTitle="job-seeker Login - DEI Champions Job Portal" />
       <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 register-container">
         <div className="row justify-content-center w-100">
           <div className="col-lg-5 col-md-7 col-sm-9">
@@ -268,7 +268,7 @@ export default function Login() {
                   <p className="small text-muted">
                     Don't have an account?{" "}
                     <Link
-                      href="/employee/register"
+                      href="/job-seeker/register"
                       className="text-link fw-medium"
                     >
                       Sign up for free
