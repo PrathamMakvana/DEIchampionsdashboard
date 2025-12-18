@@ -15,6 +15,7 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useRouter();
   const loading = useSelector((state) => state.auth.loading);
+  console.log("🚀loading --->", loading);
   const user = useSelector((state) => state.auth.user);
   const profileCompletionData = useSelector(
     (state) => state.auth.profileCompletion
@@ -23,23 +24,18 @@ export default function Login() {
 
   // Check profile completion and redirect if not 100%
   useEffect(() => {
-    const checkProfileCompletion = async () => {
-      if (user) {
-        // Dispatch to get latest profile completion data
-        await dispatch(getuserProfileCompletionData());
+    if (!user) return;
 
-        // Check if profile completion exists and is less than 100%
-        if (
-          profileCompletionData &&
-          profileCompletionData.profileCompletion < 100
-        ) {
-          navigate.push("/job-seeker/Profile-details");
-        }
+    const checkProfileCompletion = async () => {
+      const res = await dispatch(getuserProfileCompletionData());
+
+      if (res?.profileCompletion < 100) {
+        navigate.push("/job-seeker/Profile-details");
       }
     };
 
     checkProfileCompletion();
-  }, [user, profileCompletionData, dispatch, navigate]);
+  }, [user]);
 
   const loginInitialValues = {
     email: "",
