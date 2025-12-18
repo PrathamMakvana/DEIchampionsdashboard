@@ -44,7 +44,8 @@ export default function Settings() {
           userSettings.notifications !== undefined
             ? userSettings.notifications
             : true,
-        smsAlerts: userSettings.smsAlerts || true,
+        smsAlerts:
+          userSettings.smsAlerts !== undefined ? userSettings.smsAlerts : true,
         emailAlerts: {
           jobAlerts:
             userSettings.emailAlerts?.jobAlerts !== undefined

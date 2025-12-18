@@ -169,17 +169,32 @@ const ApplicationDetails = () => {
   };
 
 
-  const handleResumeDownload = async () => {
+const getResumeFileName = () => {
+  if (!resume) return "Resume not available";
+  
+  const fileName = resume.split(/[\\/]/).pop();
+  return fileName || "resume.pdf";
+};
+
+const handleResumeDownload = async () => {
+  if (!resume) {
+    console.error("No resume available");
+    return;
+  }
+
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resume}`,
-      {
-        method: "GET",
-      }
-    );
+    // ✅ Remove the "src/" prefix if it exists
+    const resumePath = resume.replace(/^src[\\/]/, "");
+    const fileUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${resumePath}`;
+
+    console.log("Downloading from:", fileUrl); // For debugging
+
+    const response = await fetch(fileUrl, {
+      method: "GET",
+    });
 
     if (!response.ok) {
-      throw new Error("Failed to download file");
+      throw new Error(`Failed to download file: ${response.status}`);
     }
 
     const blob = await response.blob();
@@ -187,16 +202,22 @@ const ApplicationDetails = () => {
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = resume?.split("/").pop() || "resume.pdf"; // filename only
+    
+    // Extract filename from the path
+    const fileName = resume.split(/[\\/]/).pop() || "resume.pdf";
+    link.download = fileName;
+    
+    document.body.appendChild(link);
     link.click();
 
-    // Clean memory
+    // Cleanup
+    link.remove();
     window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error("Download error:", error);
+    alert("Failed to download resume. Please try again.");
   }
 };
-
 
   return (
     <Layout>
@@ -464,7 +485,7 @@ const ApplicationDetails = () => {
               )}
 
               {/* Documents */}
-            {resume && (
+{resume && (
   <div className="appView-section">
     <h3 className="appView-section-title">
       <FaFilePdf /> Documents
@@ -474,7 +495,7 @@ const ApplicationDetails = () => {
       <FaFilePdf className="text-danger me-3 fs-3" />
       <div>
         <h5 className="mb-0">Resume</h5>
-        <p className="mb-0 text-muted">{resume}</p>
+        <p className="mb-0 text-muted">{getResumeFileName()}</p>
       </div>
 
       <button

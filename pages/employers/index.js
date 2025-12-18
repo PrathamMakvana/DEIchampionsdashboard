@@ -25,6 +25,8 @@ import {
   getUserTermsAcceptance,
 } from "@/api/termsApi";
 import Swal from "sweetalert2";
+import AddInquiryModal from "@/components/AddInquiryModal"; // adjust path if needed
+
 
 export default function EmployerDashboard() {
   const dispatch = useDispatch();
@@ -34,6 +36,7 @@ export default function EmployerDashboard() {
   const [showTermsPopup, setShowTermsPopup] = useState(false);
   const [agree, setAgree] = useState(false);
   const [hasCheckedAcceptance, setHasCheckedAcceptance] = useState(false);
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
 
   const {
     termsData,
@@ -452,17 +455,31 @@ export default function EmployerDashboard() {
               <div className="row mb-4">
                 <div className="col-12">
                   <div className="dash-services-section">
-                    <div className="dash-services-header">
-                      <div className="dash-services-title">
-                        <FaCog className="dash-services-title-icon" />
-                        <h3 className="dash-services-title-text">
-                          Our Services
-                        </h3>
-                      </div>
-                      <div className="dash-services-subtitle">
-                        Professional services offered by your company
-                      </div>
-                    </div>
+                 <div className="dash-services-header">
+  <div className="dash-services-title">
+    <FaCog className="dash-services-title-icon" />
+    <h3 className="dash-services-title-text">Our Services</h3>
+  </div>
+  <div className="dash-services-subtitle">
+    Professional services offered by your company
+  </div>
+  <button
+    className="btn btn-primary"
+    style={{ marginLeft: "auto", marginTop:'10px'}}
+    onClick={() => setShowInquiryModal(true)}
+  >
+    Add Inquiry
+  </button>
+</div>
+
+{showInquiryModal && (
+  <AddInquiryModal
+    user={user}
+    isOpen={showInquiryModal}
+    onClose={() => setShowInquiryModal(false)}
+  />
+)}
+
 
                     {user?.services && user.services.length > 0 ? (
                       <div className="dash-services-grid">

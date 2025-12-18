@@ -94,10 +94,18 @@ export const getJobs = () => async (dispatch) => {
 
 export const getJob = (id) => async (dispatch) => {
   try {
+    if (!id || typeof id !== "string") {
+      console.warn("Invalid job id:", id);
+      return;
+    }
+
     dispatch(setLoading(true));
+
     const res = await fetcher(`/job/get-one/${id}`);
+
     dispatch(setCurrentJob(res?.data || null));
     dispatch(setLoading(false));
+
     return res;
   } catch (error) {
     console.error("Error fetching job:", error);
@@ -105,6 +113,7 @@ export const getJob = (id) => async (dispatch) => {
     return null;
   }
 };
+
 
 export const updateJob =
   (id, formData, { showSuccess, showError }) =>
